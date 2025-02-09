@@ -1,14 +1,20 @@
-import { View, Text } from "react-native";
+import { View, Text, SafeAreaView, ScrollView } from "react-native";
 import React from "react";
 
 export default function Mypage() {
   return (
-    <View>
-      <Text>Mypage</Text>
-      <View>
-        <View></View>
-      </View>
-    </View>
+    <SafeAreaView
+      style={{
+        width: "100%",
+        height: "100%",
+        marginHorizontal: "auto",
+        flexDirection: "column",
+      }}
+    >
+      <ScrollView>
+        <Text>Mypage</Text>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
