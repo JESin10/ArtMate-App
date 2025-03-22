@@ -5,31 +5,44 @@ import {
   ScrollView,
   StyleSheet,
   TextInput,
+  ImageBackground,
 } from "react-native";
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { parseString } from "react-native-xml2js";
 
-// const AuthKey =
-//   "iUshbHgoTGazZCC2/6vIBZp/B97CWSUUeLAbmBto9st2Aj33IThDavcN4Cy1W8e/dbjWYG0yBe5qU2lZ/ZlPMg==";
+const SERVER_URL =
+  "https://apis.data.go.kr/B553457/nopenapi/rest/publicperformancedisplays";
+const API_KEY =
+  "iUshbHgoTGazZCC2/6vIBZp/B97CWSUUeLAbmBto9st2Aj33IThDavcN4Cy1W8e/dbjWYG0yBe5qU2lZ/ZlPMg==";
 
 export default function Artworks() {
-  // const getArtwork = async () => {
-  //   const list = await (
-  //     await fetch(
-  //       `http://apis.data.go.kr/B553457/nopenapi/rest/publicperformancedisplays`
-  //       //https://apis.data.go.kr/B553457/nopenapi/rest/cultureartspaces/artgallery?serviceKey=iUshbHgoTGazZCC2%2F6vIBZp%2FB97CWSUUeLAbmBto9st2Aj33IThDavcN4Cy1W8e%2FdbjWYG0yBe5qU2lZ%2FZlPMg%3D%3D&PageNo=1&numOfrows=10
-  //       // `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=${API_KEY}`
-  //     )
-  //   ).json();
-  //   // const filteredList = list.filter(({ dt_txt }) =>
-  //   //   dt_txt.endsWith("03:00:00")
-  //   // );
-  //   // setDays(filteredList);
-  //   console.log("list: ", list);
-  // };
+  const [artworks, setArtworks] = useState([]);
+  const [pageNum, setPageNum] = useState(1);
+  const [listCnt, setListCnt] = useState(10);
 
-  // useEffect(() => {
-  //   getArtwork();
-  // }, []);
+  const getArtwork = async () => {
+    try {
+      const response = await fetch(
+        `${SERVER_URL}/area?serviceKey=${API_KEY}&PageNo=${pageNum}&numOfrows=${listCnt}&place=${"서울"}`
+      );
+      const xmlText = await response.text(); // XML 데이터를 텍스트로 변환
+
+      parseString(xmlText, { explicitArray: false }, (err, jsonData) => {
+        if (err) {
+          console.error("XML 파싱 오류:", err);
+          return;
+        }
+        setArtworks(jsonData.response.body.items.item);
+      });
+    } catch (error) {
+      console.error("데이터 불러오기 오류:", error);
+    }
+  };
+
+  useEffect(() => {
+    getArtwork();
+  }, []);
+  console.log("artwork: ", artworks);
 
   return (
     <SafeAreaView
@@ -75,24 +88,18 @@ export default function Artworks() {
             </View>
           </View>
           <View style={styles.imageContainer}>
-            <View style={styles.artworks}>
-              <Text>Images</Text>
-            </View>
-            <View style={styles.artworks}>
-              <Text>Images</Text>
-            </View>
-            <View style={styles.artworks}>
-              <Text>Images</Text>
-            </View>
-            <View style={styles.artworks}>
-              <Text>Images</Text>
-            </View>
-            <View style={styles.artworks}>
-              <Text>Images</Text>
-            </View>
-            <View style={styles.artworks}>
-              <Text>Images</Text>
-            </View>
+            {artworks.length > 0 &&
+              artworks.map((artwork, index) => (
+                <View style={styles.artworks}>
+                  <ImageBackground
+                    source={{ uri: artwork.thumbnail }} // thumbnail을 배경으로 설정
+                    style={styles.imageBackground} // 배경 이미지 스타일
+                    imageStyle={styles.backgroundImage} // 배경 이미지의 스타일을 더 추가
+                  >
+                    <Text>{artwork.title}</Text>
+                  </ImageBackground>
+                </View>
+              ))}
           </View>
         </View>
       </ScrollView>
@@ -140,5 +147,11 @@ const styles = StyleSheet.create({
   condition: {
     fontWeight: "bold",
     marginLeft: 10,
+  },
+  imageBackground: {
+    width: "100%", // 배경 이미지의 너비
+    height: "100%", // 배경 이미지의 높이
+    justifyContent: "center", // 텍스트가 배경 이미지의 중앙에 오도록
+    alignItems: "center", // 텍스트가 수평 및 수직 중앙에 오도록
   },
 });

@@ -108,29 +108,6 @@ export default function Places() {
                   </View>
                 </View>
               ))}
-
-            {/* <View style={styles.imageContainer}>
-              <View style={styles.image}>
-                <Text>Images</Text>
-              </View>
-              <View style={styles.discriptions}>
-                <Text>discription</Text>
-                <Text>sub discription</Text>
-                <Text>hoilday</Text>
-                <Text>distant</Text>
-              </View>
-            </View>
-            <View style={styles.imageContainer}>
-              <View style={styles.image}>
-                <Text>Images</Text>
-              </View>
-              <View style={styles.discriptions}>
-                <Text>discription</Text>
-                <Text>sub discription</Text>
-                <Text>hoilday</Text>
-                <Text>distant</Text>
-              </View>
-            </View> */}
           </View>
         </View>
       </ScrollView>
