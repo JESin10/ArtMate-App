@@ -8,24 +8,24 @@ import {
 } from "react-native";
 import React from "react";
 
-const AuthKey =
-  "iUshbHgoTGazZCC2/6vIBZp/B97CWSUUeLAbmBto9st2Aj33IThDavcN4Cy1W8e/dbjWYG0yBe5qU2lZ/ZlPMg==";
+// const AuthKey =
+//   "iUshbHgoTGazZCC2/6vIBZp/B97CWSUUeLAbmBto9st2Aj33IThDavcN4Cy1W8e/dbjWYG0yBe5qU2lZ/ZlPMg==";
 
 export default function Artworks() {
-  const getArtwork = async () => {
-    const list = await (
-      await fetch(
-        `http://apis.data.go.kr/B553457/nopenapi/rest/publicperformancedisplays`
-        //https://apis.data.go.kr/B553457/nopenapi/rest/cultureartspaces/artgallery?serviceKey=iUshbHgoTGazZCC2%2F6vIBZp%2FB97CWSUUeLAbmBto9st2Aj33IThDavcN4Cy1W8e%2FdbjWYG0yBe5qU2lZ%2FZlPMg%3D%3D&PageNo=1&numOfrows=10
-        // `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=${API_KEY}`
-      )
-    ).json();
-    // const filteredList = list.filter(({ dt_txt }) =>
-    //   dt_txt.endsWith("03:00:00")
-    // );
-    // setDays(filteredList);
-    console.log("list: ", list);
-  };
+  // const getArtwork = async () => {
+  //   const list = await (
+  //     await fetch(
+  //       `http://apis.data.go.kr/B553457/nopenapi/rest/publicperformancedisplays`
+  //       //https://apis.data.go.kr/B553457/nopenapi/rest/cultureartspaces/artgallery?serviceKey=iUshbHgoTGazZCC2%2F6vIBZp%2FB97CWSUUeLAbmBto9st2Aj33IThDavcN4Cy1W8e%2FdbjWYG0yBe5qU2lZ%2FZlPMg%3D%3D&PageNo=1&numOfrows=10
+  //       // `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=${API_KEY}`
+  //     )
+  //   ).json();
+  //   // const filteredList = list.filter(({ dt_txt }) =>
+  //   //   dt_txt.endsWith("03:00:00")
+  //   // );
+  //   // setDays(filteredList);
+  //   console.log("list: ", list);
+  // };
 
   // useEffect(() => {
   //   getArtwork();

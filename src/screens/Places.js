@@ -7,35 +7,39 @@ import {
   TextInput,
 } from "react-native";
 import React, { useEffect, useState } from "react";
-import { XMLParser } from "fast-xml-parser";
-// import { OPENDATA_API_KEY, GARLLERY_INFO_URL } from "react-native-dotenv";
-import Config from "react-native-config";
+// import { XMLParser } from "fast-xml-parser";
+// import Config from "react-native-config";
+import Constants from "expo-constants";
+import { parseString } from "react-native-xml2js";
+
+const SERVER_URL =
+  "https://apis.data.go.kr/B553457/nopenapi/rest/cultureartspaces";
+const API_KEY =
+  "iUshbHgoTGazZCC2%2F6vIBZp%2FB97CWSUUeLAbmBto9st2Aj33IThDavcN4Cy1W8e%2FdbjWYG0yBe5qU2lZ%2FZlPMg%3D%3D";
 
 export default function Places() {
   const [gallery, setGallery] = useState([]);
   const [pageNum, setPageNum] = useState(1);
   const [listCnt, setListCnt] = useState(10);
 
-  const apiKey = Config.API_KEY;
-  console.log("Config: ", Config);
-  useEffect(() => {
-    console.log("SERVER_URL: ", Config.SERVER_URL);
-    console.log("API_KEY: ", Config.API_KEY);
-  }, []);
+  // const { apikey, serverurl } = Constants.manifest2.extra;
+  // console.log("API Key:", apikey);
+  // console.log("Server URL:", serverurl);
 
   const getPlace = async () => {
     try {
       const response = await fetch(
-        `${Config.SERVER_URL}/artgallery?serviceKey=${Config.API_KEY}&PageNo=${pageNum}&numOfrows=${listCnt}`
+        `${SERVER_URL}/artgallery?serviceKey=${API_KEY}&PageNo=${pageNum}&numOfrows=${listCnt}`
       );
       const xmlText = await response.text(); // XML 데이터를 텍스트로 변환
 
-      // XML을 JSON으로 변환
-      const parser = new XMLParser({ ignoreAttributes: false });
-      const jsonData = parser.parse(xmlText);
-
-      // JSON 구조에서 필요한 데이터 추출
-      setGallery(jsonData.response.body.items.item);
+      parseString(xmlText, { explicitArray: false }, (err, jsonData) => {
+        if (err) {
+          console.error("XML 파싱 오류:", err);
+          return;
+        }
+        setGallery(jsonData.response.body.items.item);
+      });
     } catch (error) {
       console.error("데이터 불러오기 오류:", error);
     }
@@ -90,7 +94,22 @@ export default function Places() {
             </View>
           </View>
           <View style={{ flexDirection: "column" }}>
-            <View style={styles.imageContainer}>
+            {gallery.length > 0 &&
+              gallery.map((item, index) => (
+                <View key={index} style={styles.imageContainer}>
+                  <View style={styles.image}>
+                    <Text>Images</Text>
+                  </View>
+                  <View style={styles.discriptions}>
+                    <Text>{item.culName}</Text>
+                    <Text>sub description</Text>
+                    <Text>{item.culTel}</Text>
+                    <Text>distance</Text>
+                  </View>
+                </View>
+              ))}
+
+            {/* <View style={styles.imageContainer}>
               <View style={styles.image}>
                 <Text>Images</Text>
               </View>
@@ -111,18 +130,7 @@ export default function Places() {
                 <Text>hoilday</Text>
                 <Text>distant</Text>
               </View>
-            </View>
-            <View style={styles.imageContainer}>
-              <View style={styles.image}>
-                <Text>Images</Text>
-              </View>
-              <View style={styles.discriptions}>
-                <Text>discription</Text>
-                <Text>sub discription</Text>
-                <Text>hoilday</Text>
-                <Text>distant</Text>
-              </View>
-            </View>
+            </View> */}
           </View>
         </View>
       </ScrollView>
