@@ -6,9 +6,46 @@ import {
   StyleSheet,
   TextInput,
 } from "react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { XMLParser } from "fast-xml-parser";
+// import { OPENDATA_API_KEY, GARLLERY_INFO_URL } from "react-native-dotenv";
+import Config from "react-native-config";
 
 export default function Places() {
+  const [gallery, setGallery] = useState([]);
+  const [pageNum, setPageNum] = useState(1);
+  const [listCnt, setListCnt] = useState(10);
+
+  const apiKey = Config.API_KEY;
+  console.log("Config: ", Config);
+  useEffect(() => {
+    console.log("SERVER_URL: ", Config.SERVER_URL);
+    console.log("API_KEY: ", Config.API_KEY);
+  }, []);
+
+  const getPlace = async () => {
+    try {
+      const response = await fetch(
+        `${Config.SERVER_URL}/artgallery?serviceKey=${Config.API_KEY}&PageNo=${pageNum}&numOfrows=${listCnt}`
+      );
+      const xmlText = await response.text(); // XML 데이터를 텍스트로 변환
+
+      // XML을 JSON으로 변환
+      const parser = new XMLParser({ ignoreAttributes: false });
+      const jsonData = parser.parse(xmlText);
+
+      // JSON 구조에서 필요한 데이터 추출
+      setGallery(jsonData.response.body.items.item);
+    } catch (error) {
+      console.error("데이터 불러오기 오류:", error);
+    }
+  };
+
+  useEffect(() => {
+    getPlace();
+  }, []);
+  console.log("gallery: ", gallery);
+
   return (
     <SafeAreaView
       style={{
