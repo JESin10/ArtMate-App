@@ -12,48 +12,51 @@ import { parseString } from "react-native-xml2js";
 
 const SERVER_URL =
   "https://apis.data.go.kr/B553457/nopenapi/rest/publicperformancedisplays";
+
 const API_KEY =
   "iUshbHgoTGazZCC2/6vIBZp/B97CWSUUeLAbmBto9st2Aj33IThDavcN4Cy1W8e/dbjWYG0yBe5qU2lZ/ZlPMg==";
 
 export default function Artworks() {
   const [artworks, setArtworks] = useState([]);
   const [pageNum, setPageNum] = useState(1);
-  const [listCnt, setListCnt] = useState(10);
+  const [listCnt, setListCnt] = useState(30);
 
   const getArtwork = async () => {
     try {
       const response = await fetch(
-        `${SERVER_URL}/area?serviceKey=${API_KEY}&PageNo=${pageNum}&numOfrows=${listCnt}&place=${"서울"}`
+        `${SERVER_URL}/realm?serviceKey=${API_KEY}&PageNo=${pageNum}&numOfrows=${listCnt}&place=${"서울"}&serviceTp=A`
       );
-      const xmlText = await response.text(); // XML 데이터를 텍스트로 변환
+
+      const xmlText = await response.text();
 
       parseString(xmlText, { explicitArray: false }, (err, jsonData) => {
         if (err) {
-          console.error("XML 파싱 오류:", err);
+          // console.error("XML 파싱 오류:", err);
           return;
         }
-        setArtworks(jsonData.response.body.items.item);
+        setArtworks(jsonData.response?.body.items.item);
       });
     } catch (error) {
-      console.error("데이터 불러오기 오류:", error);
+      // console.error("데이터 불러오기 오류:", error);
     }
   };
+
+  console.log("artwork: ", artworks);
 
   useEffect(() => {
     getArtwork();
   }, []);
-  console.log("artwork: ", artworks);
 
   return (
     <SafeAreaView
       style={{
         width: "100%",
-        height: "100%",
         marginHorizontal: "auto",
         flexDirection: "column",
+        flex: 1,
       }}
     >
-      <ScrollView>
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <View style={{ padding: 10 }}>
           <Text
             style={{
@@ -89,15 +92,19 @@ export default function Artworks() {
           </View>
           <View style={styles.imageContainer}>
             {artworks.length > 0 &&
-              artworks.map((artwork, index) => (
-                <View style={styles.artworks}>
+              artworks?.map((artwork, index) => (
+                <View style={styles.artworks} key={index}>
                   <ImageBackground
-                    source={{ uri: artwork.thumbnail }} // thumbnail을 배경으로 설정
-                    style={styles.imageBackground} // 배경 이미지 스타일
-                    imageStyle={styles.backgroundImage} // 배경 이미지의 스타일을 더 추가
-                  >
-                    <Text>{artwork.title}</Text>
-                  </ImageBackground>
+                    source={{ uri: artwork.thumbnail }}
+                    style={styles.imageBackground}
+                    imageStyle={styles.backgroundImage}
+                  />
+                  <Text>{artwork.title}</Text>
+
+                  <Text style={styles.descStyle}>
+                    {artwork.startDate} ~ {artwork.endDate}
+                  </Text>
+                  <Text style={styles.descStyle}>{artwork.place}</Text>
                 </View>
               ))}
           </View>
@@ -121,8 +128,8 @@ const styles = StyleSheet.create({
   },
   artworks: {
     width: "45%",
-    height: 200,
-    borderColor: "black",
+    // height: "auyo%",
+    borderColor: "red",
     borderWidth: 1,
     borderRadius: 10,
     marginVertical: 10,
@@ -130,12 +137,20 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     width: "100%",
-    height: "auto",
-    borderColor: "black",
+    // height: "100%",
+    flex: 1,
+    borderColor: "blue",
     borderWidth: 1,
     borderRadius: 10,
     flexWrap: "wrap",
     flexDirection: "row",
+  },
+  imageBackground: {
+    width: "100%",
+    height: "200",
+    // flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
   conditions: {
     width: "50%",
@@ -148,10 +163,9 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginLeft: 10,
   },
-  imageBackground: {
-    width: "100%", // 배경 이미지의 너비
-    height: "100%", // 배경 이미지의 높이
-    justifyContent: "center", // 텍스트가 배경 이미지의 중앙에 오도록
-    alignItems: "center", // 텍스트가 수평 및 수직 중앙에 오도록
+  descStyle: {
+    fontSize: 12,
+    color: "#333",
+    marginVertical: 2,
   },
 });

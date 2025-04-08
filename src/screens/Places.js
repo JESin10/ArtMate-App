@@ -5,6 +5,7 @@ import {
   ScrollView,
   StyleSheet,
   TextInput,
+  ImageBackground,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 // import { XMLParser } from "fast-xml-parser";
@@ -14,41 +15,59 @@ import { parseString } from "react-native-xml2js";
 
 const SERVER_URL =
   "https://apis.data.go.kr/B553457/nopenapi/rest/cultureartspaces";
+
 const API_KEY =
   "iUshbHgoTGazZCC2%2F6vIBZp%2FB97CWSUUeLAbmBto9st2Aj33IThDavcN4Cy1W8e%2FdbjWYG0yBe5qU2lZ%2FZlPMg%3D%3D";
 
+// "iUshbHgoTGazZCC2/6vIBZp/B97CWSUUeLAbmBto9st2Aj33IThDavcN4Cy1W8e/dbjWYG0yBe5qU2lZ/ZlPMg==";
 export default function Places() {
   const [gallery, setGallery] = useState([]);
   const [pageNum, setPageNum] = useState(1);
   const [listCnt, setListCnt] = useState(10);
+  const [details, setDetails] = useState({});
 
-  // const { apikey, serverurl } = Constants.manifest2.extra;
-  // console.log("API Key:", apikey);
-  // console.log("Server URL:", serverurl);
+  const getDetailPlace = async (seq) => {
+    try {
+      const response = await fetch(
+        `${SERVER_URL}/detail?serviceKey=${API_KEY}&seq=${seq}`
+      );
+      const xmlText = await response.text();
+      parseString(xmlText, { explicitArray: false }, (err, jsonData) => {
+        if (err) return;
+        const detail = jsonData.response?.body.items.item;
+        setDetails((prev) => ({ ...prev, [seq]: detail }));
+      });
+    } catch (error) {
+      console.error("상세 정보 오류:", error);
+    }
+  };
 
   const getPlace = async () => {
     try {
       const response = await fetch(
         `${SERVER_URL}/artgallery?serviceKey=${API_KEY}&PageNo=${pageNum}&numOfrows=${listCnt}`
       );
-      const xmlText = await response.text(); // XML 데이터를 텍스트로 변환
+      const xmlText = await response.text();
 
       parseString(xmlText, { explicitArray: false }, (err, jsonData) => {
-        if (err) {
-          console.error("XML 파싱 오류:", err);
-          return;
-        }
-        setGallery(jsonData.response.body.items.item);
+        if (err) return;
+        const items = jsonData.response.body.items.item;
+        setGallery(items);
+        items.forEach((item) => {
+          getDetailPlace(item.seq); // 각 seq에 대해 상세 정보 요청
+        });
       });
     } catch (error) {
-      console.error("데이터 불러오기 오류:", error);
+      console.error("목록 불러오기 오류:", error);
     }
   };
 
   useEffect(() => {
     getPlace();
+    getDetailPlace();
   }, []);
   console.log("gallery: ", gallery);
+  console.log("details: ", details);
 
   return (
     <SafeAreaView
@@ -94,20 +113,32 @@ export default function Places() {
             </View>
           </View>
           <View style={{ flexDirection: "column" }}>
-            {gallery.length > 0 &&
-              gallery.map((item, index) => (
+            {gallery?.map((item, index) => {
+              const detail = details[item.seq]; // 매칭된 상세 정보
+              return (
                 <View key={index} style={styles.imageContainer}>
                   <View style={styles.image}>
-                    <Text>Images</Text>
+                    {detail?.culViewImg1 ? (
+                      <ImageBackground
+                        source={{ uri: detail.culViewImg1 }}
+                        style={styles.imageBackground}
+                        imageStyle={styles.tumbnail}
+                      />
+                    ) : (
+                      <Text>No Image</Text>
+                    )}
                   </View>
                   <View style={styles.discriptions}>
-                    <Text>{item.culName}</Text>
-                    <Text>sub description</Text>
-                    <Text>{item.culTel}</Text>
-                    <Text>distance</Text>
+                    <Text style={styles.titleStyle}>{item.culName}</Text>
+                    <Text style={styles.descStyle}>{item.culTel}</Text>
+                    <Text style={styles.descStyle}>{detail?.culAddr}</Text>
+                    {/* <Text>{detail.culCont}</Text> */}
+
+                    {/* <Text>distance</Text> */}
                   </View>
                 </View>
-              ))}
+              );
+            })}
           </View>
         </View>
       </ScrollView>
@@ -128,7 +159,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   discriptions: {
-    width: "45%",
+    width: "46%",
     height: 200,
     flexDirection: "column",
     borderColor: "black",
@@ -157,6 +188,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     marginBottom: 10,
   },
+  imageBackground: {
+    width: "auto",
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
   conditions: {
     width: "50%",
     flexDirection: "row",
@@ -165,5 +202,15 @@ const styles = StyleSheet.create({
   condition: {
     fontWeight: "bold",
     marginLeft: 10,
+  },
+  titleStyle: {
+    fontSize: 14,
+    fontWeight: "bold",
+    marginVertical: 2,
+  },
+  descStyle: {
+    fontSize: 12,
+    color: "#333",
+    marginVertical: 2,
   },
 });
