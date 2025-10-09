@@ -12,6 +12,7 @@ import React, { useEffect, useState } from "react";
 // import Config from "react-native-config";
 import Constants from "expo-constants";
 import { parseString } from "react-native-xml2js";
+import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 
 const SERVER_URL =
   "https://apis.data.go.kr/B553457/nopenapi/rest/cultureartspaces";
@@ -49,13 +50,16 @@ export default function Places() {
       );
       const xmlText = await response.text();
 
-      parseString(xmlText, { explicitArray: false }, (err, jsonData) => {
+      parseString(xmlText, { explicitArray: false }, async (err, jsonData) => {
         if (err) return;
         const items = jsonData.response.body.items.item;
         setGallery(items);
-        items.forEach((item) => {
-          getDetailPlace(item.seq); // 각 seq에 대해 상세 정보 요청
-        });
+
+        const detailPromises = items.map((item) => getDetailPlace(item.seq));
+        await Promise.all(detailPromises); // 모든 상세 정보 요청을 기다림
+        // items.forEach((item) => {
+        //   getDetailPlace(item.seq); // 각 seq에 대해 상세 정보 요청
+        // });
       });
     } catch (error) {
       console.error("목록 불러오기 오류:", error);
@@ -64,10 +68,10 @@ export default function Places() {
 
   useEffect(() => {
     getPlace();
-    getDetailPlace();
+    // getDetailPlace();
   }, []);
-  console.log("gallery: ", gallery);
-  console.log("details: ", details);
+  // console.log("gallery: ", gallery);
+  // console.log("details: ", details);
 
   return (
     <SafeAreaView

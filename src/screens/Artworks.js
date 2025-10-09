@@ -10,32 +10,71 @@ import {
 import React, { useState, useEffect } from "react";
 import { parseString } from "react-native-xml2js";
 
-const SERVER_URL =
-  "https://apis.data.go.kr/B553457/nopenapi/rest/publicperformancedisplays";
+// const SERVER_URL =
+//   "https://apis.data.go.kr/B553457/nopenapi/rest/publicperformancedisplays";
+// const API_KEY =
+//   "iUshbHgoTGazZCC2/6vIBZp/B97CWSUUeLAbmBto9st2Aj33IThDavcN4Cy1W8e/dbjWYG0yBe5qU2lZ/ZlPMg==";
 
-const API_KEY =
-  "iUshbHgoTGazZCC2/6vIBZp/B97CWSUUeLAbmBto9st2Aj33IThDavcN4Cy1W8e/dbjWYG0yBe5qU2lZ/ZlPMg==";
+//국현미
+// const SERVER_URL = "https://api.kcisa.kr/openapi/service/rest/moca/docMeta";
+// const API_KEY = "87140534-51de-4ad2-aa86-76dc3130a321";
+
+//서울시립미술관
+// const SERVER_URL =
+//   "https://api.kcisa.kr/openapi/service/rest/other/getSEMN5601";
+// const API_KEY = "589be839-5c41-4c36-96af-b02330050e14";
+
+//임시-공공데이터
+const SERVER_URL = "http://openapi.seoul.go.kr:8088";
+const API_KEY = "6b44656447746c733835476551776c";
 
 export default function Artworks() {
   const [artworks, setArtworks] = useState([]);
   const [pageNum, setPageNum] = useState(1);
-  const [listCnt, setListCnt] = useState(30);
+  const [listCnt, setListCnt] = useState(10);
+  const [startIndex, setStartIndex] = useState(1);
+  const [endIndex, setEndIndex] = useState(60);
 
   const getArtwork = async () => {
     try {
+      // const response = await fetch(
+      //   `${SERVER_URL}/realm?serviceKey=${API_KEY}&PageNo=${pageNum}&numOfrows=${listCnt}&place=${"서울"}&serviceTp=A`
+      // );
       const response = await fetch(
-        `${SERVER_URL}/realm?serviceKey=${API_KEY}&PageNo=${pageNum}&numOfrows=${listCnt}&place=${"서울"}&serviceTp=A`
+        `${SERVER_URL}/${API_KEY}/xml/ListExhibitionOfSeoulMOAInfo/${parseInt(
+          startIndex,
+          10
+        )}/${parseInt(endIndex, 10)}/`
       );
 
+      //임시
+      // http://openapi.seoul.go.kr:8088/(인증키)/xml/ListExhibitionOfSeoulMOAInfo/1/5/
+      //국현미
+      // https://api.kcisa.kr/openapi/service/rest/moca/docMeta?
+      // serviceKey=87140534-51de-4ad2-aa86-76dc3130a321&numOfRows=10&pageNo=1
+
+      //서울시립
+      //https://api.kcisa.kr/openapi/service/rest/other/getSEMN5601?
+      // serviceKey=589be839-5c41-4c36-96af-b02330050e14&numOfRows=10&pageNo=1
       const xmlText = await response.text();
 
       parseString(xmlText, { explicitArray: false }, (err, jsonData) => {
-        if (err) {
-          // console.error("XML 파싱 오류:", err);
-          return;
-        }
-        setArtworks(jsonData.response?.body.items.item);
+        if (err) return;
+        let items = jsonData.ListExhibitionOfSeoulMOAInfo?.row || [];
+        if (!Array.isArray(items)) items = [items];
+
+        // items.sort((a, b) => {
+        //   const getEndDate = (period) => {
+        //     if (!period) return 0;
+        //     const match = period.match(/~\s*([\d.]+)/);
+        //     return match ? new Date(match[1].replace(/\./g, "-")) : new Date(0);
+        //   };
+        //   return getEndDate(b.eventPeriod) - getEndDate(a.eventPeriod);
+        // });
+
+        setArtworks(items);
       });
+      console.log("items: ", items);
     } catch (error) {
       // console.error("데이터 불러오기 오류:", error);
     }
@@ -95,16 +134,23 @@ export default function Artworks() {
               artworks?.map((artwork, index) => (
                 <View style={styles.artworks} key={index}>
                   <ImageBackground
-                    source={{ uri: artwork.thumbnail }}
+                    source={{ uri: artwork.DP_MAIN_IMG }}
                     style={styles.imageBackground}
                     imageStyle={styles.backgroundImage}
                   />
-                  <Text>{artwork.title}</Text>
+                  <Text>{artwork.DP_NAME}</Text>
 
-                  <Text style={styles.descStyle}>
-                    {artwork.startDate} ~ {artwork.endDate}
+                  <Text
+                    style={styles.ArtistDescStyle}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    {artwork.DP_ARTIST}
                   </Text>
-                  <Text style={styles.descStyle}>{artwork.place}</Text>
+                  <Text style={styles.descStyle}>
+                    {artwork.DP_START} ~ {artwork.DP_END}
+                  </Text>
+                  <Text style={styles.descStyle}>{artwork.DP_PLACE}</Text>
                 </View>
               ))}
           </View>
@@ -164,7 +210,12 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   descStyle: {
-    fontSize: 12,
+    fontSize: 10,
+    color: "#333",
+    marginVertical: 2,
+  },
+  ArtistDescStyle: {
+    fontSize: 10,
     color: "#333",
     marginVertical: 2,
   },
