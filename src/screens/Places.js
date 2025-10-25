@@ -6,6 +6,10 @@ import {
   StyleSheet,
   TextInput,
   ImageBackground,
+  ActivityIndicator,
+  Button,
+  Touchable,
+  TouchableOpacity,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 // import { XMLParser } from "fast-xml-parser";
@@ -13,6 +17,7 @@ import React, { useEffect, useState } from "react";
 import Constants from "expo-constants";
 import { parseString } from "react-native-xml2js";
 import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
+import PlacesInfo from "../components/PlacesInfo";
 
 const SERVER_URL =
   "https://apis.data.go.kr/B553457/nopenapi/rest/cultureartspaces";
@@ -26,25 +31,35 @@ export default function Places() {
   const [pageNum, setPageNum] = useState(1);
   const [listCnt, setListCnt] = useState(10);
   const [details, setDetails] = useState({});
+  const [showPopup, setShowPopup] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [selectedPlace, setSelectedPlace] = useState(null);
 
   const getDetailPlace = async (seq) => {
     try {
+      setLoading(true);
       const response = await fetch(
         `${SERVER_URL}/detail?serviceKey=${API_KEY}&seq=${seq}`
       );
       const xmlText = await response.text();
       parseString(xmlText, { explicitArray: false }, (err, jsonData) => {
-        if (err) return;
+        if (err) {
+          setLoading(false);
+          return;
+        }
         const detail = jsonData.response?.body.items.item;
         setDetails((prev) => ({ ...prev, [seq]: detail }));
       });
+      setLoading(false);
     } catch (error) {
+      setLoading(false);
       console.error("상세 정보 오류:", error);
     }
   };
 
   const getPlace = async () => {
     try {
+      setLoading(true);
       const response = await fetch(
         `${SERVER_URL}/artgallery?serviceKey=${API_KEY}&PageNo=${pageNum}&numOfrows=${listCnt}`
       );
@@ -52,6 +67,7 @@ export default function Places() {
 
       parseString(xmlText, { explicitArray: false }, async (err, jsonData) => {
         if (err) return;
+        setLoading(false);
         const items = jsonData.response.body.items.item;
         setGallery(items);
 
@@ -60,8 +76,10 @@ export default function Places() {
         // items.forEach((item) => {
         //   getDetailPlace(item.seq); // 각 seq에 대해 상세 정보 요청
         // });
+        setLoading(false);
       });
     } catch (error) {
+      setLoading(false);
       console.error("목록 불러오기 오류:", error);
     }
   };
@@ -70,8 +88,8 @@ export default function Places() {
     getPlace();
     // getDetailPlace();
   }, []);
-  // console.log("gallery: ", gallery);
-  // console.log("details: ", details);
+  // console.log("Gallery: ", gallery);
+  console.log("details: ", details);
 
   return (
     <SafeAreaView
@@ -112,15 +130,40 @@ export default function Places() {
               <Text>가까운 전시장</Text>
             </View>
             <View style={styles.conditions}>
-              <Text style={styles.condition}>새로고침</Text>
-              <Text style={styles.condition}>지도변환</Text>
+              <Button
+                title="새로고침"
+                color="#333"
+                onPress={getPlace}
+                disabled={loading}
+              />
+              <Button
+                title="지도변환"
+                color="#333"
+                // onPress={}
+                disabled={loading}
+              />
             </View>
           </View>
           <View style={{ flexDirection: "column" }}>
             {gallery?.map((item, index) => {
               const detail = details[item.seq]; // 매칭된 상세 정보
               return (
-                <View key={index} style={styles.imageContainer}>
+                // <View
+                //   title="Place"
+                //   key={index}
+                //   style={styles.imageContainer}
+                //   onPress={() => setShowPopup(true)}
+                // >
+                <TouchableOpacity
+                  key={index}
+                  activeOpacity={0.8}
+                  style={styles.imageContainer}
+                  onPress={() => {
+                    setSelectedPlace(item);
+                    if (!details[item.seq]) getDetailPlace(item.seq);
+                    setShowPopup(true);
+                  }}
+                >
                   <View style={styles.image}>
                     {detail?.culViewImg1 ? (
                       <ImageBackground
@@ -140,12 +183,31 @@ export default function Places() {
 
                     {/* <Text>distance</Text> */}
                   </View>
-                </View>
+                </TouchableOpacity>
+                // </View>
               );
             })}
           </View>
         </View>
       </ScrollView>
+      {/* 장소 클릭시 modal popup */}
+      <PlacesInfo
+        visible={showPopup}
+        onClose={() => setShowPopup(false)}
+        item={selectedPlace}
+        detail={details[selectedPlace?.seq]}
+        // detail={selectedPlace ? details[setSelectedPlace.seq] : null}
+      />
+
+      {/* 새로고침시 */}
+      {loading && (
+        <View style={styles.overlay}>
+          <View style={styles.overlayContent}>
+            <ActivityIndicator size="large" color="#fff" />
+            <Text style={{ color: "#fff", marginTop: 8 }}>로딩중...</Text>
+          </View>
+        </View>
+      )}
     </SafeAreaView>
   );
 }
@@ -216,5 +278,23 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#333",
     marginVertical: 2,
+  },
+
+  overlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 999,
+  },
+  overlayContent: {
+    padding: 20,
+    borderRadius: 8,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    alignItems: "center",
   },
 });
