@@ -6,9 +6,13 @@ import {
   StyleSheet,
   TextInput,
   ImageBackground,
+  Button,
+  ActivityIndicator,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { parseString } from "react-native-xml2js";
+import { reloadAppAsync } from "expo";
+import ArtworkFilter from "../components/ArtworkFilter";
 
 // const SERVER_URL =
 //   "https://apis.data.go.kr/B553457/nopenapi/rest/publicperformancedisplays";
@@ -29,17 +33,16 @@ const SERVER_URL = "http://openapi.seoul.go.kr:8088";
 const API_KEY = "6b44656447746c733835476551776c";
 
 export default function Artworks() {
-  const [artworks, setArtworks] = useState([]);
-  const [pageNum, setPageNum] = useState(1);
-  const [listCnt, setListCnt] = useState(10);
+  const [artworks, setArtworks] = useState([]); // 원본 전체
+  const [displayedArtworks, setDisplayedArtworks] = useState([]); // 필터 적용된 목록
+  const [loading, setLoading] = useState(false);
+  const [showFilter, setShowFilter] = useState(false);
   const [startIndex, setStartIndex] = useState(1);
   const [endIndex, setEndIndex] = useState(60);
 
   const getArtwork = async () => {
     try {
-      // const response = await fetch(
-      //   `${SERVER_URL}/realm?serviceKey=${API_KEY}&PageNo=${pageNum}&numOfrows=${listCnt}&place=${"서울"}&serviceTp=A`
-      // );
+      setLoading(true);
       const response = await fetch(
         `${SERVER_URL}/${API_KEY}/xml/ListExhibitionOfSeoulMOAInfo/${parseInt(
           startIndex,
@@ -47,40 +50,49 @@ export default function Artworks() {
         )}/${parseInt(endIndex, 10)}/`
       );
 
-      //임시
-      // http://openapi.seoul.go.kr:8088/(인증키)/xml/ListExhibitionOfSeoulMOAInfo/1/5/
-      //국현미
-      // https://api.kcisa.kr/openapi/service/rest/moca/docMeta?
-      // serviceKey=87140534-51de-4ad2-aa86-76dc3130a321&numOfRows=10&pageNo=1
-
-      //서울시립
-      //https://api.kcisa.kr/openapi/service/rest/other/getSEMN5601?
-      // serviceKey=589be839-5c41-4c36-96af-b02330050e14&numOfRows=10&pageNo=1
       const xmlText = await response.text();
 
       parseString(xmlText, { explicitArray: false }, (err, jsonData) => {
-        if (err) return;
+        if (err) {
+          setArtworks([]);
+          setDisplayedArtworks([]);
+          setLoading(false);
+          return;
+        }
         let items = jsonData.ListExhibitionOfSeoulMOAInfo?.row || [];
         if (!Array.isArray(items)) items = [items];
 
-        // items.sort((a, b) => {
-        //   const getEndDate = (period) => {
-        //     if (!period) return 0;
-        //     const match = period.match(/~\s*([\d.]+)/);
-        //     return match ? new Date(match[1].replace(/\./g, "-")) : new Date(0);
-        //   };
-        //   return getEndDate(b.eventPeriod) - getEndDate(a.eventPeriod);
-        // });
-
         setArtworks(items);
+        // 기본은 전체를 표시 (필터 적용 시 applyFilter 호출)
+        setDisplayedArtworks(items);
+        setLoading(false);
       });
-      console.log("items: ", items);
     } catch (error) {
-      // console.error("데이터 불러오기 오류:", error);
+      setLoading(false);
     }
   };
 
-  console.log("artwork: ", artworks);
+  // parts: ['조각', ...] 형태 (부분일치, 대소문자 무시), start/end는 1-based
+  const applyFilter = ({ start = 1, end = 60, parts = [] }) => {
+    setStartIndex(start);
+    setEndIndex(end);
+    let source = artworks || [];
+    // 부분일치: selected parts 중 하나라도 포함하면 통과
+    if (Array.isArray(parts) && parts.length > 0) {
+      const lowered = parts.map((p) => String(p).toLowerCase());
+      source = source.filter((a) =>
+        lowered.some((p) =>
+          String(a.DP_ART_PART || "")
+            .toLowerCase()
+            .includes(p)
+        )
+      );
+    }
+    // start/end 범위 적용 (안정성: 1-based)
+    const s = Math.max(1, start);
+    const e = Math.min(source.length, end);
+    setDisplayedArtworks(source.slice(s - 1, e));
+  };
 
   useEffect(() => {
     getArtwork();
@@ -93,6 +105,7 @@ export default function Artworks() {
         marginHorizontal: "auto",
         flexDirection: "column",
         flex: 1,
+        position: "relative", // overlay를 위해 상대 위치 필요
       }}
     >
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
@@ -125,37 +138,80 @@ export default function Artworks() {
               <Text>작품 정보</Text>
             </View>
             <View style={styles.conditions}>
-              <Text style={styles.condition}>필터</Text>
-              <Text style={styles.condition}>새로고침</Text>
+              <Button
+                title="필터"
+                color="#333"
+                onPress={() => setShowFilter(true)}
+              />
+              <Button
+                title="새로고침"
+                // {loading ? "loading" : "새로고침"}
+                color="#333"
+                onPress={getArtwork}
+                disabled={loading}
+              />
             </View>
           </View>
           <View style={styles.imageContainer}>
-            {artworks.length > 0 &&
-              artworks?.map((artwork, index) => (
-                <View style={styles.artworks} key={index}>
-                  <ImageBackground
-                    source={{ uri: artwork.DP_MAIN_IMG }}
-                    style={styles.imageBackground}
-                    imageStyle={styles.backgroundImage}
-                  />
-                  <Text>{artwork.DP_NAME}</Text>
+            {displayedArtworks.length > 0 &&
+              displayedArtworks.map((artwork, index) => {
+                const pos = index % 4;
+                const itemStyle =
+                  pos === 0
+                    ? styles.artworks_S
+                    : pos === 1
+                    ? styles.artworks_B
+                    : pos === 2
+                    ? styles.artworks_B
+                    : styles.artworks_S;
 
-                  <Text
-                    style={styles.ArtistDescStyle}
-                    numberOfLines={1}
-                    ellipsizeMode="tail"
-                  >
-                    {artwork.DP_ARTIST}
-                  </Text>
-                  <Text style={styles.descStyle}>
-                    {artwork.DP_START} ~ {artwork.DP_END}
-                  </Text>
-                  <Text style={styles.descStyle}>{artwork.DP_PLACE}</Text>
-                </View>
-              ))}
+                return (
+                  <View style={itemStyle} key={index}>
+                    <ImageBackground
+                      source={{ uri: artwork.DP_MAIN_IMG }}
+                      style={styles.imageBackground}
+                      imageStyle={styles.backgroundImage}
+                    />
+                    <Text>{artwork.DP_NAME}</Text>
+
+                    <Text
+                      style={styles.ArtistDescStyle}
+                      numberOfLines={1}
+                      ellipsizeMode="tail"
+                    >
+                      {artwork.DP_ARTIST}
+                    </Text>
+                    <Text style={styles.descStyle}>
+                      {artwork.DP_START} ~ {artwork.DP_END}
+                    </Text>
+                    <Text style={styles.descStyle}>{artwork.DP_PLACE}</Text>
+                  </View>
+                );
+              })}
           </View>
         </View>
       </ScrollView>
+
+      <ArtworkFilter
+        visible={showFilter}
+        initStart={startIndex}
+        initEnd={endIndex}
+        onClose={() => setShowFilter(false)}
+        onApply={(filters) => {
+          applyFilter(filters);
+          setShowFilter(false);
+        }}
+        parts={[...new Set(artworks.map((a) => a.DP_ART_PART).filter(Boolean))]}
+      />
+
+      {loading && (
+        <View style={styles.overlay}>
+          <View style={styles.overlayContent}>
+            <ActivityIndicator size="large" color="#fff" />
+            <Text style={{ color: "#fff", marginTop: 8 }}>로딩중...</Text>
+          </View>
+        </View>
+      )}
     </SafeAreaView>
   );
 }
@@ -172,31 +228,46 @@ const styles = StyleSheet.create({
     backgroundColor: "#f5f5f5",
     alignItems: "center",
   },
-  artworks: {
-    width: "45%",
-    // height: "auyo%",
+  artworks_S: {
+    width: "40%",
     borderColor: "red",
     borderWidth: 1,
     borderRadius: 10,
-    marginVertical: 10,
-    marginHorizontal: "auto",
+    marginVertical: 8,
+    marginHorizontal: "1%",
+    padding: 8,
+  },
+  artworks_B: {
+    width: "55%",
+    borderColor: "purple",
+    borderWidth: 1,
+    borderRadius: 10,
+    marginVertical: 8,
+    marginHorizontal: "1%",
+    padding: 8,
   },
   imageContainer: {
     width: "100%",
-    // height: "100%",
     flex: 1,
     borderColor: "blue",
     borderWidth: 1,
     borderRadius: 10,
     flexWrap: "wrap",
     flexDirection: "row",
+    justifyContent: "space-between",
   },
   imageBackground: {
     width: "100%",
-    height: "200",
-    // flex: 1,
+    height: 200,
     justifyContent: "center",
     alignItems: "center",
+    marginBottom: 10,
+    borderColor: "green",
+    borderWidth: 1,
+    borderRadius: 10,
+  },
+  backgroundImage: {
+    borderRadius: 10,
   },
   conditions: {
     width: "50%",
@@ -218,5 +289,22 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: "#333",
     marginVertical: 2,
+  },
+  overlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 999,
+  },
+  overlayContent: {
+    padding: 20,
+    borderRadius: 8,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    alignItems: "center",
   },
 });
