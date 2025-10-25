@@ -17,7 +17,7 @@ import React, { useEffect, useState } from "react";
 import Constants from "expo-constants";
 import { parseString } from "react-native-xml2js";
 import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
-import PlacesInfo from "../components/PlacesInfo";
+import PlacesInfoModal from "../components/PlacesInfoModal";
 
 const SERVER_URL =
   "https://apis.data.go.kr/B553457/nopenapi/rest/cultureartspaces";
@@ -89,7 +89,7 @@ export default function Places() {
     // getDetailPlace();
   }, []);
   // console.log("Gallery: ", gallery);
-  console.log("details: ", details);
+  // console.log("details: ", details);
 
   return (
     <SafeAreaView
@@ -191,7 +191,7 @@ export default function Places() {
         </View>
       </ScrollView>
       {/* 장소 클릭시 modal popup */}
-      <PlacesInfo
+      <PlacesInfoModal
         visible={showPopup}
         onClose={() => setShowPopup(false)}
         item={selectedPlace}

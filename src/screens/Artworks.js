@@ -8,11 +8,13 @@ import {
   ImageBackground,
   Button,
   ActivityIndicator,
+  TouchableOpacity,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { parseString } from "react-native-xml2js";
 import { reloadAppAsync } from "expo";
 import ArtworkFilter from "../components/ArtworkFilter";
+import ArtworkInfoModal from "../components/ArtworkInfoModal";
 
 // const SERVER_URL =
 //   "https://apis.data.go.kr/B553457/nopenapi/rest/publicperformancedisplays";
@@ -39,6 +41,9 @@ export default function Artworks() {
   const [showFilter, setShowFilter] = useState(false);
   const [startIndex, setStartIndex] = useState(1);
   const [endIndex, setEndIndex] = useState(60);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedArtwork, setSelectedArtwork] = useState(null);
+  const [detailArtwork, setDetailArtwork] = useState(null);
 
   const getArtwork = async () => {
     try {
@@ -60,6 +65,8 @@ export default function Artworks() {
           return;
         }
         let items = jsonData.ListExhibitionOfSeoulMOAInfo?.row || [];
+        // setDetailArtwork((prev) => ({ ...prev, [seq]: detail }));
+
         if (!Array.isArray(items)) items = [items];
 
         setArtworks(items);
@@ -72,6 +79,7 @@ export default function Artworks() {
     }
   };
 
+  console.log("detail:", detailArtwork);
   // parts: ['조각', ...] 형태 (부분일치, 대소문자 무시), start/end는 1-based
   const applyFilter = ({ start = 1, end = 60, parts = [] }) => {
     setStartIndex(start);
@@ -152,7 +160,7 @@ export default function Artworks() {
               />
             </View>
           </View>
-          <View style={styles.imageContainer}>
+          <View style={styles.ModalContainer}>
             {displayedArtworks.length > 0 &&
               displayedArtworks.map((artwork, index) => {
                 const pos = index % 4;
@@ -166,7 +174,16 @@ export default function Artworks() {
                     : styles.artworks_S;
 
                 return (
-                  <View style={itemStyle} key={index}>
+                  <TouchableOpacity
+                    key={index}
+                    activeOpacity={0.8}
+                    style={itemStyle}
+                    onPress={() => {
+                      setShowModal(true);
+                      setSelectedArtwork(artwork);
+                      // if (!details[artwork.seq]) getDetailPlace(item.seq);
+                    }}
+                  >
                     <ImageBackground
                       source={{ uri: artwork.DP_MAIN_IMG }}
                       style={styles.imageBackground}
@@ -185,7 +202,7 @@ export default function Artworks() {
                       {artwork.DP_START} ~ {artwork.DP_END}
                     </Text>
                     <Text style={styles.descStyle}>{artwork.DP_PLACE}</Text>
-                  </View>
+                  </TouchableOpacity>
                 );
               })}
           </View>
@@ -202,6 +219,12 @@ export default function Artworks() {
           setShowFilter(false);
         }}
         parts={[...new Set(artworks.map((a) => a.DP_ART_PART).filter(Boolean))]}
+      />
+      <ArtworkInfoModal
+        visible={showModal}
+        onClose={() => setShowModal(false)}
+        artwork={selectedArtwork}
+        //  detail=[detai]
       />
 
       {loading && (
@@ -246,12 +269,12 @@ const styles = StyleSheet.create({
     marginHorizontal: "1%",
     padding: 8,
   },
-  imageContainer: {
+  ModalContainer: {
     width: "100%",
-    flex: 1,
-    borderColor: "blue",
+    borderColor: "orange",
     borderWidth: 1,
     borderRadius: 10,
+    flex: 1,
     flexWrap: "wrap",
     flexDirection: "row",
     justifyContent: "space-between",

@@ -9,9 +9,9 @@ import {
 } from "react-native";
 import React from "react";
 
-export default function PlacesInfo({ visible, onClose, item, detail }) {
+export default function PlacesInfoModal({ visible, onClose, item, detail }) {
   //   console.log("PlacesInfoItem:", item);
-  console.log("PlacesInfoDetail:", detail);
+  // console.log("PlacesInfoDetail:", detail);
   return (
     <Modal
       visible={visible}
