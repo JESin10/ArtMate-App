@@ -115,7 +115,7 @@ export default function ArtworkFilter({
           <Text style={{ marginBottom: 6 }}>카테고리 (DP_ART_PART)</Text>
           <View
             showsHorizontalScrollIndicator={false}
-            style={styles.filterConainer}
+            style={styles.filterContainer}
           >
             <TouchableOpacity
               style={[
@@ -201,7 +201,7 @@ const styles = StyleSheet.create({
   },
   partText: { color: "#333" },
   partTextActive: { color: "#fff" },
-  filterConainer: {
+  filterContainer: {
     width: "100%",
     flexDirection: "row",
     flexWrap: "wrap",
