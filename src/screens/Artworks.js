@@ -16,10 +16,10 @@ import { reloadAppAsync } from "expo";
 import ArtworkFilter from "../components/ArtworkFilter";
 import ArtworkInfoModal from "../components/ArtworkInfoModal";
 
-// const SERVER_URL =
-//   "https://apis.data.go.kr/B553457/nopenapi/rest/publicperformancedisplays";
+// const SERVER_URL = "https://apis.data.go.kr/B553457/cultureinfo";
 // const API_KEY =
 //   "iUshbHgoTGazZCC2/6vIBZp/B97CWSUUeLAbmBto9st2Aj33IThDavcN4Cy1W8e/dbjWYG0yBe5qU2lZ/ZlPMg==";
+// `${SERVER_URL}/area2?serviceKey=${API_KEY}&PageNo=${startIndex}&numOfrows=${endIndex}&sido=${city}`
 
 //국현미
 // const SERVER_URL = "https://api.kcisa.kr/openapi/service/rest/moca/docMeta";
@@ -79,7 +79,8 @@ export default function Artworks() {
     }
   };
 
-  console.log("detail:", detailArtwork);
+  console.log("artwork:", artworks);
+
   // parts: ['조각', ...] 형태 (부분일치, 대소문자 무시), start/end는 1-based
   const applyFilter = ({ start = 1, end = 60, parts = [] }) => {
     setStartIndex(start);

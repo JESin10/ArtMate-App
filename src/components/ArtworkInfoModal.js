@@ -38,7 +38,7 @@ export default function ArtworkInfoModal({
               <Text style={styles.titleText1}>{artwork?.DP_NAME}</Text>
             </View>
             <View style={styles.image}>
-              {artwork?.DP_MAIN_IMG ? (
+              {artwork?.DP_MAIN_IMG && artwork.DP_MAIN_IMG ? (
                 <ImageBackground
                   source={{ uri: artwork.DP_MAIN_IMG }}
                   style={styles.imageBackground}
@@ -55,7 +55,7 @@ export default function ArtworkInfoModal({
             </View>
             <View style={styles.textContainer}>
               <Text style={styles.titleText2}>장르</Text>
-              {artwork.DP_ART_PART ? (
+              {artwork?.DP_ART_PART && artwork.DP_ART_PART ? (
                 <Text style={styles.subText}> {artwork?.DP_ART_PART} </Text>
               ) : (
                 <Text style={styles.subText}> 정보없음</Text>
@@ -74,7 +74,7 @@ export default function ArtworkInfoModal({
             <View style={styles.textContainer}>
               <Text style={styles.titleText2}>운영시간</Text>
 
-              {artwork.DP_VIEWTIME ? (
+              {artwork?.DP_VIEWTIME && artwork.DP_VIEWTIME ? (
                 <Text style={styles.subText}> {artwork?.DP_VIEWTIME} </Text>
               ) : (
                 <Text style={styles.subText}> 정보없음</Text>
@@ -86,7 +86,7 @@ export default function ArtworkInfoModal({
             </View>
             <View style={styles.textContainer}>
               <Text style={styles.titleText2}>상세설명</Text>
-              {artwork.DP_INFO ? (
+              {artwork?.DP_INFO ? (
                 <Text style={styles.subText}> {artwork?.DP_INFO} </Text>
               ) : (
                 <Text style={styles.subText}> 정보없음</Text>
