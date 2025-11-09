@@ -6,6 +6,7 @@ import {
   BackHandler,
   TouchableOpacity,
   Alert,
+  StyleSheet,
 } from "react-native";
 import React from "react";
 
@@ -71,7 +72,7 @@ export default function Setting({ navigation }) {
   );
 }
 
-const styles = {
+const styles = StyleSheet.create({
   settingFactorContainer: {
     flexDirection: "horizontal",
     width: "100%",
@@ -120,4 +121,4 @@ const styles = {
     borderWidth: 1,
     borderColor: "black",
   },
-};
+});
