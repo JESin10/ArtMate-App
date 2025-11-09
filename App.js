@@ -18,6 +18,7 @@ import ArtworksIcon from "./src/assets/icons/Menubar_image.svg";
 import PlacesIcon from "./src/assets/icons/Menubar_gallery.svg";
 import ReviewIcon from "./src/assets/icons/write.svg";
 import MypageIcon from "./src/assets/icons/Menubar_user.svg";
+import Setting from "./src/screens/Setting";
 // import SignupIcon from "./src/assets/icons/Menubar_user.svg";
 
 export default function App() {
@@ -99,8 +100,7 @@ export default function App() {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Bottom" component={BottomTabScreen} />
         <Stack.Screen name="Status" component={Status} />
-        {/* <Stack.Screen name="FriendProfile" component={FriendProfile} />
-        <Stack.Screen name="EditProfile" component={EditProfile} /> */}
+        <Stack.Screen name="Setting" component={Setting} />
       </Stack.Navigator>
     </NavigationContainer>
   );

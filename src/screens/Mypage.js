@@ -9,14 +9,39 @@ import {
   ScrollView,
   ImageBackground,
   Button,
+  Alert,
 } from "react-native";
-
 import LikeIcon from "../../src/assets/icons/Heart.svg";
 import BookMarkIcon from "../../src/assets/icons/bookmark.svg";
 import ListIcon from "../../src/assets/icons/receipt.svg";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
-export default function Mypage() {
+export default function Mypage({ navigation }) {
   const [exampleNum, setExampleNum] = useState(7);
+  // const Stack = createNativeStackNavigator();
+  const showAlertWithChoices = () => {
+    Alert.alert(
+      "Choose an Option",
+      "Please select one of the following:",
+      [
+        {
+          text: "SNSshare",
+          onPress: () => Alert.alert("Shared to SNS"),
+        },
+        {
+          text: "LinkShare",
+          onPress: () => Alert.alert("Link Copied"),
+        },
+        {
+          text: "Cancel",
+          onPress: () => "Cancel Pressed",
+          style: "cancel",
+        },
+      ],
+      { cancelable: false }
+    );
+  };
+
   return (
     <SafeAreaView>
       <ScrollView>
@@ -37,9 +62,22 @@ export default function Mypage() {
           </View> */}
           <View style={styles.settingContainer}>
             <Text style={styles.subTitle}>알림</Text>
-            <Text style={styles.subTitle}>공유</Text>
-            <Text style={styles.subTitle}>설정</Text>
+            <Button
+              title="공유"
+              style={styles.subTitle}
+              color="black"
+              // onPress={() => Alert.alert("Share?")}
+              onPress={showAlertWithChoices}
+            />
+            <Button
+              title="설정"
+              style={styles.subTitle}
+              color="black"
+              onPress={() => navigation.navigate("Setting")}
+              navigation
+            />
           </View>
+
           <View style={styles.myInfoContainer}>
             <View style={styles.accContainer}>
               <ImageBackground
