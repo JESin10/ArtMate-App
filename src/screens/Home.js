@@ -12,6 +12,7 @@ import {
 import Recent from "../components/Recent";
 import React, { useState, useEffect } from "react";
 import { parseString } from "react-native-xml2js";
+import ArtworkInfoModal from "../components/ArtworkInfoModal";
 const SERVER_URL = "http://openapi.seoul.go.kr:8088";
 const API_KEY = "6b44656447746c733835476551776c";
 
@@ -23,6 +24,8 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [startIndex, setStartIndex] = useState(1);
   const [endIndex, setEndIndex] = useState(10);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedArtwork, setSelectedArtwork] = useState(null);
 
   const getArtwork = async () => {
     setLoading(true);
@@ -161,7 +164,7 @@ export default function Home() {
           <View style={styles.recommandContainer}>
             <View style={styles.subTitle}>
               <Text style={styles.pageTitle}>ㅇㅇ님의 취향저격 전시모음</Text>
-              {artworks.slice(0, 5).map((artwork, index) => (
+              {artworks.slice(0, 1).map((artwork, index) => (
                 <View key={index} style={styles.recommandContents}>
                   <ImageBackground
                     source={{ uri: artwork.DP_MAIN_IMG }}
@@ -202,7 +205,15 @@ export default function Home() {
                     ? styles.recentImagesL
                     : styles.recentImagesS;
                 return (
-                  <TouchableOpacity key={index} style={ImgStyle}>
+                  <TouchableOpacity
+                    key={index}
+                    style={ImgStyle}
+                    onPress={() => {
+                      setShowModal(true);
+                      setSelectedArtwork(artwork);
+                      // if (!details[artwork.seq]) getDetailPlace(item.seq);
+                    }}
+                  >
                     {/* <ImageBackground
                       key={index}
                       source={{ uri: artwork.DP_MAIN_IMG }}
@@ -223,14 +234,27 @@ export default function Home() {
               <Button title="다음" />
             </View>
 
-            <Recent />
+            <ArtworkInfoModal
+              visible={showModal}
+              initStart={startIndex}
+              initEnd={endIndex}
+              onClose={() => setShowModal(false)}
+              artwork={selectedArtwork}
+            />
           </View>
           <View style={styles.endedContainer}>
             <View style={styles.subTitle}>
               <Text style={styles.pageTitle}>종료예정 전시모음</Text>
               {endedArtworks.slice(0, 3).map((endedartwork, index) => {
                 return (
-                  <View key={index} style={styles.endedContents}>
+                  <TouchableOpacity
+                    key={index}
+                    style={styles.endedContents}
+                    onPress={() => {
+                      setShowModal(true);
+                      setSelectedArtwork(endedartwork);
+                    }}
+                  >
                     <ImageBackground
                       source={{ uri: endedartwork.DP_MAIN_IMG }}
                       style={styles.endedImages}
@@ -256,10 +280,18 @@ export default function Home() {
                         {endedartwork.DP_NAME}
                       </Text>
                     </View>
-                  </View>
+                  </TouchableOpacity>
                 );
               })}
             </View>
+
+            <ArtworkInfoModal
+              visible={showModal}
+              initStart={startIndex}
+              initEnd={endIndex}
+              onClose={() => setShowModal(false)}
+              artwork={selectedArtwork}
+            />
           </View>
           <View style={styles.artistContainer}>
             <View style={styles.subTitle}>

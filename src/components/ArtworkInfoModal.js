@@ -15,7 +15,7 @@ export default function ArtworkInfoModal({
   artwork,
   detail,
 }) {
-  console.log("ArtworkInfoArtwork:", artwork);
+  // console.log("ArtworkInfoArtwork:", artwork);
   return (
     <Modal
       visible={visible}
