@@ -79,7 +79,7 @@ export default function Artworks() {
     }
   };
 
-  console.log("artwork:", artworks);
+  // console.log("artwork:", artworks);
 
   // parts: ['조각', ...] 형태 (부분일치, 대소문자 무시), start/end는 1-based
   const applyFilter = ({ start = 1, end = 60, parts = [] }) => {
@@ -110,7 +110,7 @@ export default function Artworks() {
   return (
     <SafeAreaView
       style={{
-        width: "100%",
+        width: "95%",
         marginHorizontal: "auto",
         flexDirection: "column",
         flex: 1,
@@ -144,7 +144,7 @@ export default function Artworks() {
             }}
           >
             <View style={{ width: "50%" }}>
-              <Text>작품 정보</Text>
+              <Text style={styles.pageTitle}>작품 정보</Text>
             </View>
             <View style={styles.conditions}>
               <Button
@@ -245,12 +245,17 @@ const styles = StyleSheet.create({
     borderColor: "black",
     borderWidth: 1,
     borderRadius: 10,
-    width: "90%",
+    width: "100%",
     padding: 10,
     marginHorizontal: "auto",
     marginVertical: 15,
     backgroundColor: "#f5f5f5",
     alignItems: "center",
+  },
+  pageTitle: {
+    fontSize: 22,
+    color: "black",
+    fontWeight: "bold",
   },
   artworks_S: {
     width: "40%",

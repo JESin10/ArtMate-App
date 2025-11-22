@@ -37,7 +37,7 @@ export default function Review() {
   return (
     <SafeAreaView
       style={{
-        width: "100%",
+        width: "95%",
         marginHorizontal: "auto",
         flexDirection: "column",
         flex: 1,
@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
     borderColor: "black",
     borderWidth: 1,
     borderRadius: 10,
-    width: "90%",
+    width: "100%",
     padding: 10,
     marginHorizontal: "auto",
     marginVertical: 15,
@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   topFactorContainer: {
-    width: "90%",
+    width: "100%",
     flexDirection: "row",
     justifyContent: "space-between",
     borderWidth: 2,
@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
     fontWeight: "semi-bold",
   },
   reviewsContainer: {
-    width: "90%",
+    width: "100%",
     borderWidth: 1,
     borderColor: "red",
     padding: 20,

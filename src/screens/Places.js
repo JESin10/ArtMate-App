@@ -94,7 +94,7 @@ export default function Places() {
   return (
     <SafeAreaView
       style={{
-        width: "100%",
+        width: "95%",
         height: "100%",
         marginHorizontal: "auto",
         flexDirection: "column",
@@ -127,7 +127,7 @@ export default function Places() {
             }}
           >
             <View style={{ width: "50%" }}>
-              <Text>가까운 전시장</Text>
+              <Text style={styles.pageTitle}>가까운 전시장</Text>
             </View>
             <View style={styles.conditions}>
               <Button
@@ -217,12 +217,17 @@ const styles = StyleSheet.create({
     borderColor: "black",
     borderWidth: 1,
     borderRadius: 10,
-    width: "90%",
+    width: "100%",
     padding: 10,
     marginHorizontal: "auto",
     marginVertical: 15,
     backgroundColor: "#f5f5f5",
     alignItems: "center",
+  },
+  pageTitle: {
+    fontSize: 22,
+    color: "black",
+    fontWeight: "bold",
   },
   discriptions: {
     width: "46%",
