@@ -8,11 +8,16 @@ import {
   ScrollView,
   ImageBackground,
   Button,
+  FlatList,
+  Dimensions,
+  useWindowDimensions,
 } from "react-native";
+import { decode } from "html-entities"; // 추가: HTML 엔티티 디코드
 import Recent from "../components/Recent";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { parseString } from "react-native-xml2js";
 import ArtworkInfoModal from "../components/ArtworkInfoModal";
+import RenderHTML from "react-native-render-html";
 const SERVER_URL = "http://openapi.seoul.go.kr:8088";
 const API_KEY = "6b44656447746c733835476551776c";
 
@@ -26,6 +31,24 @@ export default function Home() {
   const [endIndex, setEndIndex] = useState(10);
   const [showModal, setShowModal] = useState(false);
   const [selectedArtwork, setSelectedArtwork] = useState(null);
+  const CARD_WIDTH = 310;
+  const ITEM_SPACING = 12;
+  const ITEM_SIZE = CARD_WIDTH + ITEM_SPACING;
+  // const { width } = useWindowDimensions();
+  const flatListRef = useRef(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const htmlToPlain = (html) => {
+    if (!html) return "";
+    const plain = String(html)
+      .replace(/<br\s*\/?>/gi, "\n")
+      .replace(/<\/p>/gi, "\n")
+      .replace(/<p[^>]*>/gi, "")
+      .replace(/&nbsp;/gi, " ")
+      .replace(/<\/?[^>]+(>|$)/g, "") // 남은 모든 태그 제거
+      .trim();
+    return decode(plain);
+  };
 
   const getArtwork = async () => {
     setLoading(true);
@@ -56,18 +79,54 @@ export default function Home() {
       console.error("홈화면 작품 불러오기 오류:", error);
     }
   };
-  // console.log(artworks.slice(0, 2));
-  const getRecentArtworks = async () => {
-    // 유사하게 최근 작품 불러오는 함수 구현 가능
-  };
-
-  const getEndedArtworks = async () => {
-    // 유사하게 종료 예정 작품 불러오는 함수 구현 가능
-  };
+  // console.log(artworks);
 
   useEffect(() => {
     getArtwork();
   }, []);
+
+  const data = artworks.slice(0, 4); // 슬라이드에 사용할 데이터
+
+  // ViewableItems 변경시 인덱스 동기화
+  const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 });
+  const onViewableItemsChanged = useRef(({ viewableItems }) => {
+    if (viewableItems && viewableItems.length > 0) {
+      const idx = viewableItems[0].index ?? 0;
+      setCurrentIndex(idx);
+    }
+  });
+  // 자동 슬라이드 (5초)
+  useEffect(() => {
+    if (!data || data.length === 0) return;
+    const id = setInterval(() => {
+      setCurrentIndex((prev) => {
+        const next = (prev + 1) % data.length; // 마지막이면 0으로
+        if (flatListRef.current) {
+          flatListRef.current.scrollToIndex({
+            index: next,
+            animated: true,
+            viewPosition: 0.5,
+          });
+        }
+        return next;
+      });
+    }, 5000);
+
+    return () => clearInterval(id);
+  }, [data]);
+  // dot 클릭 시 이동
+  const goToIndex = useCallback(
+    (index) => {
+      if (!flatListRef.current) return;
+      flatListRef.current.scrollToIndex({
+        index,
+        animated: true,
+        viewPosition: 0.5,
+      });
+      setCurrentIndex(index);
+    },
+    [flatListRef]
+  );
 
   // 날짜 문자열을 안전하게 Date로 파싱 (YYYY-MM-DD 같은 형태 예상)
   const parseDateSafe = (dateStr) => {
@@ -164,30 +223,81 @@ export default function Home() {
           <View style={styles.recommandContainer}>
             <View style={styles.subTitle}>
               <Text style={styles.pageTitle}>ㅇㅇ님의 취향저격 전시모음</Text>
-              {artworks.slice(0, 1).map((artwork, index) => (
-                <View key={index} style={styles.recommandContents}>
-                  <ImageBackground
-                    source={{ uri: artwork.DP_MAIN_IMG }}
-                    style={styles.recommandedImages}
-                  />
-                  <Text>{artwork.DP_ART_PART}</Text>
-                  <Text>{artwork.DP_NAME}</Text>
-                  <Text
-                    style={styles.DescStyle}
-                    numberOfLines={3}
-                    ellipsizeMode="tail"
+              <FlatList
+                ref={flatListRef}
+                data={data}
+                horizontal
+                pagingEnabled={false}
+                showHorizontalScrollIndicator={false}
+                keyExtractor={(item, index) => String(item.DP_SEQ ?? index)}
+                contentContainerStyle={styles.recommandList}
+                renderItem={({ item }) => (
+                  <TouchableOpacity
+                    style={styles.recommandCard}
+                    activeOpacity={0.8}
+                    onPress={() => {
+                      setShowModal(true);
+                      setSelectedArtwork(item);
+                    }}
                   >
-                    {artwork.DP_INFO}
-                  </Text>
-                  <Text>
-                    {artwork.DP_START} - {artwork.DP_END}
-                  </Text>
-                </View>
-              ))}
+                    <ImageBackground
+                      source={{ uri: item.DP_MAIN_IMG }}
+                      style={styles.recommandImage}
+                      imageStyle={styles.backgroundImage}
+                    />
+                    <Text numberOfLines={1} style={styles.recommandPart}>
+                      {item.DP_ART_PART}
+                    </Text>
+                    <Text numberOfLines={1} style={styles.recommandTitle}>
+                      {item.DP_NAME}
+                    </Text>
+                    <Text numberOfLines={3} style={styles.DescStyle}>
+                      {htmlToPlain(item.DP_INFO)}
+                    </Text>
+                    <Text style={styles.DescStyle}>
+                      {item.DP_START} ~ {item.DP_END}
+                    </Text>
+                    {/* <RenderHTML
+                      baseStyle={styles.DescStyle}
+                      contentWidth={width}
+                      source={{ html: item.DP_INFO }}
+                      tagsStyles={{
+                        p: { margin: 0, padding: 0, lineHeight: 12 },
+                        br: { display: "none" },
+                      }}
+                      defaultTextProps={{
+                        numberOfLines: 3,
+                        ellipsizeMode: "tail",
+                      }}
+                      renderersProps={{
+                        text: { numberOfLines: 3, ellipsizeMode: "tail" },
+                      }}
+                    /> 
+                    // 3줄만 나오게 하는게 안되기 때문에 변경
+                    */}
+                  </TouchableOpacity>
+                )}
+                onViewableItemsChanged={onViewableItemsChanged.current}
+                viewabilityConfig={viewConfigRef.current}
+                getItemLayout={(d, index) => ({
+                  length: ITEM_SIZE,
+                  offset: ITEM_SIZE * index,
+                  index,
+                })}
+              />
+              <View style={styles.dotsContainer}>
+                {data.map((_, idx) => (
+                  <TouchableOpacity
+                    key={idx}
+                    onPress={() => goToIndex(idx)}
+                    style={[
+                      styles.dot,
+                      currentIndex === idx && styles.activeDot,
+                    ]}
+                  />
+                ))}
+              </View>
             </View>
-            {/* <View style={styles.recommandedImages}>
-              <Text>images</Text>
-            </View> */}
           </View>
           <View style={styles.recentContainer}>
             <View style={styles.subTitle}>
@@ -214,11 +324,6 @@ export default function Home() {
                       // if (!details[artwork.seq]) getDetailPlace(item.seq);
                     }}
                   >
-                    {/* <ImageBackground
-                      key={index}
-                      source={{ uri: artwork.DP_MAIN_IMG }}
-                      style={ImgStyle}
-                    /> */}
                     <ImageBackground
                       source={{ uri: artwork.DP_MAIN_IMG }}
                       style={styles.imageBackground}
@@ -347,12 +452,7 @@ const styles = StyleSheet.create({
     width: "100%",
     paddingVertical: 10,
   },
-  recommandedImages: {
-    width: "100%",
-    height: 400,
-    borderColor: "black",
-    borderWidth: 1,
-  },
+
   DescStyle: {
     fontSize: 10,
     color: "#333",
@@ -367,16 +467,16 @@ const styles = StyleSheet.create({
     borderColor: "black",
     borderWidth: 1,
   },
-  recommandContents: {
-    width: "100%",
-    alignItems: "center",
-    flexDirection: "column",
-    borderColor: "orange",
-    borderWidth: 2,
-    height: "auto",
-    padding: 20,
-    marginBottom: 10,
-  },
+  // recommandContents: {
+  //   width: "100%",
+  //   alignItems: "center",
+  //   flexDirection: "column",
+  //   borderColor: "orange",
+  //   borderWidth: 2,
+  //   height: "auto",
+  //   padding: 20,
+  //   marginBottom: 10,
+  // },
   recommandContainer: {
     width: "100%",
     alignItems: "center",
@@ -387,6 +487,60 @@ const styles = StyleSheet.create({
     height: "auto",
     padding: 20,
     marginBottom: 10,
+  },
+  // recommandedImages: {
+  //   width: "100%",
+  //   height: 400,
+  //   borderColor: "black",
+  //   borderWidth: 1,
+  //   marginBottom: 8,
+  // },
+  recommandList: {
+    // paddingLeft: 10,
+    paddingVertical: 8,
+  },
+  recommandCard: {
+    width: 310,
+    marginRight: 12,
+    borderRadius: 10,
+    backgroundColor: "#fff",
+    padding: 10,
+    overflow: "hidden",
+  },
+  recommandImage: {
+    width: "100%",
+    height: 450,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  recommandPart: {
+    fontSize: 12,
+    color: "gray",
+  },
+  recommandTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  dotsContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 8,
+    width: "100%",
+    // backgroundColor: "blue",
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#ccc",
+    marginHorizontal: 6,
+  },
+  activeDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: "#333",
   },
   recentContainer: {
     width: "100%",
@@ -472,7 +626,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     height: "auto",
     // padding: 20,
-    // marginVertical: 10,
+    marginVertical: 5,
   },
   endedContainer: {
     width: "100%",
