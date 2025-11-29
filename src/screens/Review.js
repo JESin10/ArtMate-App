@@ -8,14 +8,17 @@ import {
   ImageBackground,
   ActivityIndicator,
   TouchableOpacity,
+  Button,
 } from "react-native";
 import React, { useState, useRef, useEffect } from "react";
+import ReviewModal from "../components/ReviewModal";
 
 export default function Review() {
   const [exampleNum, setExampleNum] = useState(3);
   const [likeCnt, setLikeCnt] = useState(10);
   const [commentCnt, setCommentCnt] = useState(20);
   const [loading, setLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const timerRef = useRef(null);
   const onRefresh = React.useCallback(() => {
     setLoading(true);
@@ -41,7 +44,7 @@ export default function Review() {
         marginHorizontal: "auto",
         flexDirection: "column",
         flex: 1,
-        position: "relative", // overlay를 위해 상대 위치 필요
+        position: "relative",
       }}
     >
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
@@ -121,6 +124,15 @@ export default function Review() {
           </View>
         </View>
       </ScrollView>
+      <View style={styles.ReviewBtn}>
+        <TouchableOpacity
+          style={styles.ReviewBtnInner}
+          onPress={() => setShowModal(true)}
+          activeOpacity={0.8}
+        />
+        <Text style={styles.ReviewBtnText}>+</Text>
+      </View>
+      <ReviewModal visible={showModal} onClose={() => setShowModal(false)} />
       {loading && (
         <View style={styles.overlay}>
           <View style={styles.overlayContent}>
@@ -174,7 +186,7 @@ const styles = StyleSheet.create({
   },
   reviewsContainer: {
     width: "100%",
-    borderWidth: 1,
+    borderWidth: 3,
     borderColor: "red",
     padding: 20,
     marginTop: 30,
@@ -234,7 +246,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.4)",
     justifyContent: "center",
     alignItems: "center",
-    zIndex: 999,
+    zIndex: 200,
   },
   overlayContent: {
     padding: 20,
@@ -242,4 +254,25 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.6)",
     alignItems: "center",
   },
+  ReviewBtn: {
+    position: "absolute",
+    zIndex: 999,
+    bottom: 20,
+    // left: 100,
+    right: 40,
+    borderColor: "black",
+    borderWidth: 2,
+    alignItems: "center",
+    width: 50,
+    height: 50,
+    backgroundColor: "lightgray",
+    pointerEvents: "box-none",
+  },
+  ReviewBtnInner: {
+    width: 56,
+    height: 56,
+    position: "absolute",
+    alignItems: "center",
+  },
+  ReviewBtnText: { margin: "auto", fontSize: 24 },
 });
