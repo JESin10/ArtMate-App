@@ -130,7 +130,7 @@ export default function Review() {
           onPress={() => setShowModal(true)}
           activeOpacity={0.8}
         />
-        <Text style={styles.ReviewBtnText}>+</Text>
+        <Text style={styles.ReviewBtnText}>R</Text>
       </View>
       <ReviewModal visible={showModal} onClose={() => setShowModal(false)} />
       {loading && (

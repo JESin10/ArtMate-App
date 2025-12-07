@@ -24,6 +24,7 @@ const API_KEY = "6b44656447746c733835476551776c";
 export default function Home() {
   const [artworks, setArtworks] = useState([]); // 작품들 전체
   const [recentArtworks, setRecentArtworks] = useState([]); // 금주의 최신작품
+  const [recentPage, setRecentPage] = useState(0);
   const [endedArtworks, setEndedArtworks] = useState([]); // 종료예정 작품
   const [artist, setArtist] = useState([]); // 현재 전시중인 작가
   const [loading, setLoading] = useState(false);
@@ -37,6 +38,11 @@ export default function Home() {
   // const { width } = useWindowDimensions();
   const flatListRef = useRef(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const RECENT_PER_PAGE = 4;
+  const recentTotalPages = Math.min(
+    3,
+    Math.max(1, Math.ceil(recentArtworks.length / RECENT_PER_PAGE))
+  );
 
   const htmlToPlain = (html) => {
     if (!html) return "";
@@ -84,6 +90,10 @@ export default function Home() {
   useEffect(() => {
     getArtwork();
   }, []);
+
+  useEffect(() => {
+    if (recentPage >= recentTotalPages) setRecentPage(0);
+  }, [recentArtworks, recentTotalPages]);
 
   const data = artworks.slice(0, 4); // 슬라이드에 사용할 데이터
 
@@ -304,39 +314,61 @@ export default function Home() {
               <Text style={styles.pageTitle}>금주의 최신 전시모음</Text>
             </View>
             <View style={styles.recentContents}>
-              {recentArtworks.slice(0, 4).map((artwork, index) => {
-                const recentNum = index % 4;
-                const ImgStyle =
-                  recentNum === 0
-                    ? styles.recentImagesS
-                    : recentNum === 1
-                    ? styles.recentImagesL
-                    : recentNum === 2
-                    ? styles.recentImagesL
-                    : styles.recentImagesS;
-                return (
-                  <TouchableOpacity
-                    key={index}
-                    style={ImgStyle}
-                    onPress={() => {
-                      setShowModal(true);
-                      setSelectedArtwork(artwork);
-                      // if (!details[artwork.seq]) getDetailPlace(item.seq);
-                    }}
-                  >
-                    <ImageBackground
-                      source={{ uri: artwork.DP_MAIN_IMG }}
-                      style={styles.imageBackground}
-                      imageStyle={styles.backgroundImage}
-                    />
-                  </TouchableOpacity>
-                );
-              })}
+              {recentArtworks
+                .slice(
+                  recentPage * RECENT_PER_PAGE,
+                  recentPage * RECENT_PER_PAGE + RECENT_PER_PAGE
+                )
+                .map((artwork, index) => {
+                  const recentNum = index % 4;
+                  const ImgStyle =
+                    recentNum === 0
+                      ? styles.recentImagesS
+                      : recentNum === 1
+                      ? styles.recentImagesL
+                      : recentNum === 2
+                      ? styles.recentImagesL
+                      : styles.recentImagesS;
+                  return (
+                    <TouchableOpacity
+                      key={index}
+                      style={ImgStyle}
+                      onPress={() => {
+                        setShowModal(true);
+                        setSelectedArtwork(artwork);
+                        // if (!details[artwork.seq]) getDetailPlace(item.seq);
+                      }}
+                    >
+                      <ImageBackground
+                        source={{ uri: artwork.DP_MAIN_IMG }}
+                        style={styles.imageBackground}
+                        imageStyle={styles.backgroundImage}
+                      />
+                    </TouchableOpacity>
+                  );
+                })}
             </View>
-            <View style={styles.buttonContainer}>
+            {/* <View style={styles.buttonContainer}>
               <Button title="이전" />
               <Text>페이지수</Text>
               <Button title="다음" />
+            </View> */}
+            <View style={styles.buttonContainer}>
+              <Button
+                title="이전"
+                onPress={() => setRecentPage((p) => Math.max(0, p - 1))}
+                disabled={recentPage === 0}
+              />
+              <Text style={{ alignSelf: "center", marginHorizontal: 12 }}>
+                {recentPage + 1} / {recentTotalPages}
+              </Text>
+              <Button
+                title="다음"
+                onPress={() =>
+                  setRecentPage((p) => Math.min(recentTotalPages - 1, p + 1))
+                }
+                disabled={recentPage >= recentTotalPages - 1}
+              />
             </View>
 
             <ArtworkInfoModal
@@ -380,6 +412,7 @@ export default function Home() {
                           color: "gray",
                           fontSize: "13",
                           flexWrap: "wrap",
+                          display: "flex",
                         }}
                       >
                         {endedartwork.DP_NAME}

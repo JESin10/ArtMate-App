@@ -18,6 +18,7 @@ import Constants from "expo-constants";
 import { parseString } from "react-native-xml2js";
 import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 import PlacesInfoModal from "../components/PlacesInfoModal";
+import { MapView, Marker } from "expo-maps";
 
 const SERVER_URL =
   "https://apis.data.go.kr/B553457/nopenapi/rest/cultureartspaces";
@@ -34,6 +35,9 @@ export default function Places() {
   const [showPopup, setShowPopup] = useState(false);
   const [loading, setLoading] = useState(false);
   const [selectedPlace, setSelectedPlace] = useState(null);
+
+  const [showMap, setShowMap] = useState(false);
+  const [mapRegion, setMapRegion] = useState(null);
 
   const getDetailPlace = async (seq) => {
     try {
@@ -82,6 +86,60 @@ export default function Places() {
       setLoading(false);
       console.error("목록 불러오기 오류:", error);
     }
+  };
+
+  const getCoords = (detail, item) => {
+    const tryNum = (v) => {
+      if (!v) return null;
+      const n = parseFloat(v);
+      return Number.isFinite(n) ? n : null;
+    };
+    const latKeys = [
+      detail?.lat,
+      detail?.latitude,
+      detail?.gpsY,
+      detail?.mapY,
+      detail?.y,
+      detail?.CUL_LAT,
+      item?.lat,
+    ];
+    const lngKeys = [
+      detail?.lng,
+      detail?.longitude,
+      detail?.gpsX,
+      detail?.mapX,
+      detail?.x,
+      detail?.CUL_LON,
+      item?.lng,
+    ];
+    const lat = tryNum(latKeys.find(Boolean));
+    const lng = tryNum(lngKeys.find(Boolean));
+    if (lat && lng) return { latitude: lat, longitude: lng };
+    return null;
+  };
+
+  const openMap = () => {
+    // 중심 좌표: 첫 번째 유효 좌표 사용
+    let center = null;
+    for (let i = 0; i < gallery.length; i++) {
+      const item = gallery[i];
+      const detail = details[item.seq];
+      const c = getCoords(detail, item);
+      if (c) {
+        center = c;
+        break;
+      }
+    }
+    if (!center) {
+      // 기본값(서울 중심)
+      center = { latitude: 37.5665, longitude: 126.978 };
+    }
+    setMapRegion({
+      ...center,
+      latitudeDelta: 0.05,
+      longitudeDelta: 0.05,
+    });
+    setShowMap(true);
   };
 
   useEffect(() => {
@@ -139,7 +197,7 @@ export default function Places() {
               <Button
                 title="지도변환"
                 color="#333"
-                // onPress={}
+                onPress={openMap}
                 disabled={loading}
               />
             </View>
@@ -206,6 +264,33 @@ export default function Places() {
             <ActivityIndicator size="large" color="#fff" />
             <Text style={{ color: "#fff", marginTop: 8 }}>로딩중...</Text>
           </View>
+        </View>
+      )}
+
+      {/* 지도클릭시 */}
+      {showMap && mapRegion && (
+        <View style={styles.mapOverlay}>
+          <MapView style={styles.map} initialRegion={mapRegion}>
+            {gallery.map((item, idx) => {
+              const detail = details[item.seq];
+              const coord = getCoords(detail, item);
+              if (!coord) return null;
+              return (
+                <Marker
+                  key={idx}
+                  coordinate={coord}
+                  title={item.culName}
+                  description={detail?.culAddr || item.culTel}
+                />
+              );
+            })}
+          </MapView>
+          <TouchableOpacity
+            style={styles.mapCloseBtn}
+            onPress={() => setShowMap(false)}
+          >
+            <Text style={{ color: "#fff", fontWeight: "bold" }}>닫기</Text>
+          </TouchableOpacity>
         </View>
       )}
     </SafeAreaView>
@@ -301,5 +386,26 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: "rgba(0,0,0,0.6)",
     alignItems: "center",
+  },
+  mapOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 999,
+    backgroundColor: "#fff",
+  },
+  map: {
+    flex: 1,
+  },
+  mapCloseBtn: {
+    position: "absolute",
+    top: 40,
+    right: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    borderRadius: 6,
   },
 });
