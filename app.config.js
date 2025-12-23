@@ -9,6 +9,7 @@ module.exports = {
     platforms: ["ios", "android"],
     ios: {
       bundleIdentifier: "com.artmate.app",
+      newArchEnabled: false,
     },
     android: {
       package: "com.artmate.app",
