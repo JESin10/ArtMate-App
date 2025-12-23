@@ -4,6 +4,7 @@ module.exports = {
   expo: {
     name: "ArtMateApp",
     slug: "artmate-app",
+    newArchEnabled: false,
     version: "1.0.0",
     sdkVersion: "52.0.0",
     platforms: ["ios", "android"],
