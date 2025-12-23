@@ -18,7 +18,6 @@ import Constants from "expo-constants";
 import { parseString } from "react-native-xml2js";
 import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 import PlacesInfoModal from "../components/PlacesInfoModal";
-// import { MapView, Marker } from "expo-maps";
 
 const SERVER_URL =
   "https://apis.data.go.kr/B553457/nopenapi/rest/cultureartspaces";
@@ -270,21 +269,6 @@ export default function Places() {
       {/* 지도클릭시 */}
       {showMap && mapRegion && (
         <View style={styles.mapOverlay}>
-          {/* <MapView style={styles.map} initialRegion={mapRegion}>
-            {gallery.map((item, idx) => {
-              const detail = details[item.seq];
-              const coord = getCoords(detail, item);
-              if (!coord) return null;
-              return (
-                <Marker
-                  key={idx}
-                  coordinate={coord}
-                  title={item.culName}
-                  description={detail?.culAddr || item.culTel}
-                />
-              );
-            })}
-          </MapView> */}
           <TouchableOpacity
             style={styles.mapCloseBtn}
             onPress={() => setShowMap(false)}
