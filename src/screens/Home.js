@@ -39,9 +39,10 @@ export default function Home() {
   const flatListRef = useRef(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const RECENT_PER_PAGE = 4;
-  const recentTotalPages = Math.min(
-    3,
-    Math.max(1, Math.ceil(recentArtworks.length / RECENT_PER_PAGE))
+  const RECENT_TOTAL_ITEMS = 16; // 총 슬롯 수 (항상 16개로 맞춤)
+  const recentTotalPages = Math.max(
+    1,
+    Math.ceil(RECENT_TOTAL_ITEMS / RECENT_PER_PAGE)
   );
 
   const htmlToPlain = (html) => {
@@ -147,6 +148,15 @@ export default function Home() {
     return isNaN(d.getTime()) ? null : d;
   };
 
+  // 날짜 문자열을 'M월 D일' 형식으로 변환 (예: 2026-04-01 -> 4월 1일)
+  const formatDateKorean = (dateStr) => {
+    const d = parseDateSafe(dateStr);
+    if (!d) return dateStr ?? "";
+    const month = d.getMonth() + 1;
+    const day = d.getDate();
+    return `${month}월 ${day}일`;
+  };
+
   // artworks 배열을 받아 DP_START 기준으로 현재 날짜와 가까운 순으로 정렬하여 설정
   const computeRecentArtworks = (items) => {
     const today = new Date();
@@ -203,6 +213,13 @@ export default function Home() {
   }, [artworks]);
 
   // console.log("종료:", endedArtworks);
+
+  // Prepare fixed 16-slot array for recent grid; fill missing slots with null placeholders
+  const filledRecent = (() => {
+    const arr = recentArtworks.slice(0, RECENT_TOTAL_ITEMS);
+    while (arr.length < RECENT_TOTAL_ITEMS) arr.push(null);
+    return arr;
+  })();
 
   return (
     <SafeAreaView
@@ -314,7 +331,7 @@ export default function Home() {
               <Text style={styles.pageTitle}>금주의 최신 전시모음</Text>
             </View>
             <View style={styles.recentContents}>
-              {recentArtworks
+              {filledRecent
                 .slice(
                   recentPage * RECENT_PER_PAGE,
                   recentPage * RECENT_PER_PAGE + RECENT_PER_PAGE
@@ -329,22 +346,32 @@ export default function Home() {
                       : recentNum === 2
                       ? styles.recentImagesL
                       : styles.recentImagesS;
+
+                  if (artwork) {
+                    return (
+                      <TouchableOpacity
+                        key={artwork.DP_SEQ ?? index}
+                        style={ImgStyle}
+                        onPress={() => {
+                          setShowModal(true);
+                          setSelectedArtwork(artwork);
+                        }}
+                      >
+                        <ImageBackground
+                          source={{ uri: artwork.DP_MAIN_IMG }}
+                          style={styles.imageBackground}
+                          imageStyle={styles.backgroundImage}
+                        />
+                      </TouchableOpacity>
+                    );
+                  }
+
+                  // Placeholder: green empty tile when no artwork
                   return (
-                    <TouchableOpacity
-                      key={index}
-                      style={ImgStyle}
-                      onPress={() => {
-                        setShowModal(true);
-                        setSelectedArtwork(artwork);
-                        // if (!details[artwork.seq]) getDetailPlace(item.seq);
-                      }}
-                    >
-                      <ImageBackground
-                        source={{ uri: artwork.DP_MAIN_IMG }}
-                        style={styles.imageBackground}
-                        imageStyle={styles.backgroundImage}
-                      />
-                    </TouchableOpacity>
+                    <View
+                      key={"empty-" + index}
+                      style={[ImgStyle, styles.recentPlaceholder]}
+                    />
                   );
                 })}
             </View>
@@ -386,7 +413,7 @@ export default function Home() {
                 return (
                   <TouchableOpacity
                     key={index}
-                    style={styles.endedContents}
+                    style={styles.endedContentsContainer}
                     onPress={() => {
                       setShowModal(true);
                       setSelectedArtwork(endedartwork);
@@ -397,7 +424,7 @@ export default function Home() {
                       style={styles.endedImages}
                       // imageStyle={styles.backgroundImage}
                     />
-                    <View style={{ flexDirection: "column" }}>
+                    <View style={styles.endedContents}>
                       <Text
                         style={{
                           color: "gray",
@@ -405,16 +432,10 @@ export default function Home() {
                           fontSize: "10",
                         }}
                       >
-                        {endedartwork.DP_END}까지 만날 수 있는 전시!
+                        {formatDateKorean(endedartwork.DP_END)}까지 만날 수 있는
+                        전시!
                       </Text>
-                      <Text
-                        style={{
-                          color: "gray",
-                          fontSize: "13",
-                          flexWrap: "wrap",
-                          display: "flex",
-                        }}
-                      >
+                      <Text style={styles.endedNamecStyle} numberOfLines={3}>
                         {endedartwork.DP_NAME}
                       </Text>
                     </View>
@@ -608,6 +629,7 @@ const styles = StyleSheet.create({
     borderColor: "red",
     borderWidth: 1,
     borderRadius: 10,
+    backgroundColor: "white",
     // padding: 5,
   },
   recentImagesL: {
@@ -619,8 +641,17 @@ const styles = StyleSheet.create({
     borderColor: "yellow",
     borderWidth: 1,
     borderRadius: 10,
+    backgroundColor: "white",
     // padding: 5,
     // marginHorizontal: "auto",
+  },
+  recentPlaceholder: {
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "transparent",
+    borderRadius: 10,
+    borderColor: "transparent",
+    borderWidth: 1,
   },
   buttonContainer: {
     width: "100%",
@@ -651,15 +682,38 @@ const styles = StyleSheet.create({
     borderColor: "black",
     borderWidth: 1,
   },
-  endedContents: {
+  endedContentsContainer: {
     width: "100%",
     alignItems: "center",
     flexDirection: "row",
     borderColor: "red",
     borderWidth: 2,
     height: "auto",
+    display: "flex",
     // padding: 20,
     marginVertical: 5,
+  },
+  endedContents: {
+    width: "55%",
+    flexDirection: "column",
+    borderColor: "purple",
+    borderWidth: 2,
+    height: "auto",
+    display: "flex",
+    // padding: 20,
+    marginVertical: 5,
+    marginLeft: 5,
+  },
+  endedNamecStyle: {
+    marginVertical: 2,
+    width: "50%",
+    color: "gray",
+    fontSize: "13",
+    flexWrap: "wrap",
+    display: "flex",
+    width: "auto",
+    borderColor: "green",
+    borderWidth: 2,
   },
   endedContainer: {
     width: "100%",
@@ -671,6 +725,7 @@ const styles = StyleSheet.create({
     padding: 20,
     marginBottom: 10,
   },
+
   artistContainer: {
     width: "100%",
     alignItems: "center",
