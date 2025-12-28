@@ -6,7 +6,10 @@ import {
   TouchableOpacity,
   ImageBackground,
   ScrollView,
+  Linking,
+  Alert,
 } from "react-native";
+import InfoIcon from "../assets/icons/info.svg";
 import React, { useEffect, useState } from "react";
 import { use } from "react";
 
@@ -39,6 +42,27 @@ export default function PlacesInfoModal({ visible, onClose, item, detail }) {
       setCity(province);
     }
   }, [detail?.culAddr]);
+
+  const openLink = async (rawUrl) => {
+    if (!rawUrl) {
+      Alert.alert("알림", "유효한 링크가 없습니다.");
+      return;
+    }
+    let url = String(rawUrl).trim();
+    if (!/^https?:\/\//i.test(url)) url = `https://${url}`;
+
+    try {
+      const supported = await Linking.canOpenURL(url);
+      if (supported) {
+        await Linking.openURL(url);
+      } else {
+        Alert.alert("오류", "이 링크를 열 수 없습니다.");
+      }
+    } catch (err) {
+      console.error("openLink error", err);
+      Alert.alert("오류", "링크를 열 수 없습니다.");
+    }
+  };
 
   return (
     <Modal
@@ -89,7 +113,30 @@ export default function PlacesInfoModal({ visible, onClose, item, detail }) {
             </View>
             <View style={styles.textContainer}>
               <Text style={styles.titleText2}>홈페이지</Text>
-              <Text style={styles.subText}>{detail?.culHomeUrl}</Text>
+              {detail?.culHomeUrl ? (
+                <TouchableOpacity
+                  style={styles.linkIcon}
+                  onPress={() =>
+                    Alert.alert(
+                      "홈페이지로 이동",
+                      "홈페이지로 이동하시겠습니까?",
+                      [
+                        { text: "취소", style: "cancel" },
+                        {
+                          text: "이동",
+                          onPress: () => openLink(detail.culHomeUrl),
+                        },
+                      ],
+                      { cancelable: true }
+                    )
+                  }
+                >
+                  <InfoIcon width={20} height={20} style={{ marginRight: 8 }} />
+                  <Text style={styles.subText}>홈페이지로 이동</Text>
+                </TouchableOpacity>
+              ) : (
+                <Text style={styles.subText}> 정보없음</Text>
+              )}
             </View>
             <View style={styles.textContainer}>
               <Text style={styles.titleText2}>지도</Text>
@@ -144,6 +191,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 14,
     marginRight: 10,
+    marginTop: 2,
   },
   subText: {
     fontWeight: "normal",
@@ -156,7 +204,6 @@ const styles = StyleSheet.create({
     width: "100%",
     flexDirection: "row",
     border: "solid",
-
     padding: 10,
   },
   image: {
@@ -172,5 +219,11 @@ const styles = StyleSheet.create({
     height: "100%",
     justifyContent: "center",
     alignItems: "center",
+  },
+  linkIcon: {
+    flexDirection: "row",
+    textAlign: "center",
+    alignItems: "center",
+    justifyContent: "center",
   },
 });

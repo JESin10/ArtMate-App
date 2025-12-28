@@ -78,7 +78,6 @@ export default function ArtworkInfoModal({
                 <ImageBackground
                   source={{ uri: artwork.DP_MAIN_IMG }}
                   style={styles.imageBackground}
-                  // imageStyle={styles.tumbnail}
                   resizeMode="cover"
                 />
               ) : (

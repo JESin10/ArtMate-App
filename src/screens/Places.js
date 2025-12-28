@@ -319,21 +319,18 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   discriptions: {
-    width: "46%",
-    height: 200,
+    width: 160,
+    height: 160,
     flexDirection: "column",
-    borderColor: "black",
-    borderWidth: 1,
-    borderRadius: 10,
     marginVertical: 10,
     marginHorizontal: "auto",
-    justifyContent: "space-evenly",
+    justifyContent: "center",
     textAlign: "center",
   },
   image: {
     width: "45%",
-    height: 200,
-    borderColor: "blue",
+    height: 160,
+    borderColor: "white",
     borderWidth: 1,
     borderRadius: 10,
     marginVertical: 10,
@@ -342,9 +339,6 @@ const styles = StyleSheet.create({
   imageContainer: {
     width: "100%",
     height: "auto",
-    borderColor: "red",
-    borderWidth: 1,
-    borderRadius: 10,
     flexDirection: "row",
     marginBottom: 10,
   },
@@ -354,6 +348,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  tumbnail: {
+    borderRadius: 10,
+  },
+
   conditions: {
     width: "50%",
     flexDirection: "row",
@@ -366,12 +364,12 @@ const styles = StyleSheet.create({
   titleStyle: {
     fontSize: 14,
     fontWeight: "bold",
-    marginVertical: 2,
+    marginVertical: 10,
   },
   descStyle: {
     fontSize: 12,
     color: "#333",
-    marginVertical: 2,
+    marginVertical: 10,
   },
 
   overlay: {

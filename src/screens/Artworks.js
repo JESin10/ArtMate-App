@@ -189,7 +189,9 @@ export default function Artworks() {
                       style={styles.imageBackground}
                       imageStyle={styles.backgroundImage}
                     />
-                    <Text>{artwork.DP_NAME}</Text>
+                    <Text style={{ fontSize: 16, fontWeight: "bold" }}>
+                      {artwork.DP_NAME}
+                    </Text>
 
                     <Text
                       style={styles.ArtistDescStyle}
@@ -258,27 +260,27 @@ const styles = StyleSheet.create({
   },
   artworks_S: {
     width: "40%",
-    borderColor: "red",
-    borderWidth: 1,
-    borderRadius: 10,
+    // borderColor: "red",
+    // borderWidth: 1,
+    // borderRadius: 10,
     marginVertical: 8,
     marginHorizontal: "1%",
     padding: 8,
   },
   artworks_B: {
     width: "55%",
-    borderColor: "purple",
-    borderWidth: 1,
-    borderRadius: 10,
+    // borderColor: "purple",
+    // borderWidth: 1,
+    // borderRadius: 10,
     marginVertical: 8,
     marginHorizontal: "1%",
     padding: 8,
   },
   ModalContainer: {
     width: "100%",
-    borderColor: "orange",
-    borderWidth: 1,
-    borderRadius: 10,
+    // borderColor: "orange",
+    // borderWidth: 1,
+    // borderRadius: 10,
     flex: 1,
     flexWrap: "wrap",
     flexDirection: "row",
@@ -290,7 +292,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 10,
-    borderColor: "green",
+    borderColor: "transparent",
     borderWidth: 1,
     borderRadius: 10,
   },
@@ -310,13 +312,15 @@ const styles = StyleSheet.create({
   },
   descStyle: {
     fontSize: 10,
-    color: "#333",
-    marginVertical: 2,
+    color: "#000",
+    fontWeight: "200",
+    marginVertical: 4,
   },
   ArtistDescStyle: {
-    fontSize: 10,
-    color: "#333",
-    marginVertical: 2,
+    fontSize: 12,
+    color: "#6F6F6F",
+    marginVertical: 4,
+    fontWeight: "600",
   },
   overlay: {
     position: "absolute",
