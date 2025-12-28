@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { useState, useEffect } from "react";
 import { parseString } from "react-native-xml2js";
+
 const SERVER_URL = "http://openapi.seoul.go.kr:8088";
 const API_KEY = "6b44656447746c733835476551776c";
 

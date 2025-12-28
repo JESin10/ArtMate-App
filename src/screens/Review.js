@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import React, { useState, useRef, useEffect } from "react";
 import ReviewModal from "../components/ReviewModal";
+import Mainlogo from "../assets/icons/logo-main.svg";
 
 export default function Review() {
   const [exampleNum, setExampleNum] = useState(3);
@@ -49,17 +50,9 @@ export default function Review() {
     >
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <View style={{ padding: 10 }}>
-          <Text
-            style={{
-              fontSize: 35,
-              fontWeight: "bold",
-              color: "#333",
-              marginVertical: 15,
-              marginHorizontal: "auto",
-            }}
-          >
-            ArtMate-Logo
-          </Text>
+          <TouchableOpacity style={{ alignItems: "center" }}>
+            <Mainlogo width={150} height={50} />
+          </TouchableOpacity>
           <View style={styles.searchbar}>
             <TextInput placeholder="search-bar" />
           </View>

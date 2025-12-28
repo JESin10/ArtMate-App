@@ -18,6 +18,9 @@ import Constants from "expo-constants";
 import { parseString } from "react-native-xml2js";
 import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 import PlacesInfoModal from "../components/PlacesInfoModal";
+import ReloadIcon from "../assets/icons/reload.svg";
+import MapIcon from "../assets/icons/location.svg";
+import Mainlogo from "../assets/icons/logo-main.svg";
 
 const SERVER_URL =
   "https://apis.data.go.kr/B553457/nopenapi/rest/cultureartspaces";
@@ -159,7 +162,7 @@ export default function Places() {
     >
       <ScrollView>
         <View style={{ padding: 10 }}>
-          <Text
+          {/* <Text
             style={{
               fontSize: 35,
               fontWeight: "bold",
@@ -169,7 +172,10 @@ export default function Places() {
             }}
           >
             ArtMate-Logo
-          </Text>
+          </Text> */}
+          <TouchableOpacity style={{ alignItems: "center" }}>
+            <Mainlogo width={150} height={50} />
+          </TouchableOpacity>
           <View style={styles.searchbar}>
             <TextInput placeholder="search-bar" />
           </View>
@@ -187,18 +193,32 @@ export default function Places() {
               <Text style={styles.pageTitle}>가까운 전시장</Text>
             </View>
             <View style={styles.conditions}>
-              <Button
-                title="새로고침"
-                color="#333"
-                onPress={getPlace}
-                disabled={loading}
-              />
-              <Button
+              <TouchableOpacity onPress={getPlace} disabled={loading}>
+                <ReloadIcon
+                  width={24}
+                  height={24}
+                  style={{
+                    marginBottom: 12,
+                    color: loading ? "#999" : "#333",
+                  }}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={openMap} disabled={loading}>
+                <MapIcon
+                  width={24}
+                  height={24}
+                  style={{
+                    marginBottom: 12,
+                    marginLeft: 12,
+                  }}
+                />
+              </TouchableOpacity>
+              {/* <Button
                 title="지도변환"
                 color="#333"
                 onPress={openMap}
                 disabled={loading}
-              />
+              /> */}
             </View>
           </View>
           <View style={{ flexDirection: "column" }}>

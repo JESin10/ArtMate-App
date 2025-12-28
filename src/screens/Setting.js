@@ -9,21 +9,18 @@ import {
   StyleSheet,
 } from "react-native";
 import React from "react";
+import BackwardIcon from "../assets/icons/backward.svg";
 
 export default function Setting({ navigation }) {
   return (
     <SafeAreaView>
       <View style={styles.settingFactorContainer}>
         <View style={styles.userSetting}>
-          {/* <Button
-            style={styles.BackBtn}
-            title="go back"
-            color="white"
-            accessibilityLabel="Go back button"
+          <TouchableOpacity
+            style={{ margin: 8 }}
             onPress={() => navigation.goBack()}
-          /> */}
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Text style={styles.BackBtn}>⏎</Text>
+          >
+            <BackwardIcon width={24} height={24} fill="#fff" />
           </TouchableOpacity>
           <Text style={styles.userSettingFactor}>가입정보 확인</Text>
           <Text style={styles.userSettingFactor}>비밀번호 변경</Text>

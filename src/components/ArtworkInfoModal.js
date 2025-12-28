@@ -8,6 +8,7 @@ import {
   ImageBackground,
 } from "react-native";
 import React from "react";
+import { decode } from "html-entities"; // 추가: HTML 엔티티 디코드
 
 export default function ArtworkInfoModal({
   visible,
@@ -16,6 +17,19 @@ export default function ArtworkInfoModal({
   detail,
 }) {
   // console.log("ArtworkInfoArtwork:", artwork);
+
+  const htmlToPlain = (html) => {
+    if (!html) return "";
+    const plain = String(html)
+      .replace(/<br\s*\/?>/gi, "\n")
+      .replace(/<\/p>/gi, "\n")
+      .replace(/<p[^>]*>/gi, "")
+      .replace(/&nbsp;/gi, " ")
+      .replace(/<\/?[^>]+(>|$)/g, "") // 남은 모든 태그 제거
+      .trim();
+    return decode(plain);
+  };
+
   return (
     <Modal
       visible={visible}
@@ -87,7 +101,10 @@ export default function ArtworkInfoModal({
             <View style={styles.textContainer}>
               <Text style={styles.titleText2}>상세설명</Text>
               {artwork?.DP_INFO ? (
-                <Text style={styles.subText}> {artwork?.DP_INFO} </Text>
+                <Text style={styles.subText}>
+                  {" "}
+                  {htmlToPlain(artwork?.DP_INFO)}{" "}
+                </Text>
               ) : (
                 <Text style={styles.subText}> 정보없음</Text>
               )}

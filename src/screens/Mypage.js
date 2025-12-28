@@ -15,6 +15,9 @@ import LikeIcon from "../../src/assets/icons/Heart.svg";
 import BookMarkIcon from "../../src/assets/icons/bookmark.svg";
 import ListIcon from "../../src/assets/icons/receipt.svg";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import AlertIcon from "../assets/icons/alert.svg";
+import SettingIcon from "../assets/icons/setting.svg";
+import ShareIcon from "../assets/icons/share.svg";
 
 export default function Mypage({ navigation }) {
   const [exampleNum, setExampleNum] = useState(7);
@@ -61,21 +64,24 @@ export default function Mypage({ navigation }) {
             <TextInput placeholder="search-bar" />
           </View> */}
           <View style={styles.settingContainer}>
-            <Text style={styles.subTitle}>알림</Text>
-            <Button
-              title="공유"
-              style={styles.subTitle}
-              color="black"
-              // onPress={() => Alert.alert("Share?")}
-              onPress={showAlertWithChoices}
-            />
-            <Button
-              title="설정"
-              style={styles.subTitle}
-              color="black"
-              onPress={() => navigation.navigate("Setting")}
-              navigation
-            />
+            <TouchableOpacity>
+              <AlertIcon width={24} height={24} />
+            </TouchableOpacity>
+            <TouchableOpacity style={{ marginLeft: 10 }}>
+              <ShareIcon
+                width={24}
+                height={24}
+                onPress={showAlertWithChoices}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity style={{ marginLeft: 10 }}>
+              <SettingIcon
+                width={24}
+                height={24}
+                fill={"#333"}
+                onPress={() => navigation.navigate("Setting")}
+              />
+            </TouchableOpacity>
           </View>
 
           <View style={styles.myInfoContainer}>

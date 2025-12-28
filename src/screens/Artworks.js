@@ -15,6 +15,9 @@ import { parseString } from "react-native-xml2js";
 import { reloadAppAsync } from "expo";
 import ArtworkFilter from "../components/ArtworkFilter";
 import ArtworkInfoModal from "../components/ArtworkInfoModal";
+import FilterIcon from "../assets/icons/filter.svg";
+import ReloadIcon from "../assets/icons/reload.svg";
+import Mainlogo from "../assets/icons/logo-main.svg";
 
 // const SERVER_URL = "https://apis.data.go.kr/B553457/cultureinfo";
 // const API_KEY =
@@ -118,18 +121,10 @@ export default function Artworks() {
       }}
     >
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <View style={{ padding: 10 }}>
-          <Text
-            style={{
-              fontSize: 35,
-              fontWeight: "bold",
-              color: "#333",
-              marginVertical: 15,
-              marginHorizontal: "auto",
-            }}
-          >
-            ArtMate-Logo
-          </Text>
+        <View style={{ padding: 10, justifyContent: "center" }}>
+          <TouchableOpacity style={{ alignItems: "center" }}>
+            <Mainlogo width={150} height={50} />
+          </TouchableOpacity>
           <View style={styles.searchbar}>
             <TextInput placeholder="search-bar" />
           </View>
@@ -147,18 +142,24 @@ export default function Artworks() {
               <Text style={styles.pageTitle}>작품 정보</Text>
             </View>
             <View style={styles.conditions}>
-              <Button
-                title="필터"
-                color="#333"
-                onPress={() => setShowFilter(true)}
-              />
-              <Button
-                title="새로고침"
-                // {loading ? "loading" : "새로고침"}
-                color="#333"
-                onPress={getArtwork}
-                disabled={loading}
-              />
+              <TouchableOpacity onPress={() => setShowFilter(true)}>
+                <FilterIcon
+                  width={24}
+                  height={24}
+                  style={{ marginBottom: 12, marginHorizontal: 12 }}
+                />
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={getArtwork} disabled={loading}>
+                <ReloadIcon
+                  width={24}
+                  height={24}
+                  style={{
+                    marginBottom: 12,
+                    color: loading ? "#999" : "#333",
+                  }}
+                />
+              </TouchableOpacity>
             </View>
           </View>
           <View style={styles.ModalContainer}>

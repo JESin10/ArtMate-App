@@ -18,6 +18,11 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { parseString } from "react-native-xml2js";
 import ArtworkInfoModal from "../components/ArtworkInfoModal";
 import RenderHTML from "react-native-render-html";
+
+import BackwardIcon from "../assets/icons/backward.svg";
+import ForwardIcon from "../assets/icons/forward.svg";
+import Mainlogo from "../assets/icons/logo-main.svg";
+
 const SERVER_URL = "http://openapi.seoul.go.kr:8088";
 const API_KEY = "6b44656447746c733835476551776c";
 
@@ -233,17 +238,9 @@ export default function Home() {
       <ScrollView>
         {/* <TouchableOpacity style={styles.container}> */}
         <View style={styles.container}>
-          <Text
-            style={{
-              fontSize: 35,
-              fontWeight: "bold",
-              color: "#333",
-              marginVertical: 15,
-              marginHorizontal: "auto",
-            }}
-          >
-            ArtMate-Logo
-          </Text>
+          <TouchableOpacity>
+            <Mainlogo width={150} height={50} />
+          </TouchableOpacity>
           <View style={styles.searchbar}>
             <TextInput placeholder="search-bar" />
           </View>
@@ -381,21 +378,33 @@ export default function Home() {
               <Button title="다음" />
             </View> */}
             <View style={styles.buttonContainer}>
-              <Button
-                title="이전"
+              <TouchableOpacity
                 onPress={() => setRecentPage((p) => Math.max(0, p - 1))}
                 disabled={recentPage === 0}
-              />
+                style={[
+                  styles.iconButton,
+                  recentPage === 0 && styles.disabledIcon,
+                ]}
+              >
+                <BackwardIcon width={24} height={24} />
+              </TouchableOpacity>
+
               <Text style={{ alignSelf: "center", marginHorizontal: 12 }}>
                 {recentPage + 1} / {recentTotalPages}
               </Text>
-              <Button
-                title="다음"
+
+              <TouchableOpacity
                 onPress={() =>
                   setRecentPage((p) => Math.min(recentTotalPages - 1, p + 1))
                 }
                 disabled={recentPage >= recentTotalPages - 1}
-              />
+                style={[
+                  styles.iconButton,
+                  recentPage >= recentTotalPages - 1 && styles.disabledIcon,
+                ]}
+              >
+                <ForwardIcon width={24} height={24} />
+              </TouchableOpacity>
             </View>
 
             <ArtworkInfoModal
@@ -652,6 +661,14 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderColor: "transparent",
     borderWidth: 1,
+  },
+  iconButton: {
+    padding: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  disabledIcon: {
+    opacity: 0.35,
   },
   buttonContainer: {
     width: "100%",

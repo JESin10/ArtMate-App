@@ -17,6 +17,7 @@ import PlacesIcon from "./src/assets/icons/Menubar_gallery.svg";
 import ReviewIcon from "./src/assets/icons/write.svg";
 import MypageIcon from "./src/assets/icons/Menubar_user.svg";
 import Setting from "./src/screens/Setting";
+
 // import SignupIcon from "./src/assets/icons/Menubar_user.svg";
 
 export default function App() {
