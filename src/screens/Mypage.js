@@ -11,13 +11,14 @@ import {
   Button,
   Alert,
 } from "react-native";
-import LikeIcon from "../../src/assets/icons/Heart.svg";
+import LikeIcon from "../../src/assets/icons/heart.svg";
 import BookMarkIcon from "../../src/assets/icons/bookmark.svg";
 import ListIcon from "../../src/assets/icons/receipt.svg";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import AlertIcon from "../assets/icons/alert.svg";
 import SettingIcon from "../assets/icons/setting.svg";
 import ShareIcon from "../assets/icons/share.svg";
+import EditIcon from "../assets/icons/edit.svg";
 
 export default function Mypage({ navigation }) {
   const [exampleNum, setExampleNum] = useState(7);
@@ -95,7 +96,9 @@ export default function Mypage({ navigation }) {
               <View style={styles.myAccInfo}>
                 <View style={styles.myFollowInfo}>
                   <Text>이름</Text>
-                  <Text>수정</Text>
+                  <TouchableOpacity>
+                    <EditIcon width={16} height={16} fill="#fff" />
+                  </TouchableOpacity>
                 </View>
 
                 <View style={styles.myFollowInfo}>
@@ -111,21 +114,42 @@ export default function Mypage({ navigation }) {
               </View>
             </View>
             <View style={styles.myActivity}>
-              <View>
-                <Button title="관람내역" color="white">
-                  <ListIcon width={24} height={24} fill={"#333"} />
-                </Button>
-              </View>
-              <View>
-                <Button title="스크랩북" color="white">
-                  <BookMarkIcon width={24} height={24} fill={"#333"} />
-                </Button>
-              </View>
-              <View>
-                <Button title="좋아요" color="white">
-                  <LikeIcon width={24} height={24} fill={"#333"} />
-                </Button>
-              </View>
+              <TouchableOpacity style={{ alignItems: "center" }}>
+                <ListIcon width={36} height={36} fill="#fff" />
+                <Text
+                  style={{ marginTop: "15", color: "#fff", fontSize: "14" }}
+                >
+                  관람 내역
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  alignItems: "center",
+                }}
+              >
+                <BookMarkIcon width={36} height={36} fill="#fff" />
+                <Text
+                  style={{
+                    marginTop: "15",
+                    color: "#fff",
+                    fontSize: "14",
+                  }}
+                >
+                  스크랩북
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity>
+                <LikeIcon width={36} height={36} fill="#fff" />
+                <Text
+                  style={{
+                    marginTop: "15",
+                    color: "#fff",
+                    fontSize: "14",
+                  }}
+                >
+                  좋아요
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
           <View style={styles.reviewContainer}>
@@ -196,6 +220,7 @@ const styles = {
     padding: 10,
     justifyContent: "beetween",
     flexDirection: "row",
+    alignItems: "center",
   },
   myAccInfo: {
     width: "70%",
