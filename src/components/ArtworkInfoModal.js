@@ -10,6 +10,7 @@ import {
   Alert,
 } from "react-native";
 import React from "react";
+import InfoIcon from "../assets/icons/info.svg";
 import { decode } from "html-entities"; // 추가: HTML 엔티티 디코드
 
 export default function ArtworkInfoModal({
@@ -36,6 +37,7 @@ export default function ArtworkInfoModal({
       return;
     }
     let url = String(rawUrl).trim();
+
     if (!/^https?:\/\//i.test(url)) {
       url = `https://${url}`;
     }
@@ -52,7 +54,6 @@ export default function ArtworkInfoModal({
       Alert.alert("오류", "링크를 열 수 없습니다.");
     }
   };
-  console.log("url:", url);
 
   return (
     <Modal
@@ -77,7 +78,7 @@ export default function ArtworkInfoModal({
                 <ImageBackground
                   source={{ uri: artwork.DP_MAIN_IMG }}
                   style={styles.imageBackground}
-                  imageStyle={styles.tumbnail}
+                  // imageStyle={styles.tumbnail}
                   resizeMode="cover"
                 />
               ) : (
@@ -121,14 +122,30 @@ export default function ArtworkInfoModal({
             <View style={styles.textContainer}>
               <Text style={styles.titleText2}>홈페이지</Text>
               {artwork?.DP_LNK ? (
-                <TouchableOpacity onPress={() => openLink(artwork.DP_LNK)}>
-                  <Text
-                    style={[styles.subText, styles.linkText]}
-                    numberOfLines={1}
-                    ellipsizeMode="tail"
-                  >
-                    {artwork.DP_LNK}
-                  </Text>
+                <TouchableOpacity
+                  style={styles.linkIcon}
+                  onPress={() =>
+                    Alert.alert(
+                      "홈페이지로 이동",
+                      "홈페이지로 이동하시겠습니까?",
+                      [
+                        { text: "취소", style: "cancel" },
+                        {
+                          text: "이동",
+                          onPress: () => openLink(artwork.DP_LNK),
+                        },
+                      ],
+                      { cancelable: true }
+                    )
+                  }
+                >
+                  <InfoIcon
+                    width={20}
+                    height={20}
+                    fill="#000"
+                    style={{ marginRight: 8 }}
+                  />
+                  <Text style={styles.subText}>홈페이지로 이동</Text>
                 </TouchableOpacity>
               ) : (
                 <Text style={styles.subText}> 정보없음</Text>
@@ -192,6 +209,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 14,
     marginRight: 10,
+    paddingTop: 2,
   },
   subText: {
     fontWeight: "normal",
@@ -199,26 +217,23 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     color: "gray",
   },
-  linkText: {
-    color: "#1E90FF",
-    textDecorationLine: "underline",
+
+  linkIcon: {
+    marginBottom: 2,
+    flexDirection: "row",
+    textAlign: "center",
+    alignItems: "center",
+    justifyContent: "center",
   },
   textContainer: {
     marginBottom: 10,
     width: "100%",
     flexDirection: "row",
-    // justifyContent: "space-between",
-    // border: "solid",
-    // borderColor: "green",
-    // borderWidth: 1,
     padding: 10,
   },
   image: {
     width: "100%",
     height: 300,
-    borderColor: "blue",
-    borderWidth: 1,
-    borderRadius: 10,
     marginVertical: 10,
     alignSelf: "center",
     overflow: "hidden",
@@ -229,5 +244,4 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  tumbnail: { borderRadius: 10 },
 });
