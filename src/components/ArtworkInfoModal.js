@@ -6,6 +6,8 @@ import {
   TouchableOpacity,
   ScrollView,
   ImageBackground,
+  Linking,
+  Alert,
 } from "react-native";
 import React from "react";
 import { decode } from "html-entities"; // 추가: HTML 엔티티 디코드
@@ -28,6 +30,30 @@ export default function ArtworkInfoModal({
     return decode(plain);
   };
 
+  const openLink = async (rawUrl) => {
+    if (!rawUrl) {
+      Alert.alert("알림", "유효한 링크가 없습니다.");
+      return;
+    }
+    let url = String(rawUrl).trim();
+    if (!/^https?:\/\//i.test(url)) {
+      url = `https://${url}`;
+    }
+
+    try {
+      const supported = await Linking.canOpenURL(url);
+      if (supported) {
+        await Linking.openURL(url);
+      } else {
+        Alert.alert("오류", "이 링크를 열 수 없습니다.");
+      }
+    } catch (err) {
+      console.error("openLink error", err);
+      Alert.alert("오류", "링크를 열 수 없습니다.");
+    }
+  };
+  console.log("url:", url);
+
   return (
     <Modal
       visible={visible}
@@ -46,9 +72,6 @@ export default function ArtworkInfoModal({
             contentContainerStyle={styles.ModalContent}
             showsVerticalScrollIndicator={true}
           >
-            <View style={styles.textContainer}>
-              <Text style={styles.titleText1}>{artwork?.DP_NAME}</Text>
-            </View>
             <View style={styles.image}>
               {artwork?.DP_MAIN_IMG && artwork.DP_MAIN_IMG ? (
                 <ImageBackground
@@ -60,6 +83,9 @@ export default function ArtworkInfoModal({
               ) : (
                 <Text>No Image</Text>
               )}
+            </View>
+            <View style={styles.textContainer}>
+              <Text style={styles.titleText1}>{artwork?.DP_NAME}</Text>
             </View>
             <View style={styles.textContainer}>
               <Text style={styles.titleText2}>작가</Text>
@@ -94,14 +120,25 @@ export default function ArtworkInfoModal({
             </View>
             <View style={styles.textContainer}>
               <Text style={styles.titleText2}>홈페이지</Text>
-              <Text style={styles.subText}>{artwork?.DP_LNK}</Text>
+              {artwork?.DP_LNK ? (
+                <TouchableOpacity onPress={() => openLink(artwork.DP_LNK)}>
+                  <Text
+                    style={[styles.subText, styles.linkText]}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    {artwork.DP_LNK}
+                  </Text>
+                </TouchableOpacity>
+              ) : (
+                <Text style={styles.subText}> 정보없음</Text>
+              )}
             </View>
             <View style={styles.textContainer}>
               <Text style={styles.titleText2}>상세설명</Text>
               {artwork?.DP_INFO ? (
                 <Text style={styles.subText}>
-                  {" "}
-                  {htmlToPlain(artwork?.DP_INFO)}{" "}
+                  {htmlToPlain(artwork?.DP_INFO)}
                 </Text>
               ) : (
                 <Text style={styles.subText}> 정보없음</Text>
@@ -144,31 +181,36 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 16,
     marginBottom: 20,
-    border: "solid",
-    borderColor: "red",
+    borderColor: "white",
+    borderBottomColor: "#C6C6C6",
     borderWidth: 1,
+    width: "100%",
     padding: 10,
   },
   titleText2: {
     width: "20%",
     fontWeight: "bold",
-    fontsize: 14,
+    fontSize: 14,
     marginRight: 10,
   },
   subText: {
     fontWeight: "normal",
-    fontsize: 14,
+    fontSize: 12,
     flexShrink: 1,
     color: "gray",
+  },
+  linkText: {
+    color: "#1E90FF",
+    textDecorationLine: "underline",
   },
   textContainer: {
     marginBottom: 10,
     width: "100%",
     flexDirection: "row",
     // justifyContent: "space-between",
-    border: "solid",
-    borderColor: "green",
-    borderWidth: 1,
+    // border: "solid",
+    // borderColor: "green",
+    // borderWidth: 1,
     padding: 10,
   },
   image: {
