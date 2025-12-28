@@ -21,21 +21,22 @@ export default function Signup({ navigation }) {
         height: "100%",
         marginHorizontal: "auto",
         flexDirection: "column",
+        backgroundColor: "white",
       }}
     >
       <ScrollView>
         <View style={styles.container}>
           <View
             style={{
-              borderColor: "red",
-              borderWidth: 1,
+              // borderColor: "red",
+              // borderWidth: 1,
               width: "100%",
               alignItems: "center",
               flexDirection: "column",
             }}
           >
             <TouchableOpacity
-              onPress={() => navigation.navigate("Home")}
+              onPress={() => navigation.navigate("Bottom", { screen: "Home" })}
               style={{ alignItems: "center", marginBottom: 100 }}
             >
               <Mainlogo width={240} height={100} />
@@ -55,22 +56,30 @@ export default function Signup({ navigation }) {
               </View>
             </View>
           </View>
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              width: "60%",
-              marginHorizontal: "auto",
-            }}
-          >
-            <Text>ID 찾기</Text>
-            <Text>PW 찾기</Text>
+          <View style={styles.findContainer}>
+            <TouchableOpacity>
+              <Text style={styles.findFactor}>ID 찾기</Text>
+            </TouchableOpacity>
+            <TouchableOpacity>
+              <Text style={styles.findFactor}>PW 찾기</Text>
+            </TouchableOpacity>
           </View>
           {/* </TouchableOpacity> */}
         </View>
         <View>
           <View style={styles.decoLine}>
-            <Text>소셜로 시작하기</Text>
+            <Text
+              style={{
+                paddingHorizontal: 15,
+                backgroundColor: "white",
+                zIndex: 20,
+                top: 10,
+                color: "#A8A8A8",
+                fontSize: 12,
+              }}
+            >
+              소셜로 시작하기
+            </Text>
           </View>
           <View
             style={{
@@ -144,7 +153,7 @@ const styles = StyleSheet.create({
     width: 300,
     height: 45,
     backgroundColor: "white",
-    borderColor: "black",
+    borderColor: "#608D00",
     borderWidth: 1,
     borderRadius: 30,
     padding: 10,
@@ -182,9 +191,23 @@ const styles = StyleSheet.create({
   decoLine: {
     width: "80%",
     justifyContent: "center",
-    borderBottomColor: "gray",
+    borderBottomColor: "#A8A8A8",
     borderBottomWidth: 1,
-    marginVertical: 20,
+    marginTop: 30,
+    marginBottom: 40,
     alignItems: "center",
+    marginHorizontal: "auto",
+  },
+  findContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "40%",
+    marginHorizontal: "auto",
+  },
+  findFactor: {
+    color: "gray",
+    fontSize: 10,
+    fontWeight: "semibold",
+    marginBottom: 20,
   },
 });

@@ -89,7 +89,6 @@ export default function App() {
         <Tab.Screen name="Home" component={Home} />
         <Tab.Screen name="Review" component={Review} />
         <Tab.Screen name="Mypage" component={Mypage} />
-        <Tab.Screen name="Signup" component={Signup} />
       </Tab.Navigator>
     );
   };
@@ -100,7 +99,7 @@ export default function App() {
         <Stack.Screen name="Bottom" component={BottomTabScreen} />
         <Stack.Screen name="Status" component={Status} />
         <Stack.Screen name="Setting" component={Setting} />
-        {/* <Stack.Screen name="Signup" component={Signup} /> */}
+        <Stack.Screen name="Signup" component={Signup} />
       </Stack.Navigator>
     </NavigationContainer>
   );
