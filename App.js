@@ -9,7 +9,6 @@ import Artworks from "./src/screens/Artworks";
 import Places from "./src/screens/Places";
 import Status from "./src/screens/Status";
 import Mypage from "./src/screens/Mypage";
-import Signup from "./src/screens/Signup";
 
 import HomeIcon from "./src/assets/icons/Menubar_home.svg";
 import ArtworksIcon from "./src/assets/icons/Menubar_image.svg";
@@ -17,6 +16,7 @@ import PlacesIcon from "./src/assets/icons/Menubar_gallery.svg";
 import ReviewIcon from "./src/assets/icons/write.svg";
 import MypageIcon from "./src/assets/icons/Menubar_user.svg";
 import Setting from "./src/screens/Setting";
+import Signup from "./src/screens/Signup";
 
 // import SignupIcon from "./src/assets/icons/Menubar_user.svg";
 
@@ -89,7 +89,7 @@ export default function App() {
         <Tab.Screen name="Home" component={Home} />
         <Tab.Screen name="Review" component={Review} />
         <Tab.Screen name="Mypage" component={Mypage} />
-        {/* <Tab.Screen name="Signup" component={Signup} /> */}
+        <Tab.Screen name="Signup" component={Signup} />
       </Tab.Navigator>
     );
   };
@@ -100,6 +100,7 @@ export default function App() {
         <Stack.Screen name="Bottom" component={BottomTabScreen} />
         <Stack.Screen name="Status" component={Status} />
         <Stack.Screen name="Setting" component={Setting} />
+        {/* <Stack.Screen name="Signup" component={Signup} /> */}
       </Stack.Navigator>
     </NavigationContainer>
   );

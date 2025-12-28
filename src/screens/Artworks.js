@@ -10,7 +10,7 @@ import {
   ActivityIndicator,
   TouchableOpacity,
 } from "react-native";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { parseString } from "react-native-xml2js";
 import { reloadAppAsync } from "expo";
 import ArtworkFilter from "../components/ArtworkFilter";
@@ -81,8 +81,6 @@ export default function Artworks() {
       setLoading(false);
     }
   };
-
-  // console.log("artwork:", artworks);
 
   // parts: ['조각', ...] 형태 (부분일치, 대소문자 무시), start/end는 1-based
   const applyFilter = ({ start = 1, end = 60, parts = [] }) => {

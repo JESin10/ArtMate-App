@@ -9,8 +9,10 @@ import {
   ScrollView,
 } from "react-native";
 import React from "react";
+import Mainlogo from "../assets/icons/logo-main.svg";
+import MainSlogun from "../assets/images/slogan.svg";
 
-export default function Signup() {
+export default function Signup({ navigation }) {
   const signup = () => {};
   return (
     <SafeAreaView
@@ -32,33 +34,24 @@ export default function Signup() {
               flexDirection: "column",
             }}
           >
-            <Text
-              style={{
-                fontSize: 35,
-                fontWeight: "bold",
-                color: "#333",
-                marginVertical: 15,
-              }}
+            <TouchableOpacity
+              onPress={() => navigation.navigate("Home")}
+              style={{ alignItems: "center", marginBottom: 100 }}
             >
-              ArtMate-Logo
-            </Text>
-            <Text
-              style={{
-                fontSize: 20,
-                fontWeight: "bold",
-                color: "#333",
-              }}
-            >
-              ArtMate-Slogan
-            </Text>
+              <Mainlogo width={240} height={100} />
+              <MainSlogun width={220} height={30} />
+            </TouchableOpacity>
           </View>
           {/* <TouchableOpacity> */}
           <View>
             <View style={styles.inputContainer}>
-              <TextInput style={styles.input} placeholder="ID" />
-              <TextInput style={styles.input} placeholder="PW" />
+              <TextInput style={styles.input} placeholder="아이디" />
+              <TextInput style={styles.input} placeholder="비밀번호" />
               <View style={styles.button}>
-                <Button title="Sign Up" color={"gray"} onPress={signup} />
+                <TouchableOpacity onPress={signup}>
+                  <Text style={{ color: "#fff" }}>로그인</Text>
+                </TouchableOpacity>
+                {/* <Button title="Sign Up" color={"gray"} onPress={signup} /> */}
               </View>
             </View>
           </View>
@@ -76,7 +69,9 @@ export default function Signup() {
           {/* </TouchableOpacity> */}
         </View>
         <View>
-          <Text>소셜로 시작하기</Text>
+          <View style={styles.decoLine}>
+            <Text>소셜로 시작하기</Text>
+          </View>
           <View
             style={{
               marginHorizontal: "auto",
@@ -87,47 +82,49 @@ export default function Signup() {
           >
             <View
               style={{
-                backgroundColor: "yellow",
-                borderRadius: 20,
-                width: "70%",
+                backgroundColor: "#F4DF4A",
+                borderRadius: 30,
+                width: "80%",
+                height: 45,
+
                 marginBottom: 10,
+                alignItems: "center",
               }}
             >
-              <Button
-                title="카카오로시작하기"
-                color={"black"}
-                onPress={signup}
-              />
+              <TouchableOpacity onPress={signup}>
+                <Text style={styles.socialBtn}>카카오로 시작하기</Text>
+              </TouchableOpacity>
             </View>
             <View
               style={{
-                backgroundColor: "green",
-                borderRadius: 20,
-                width: "70%",
+                backgroundColor: "#5EC439",
+                borderRadius: 30,
+                width: "80%",
+                height: 45,
+
                 marginBottom: 10,
+                alignItems: "center",
               }}
             >
-              <Button
-                title="네이버로 시작하기"
-                color={"black"}
-                onPress={signup}
-              />
+              <TouchableOpacity onPress={signup}>
+                <Text style={styles.socialBtn}>네이버로 시작하기</Text>
+              </TouchableOpacity>
             </View>
             <View
               style={{
                 backgroundColor: "white",
                 borderColor: "black",
                 borderWidth: 1,
-                borderRadius: 20,
-                width: "70%",
+                borderRadius: 30,
+                width: "80%",
+                height: 45,
                 marginBottom: 10,
+                alignItems: "center",
               }}
             >
-              <Button
-                title="구글로 시작하기"
-                color={"black"}
-                onPress={signup}
-              />
+              <TouchableOpacity onPress={signup}>
+                <Text style={styles.socialBtn}>구글로 시작하기</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </View>
@@ -145,13 +142,15 @@ const styles = StyleSheet.create({
   },
   input: {
     width: 300,
-    height: 50,
+    height: 45,
     backgroundColor: "white",
     borderColor: "black",
     borderWidth: 1,
-    borderRadius: 10,
+    borderRadius: 30,
     padding: 10,
     marginBottom: 10,
+    textAlign: "center",
+    placeholderTextColor: "#6F6F6F",
   },
   inputContainer: {
     width: "100%",
@@ -161,11 +160,31 @@ const styles = StyleSheet.create({
   },
   button: {
     width: 300,
-    height: "auto",
-    backgroundColor: "black",
-    borderRadius: 10,
+    height: 45,
 
+    height: "auto",
+    backgroundColor: "#608D00",
+    borderRadius: 30,
+    margin: 10,
     alignItems: "center",
-    padding: 10,
+    padding: 15,
+  },
+  socialBtn: {
+    width: "100%",
+    height: "100%",
+    textAlign: "center",
+    lineHeight: 45,
+    fontSize: 14,
+    fontWeight: "bold",
+    alignItems: "center",
+    flexDirection: "center",
+  },
+  decoLine: {
+    width: "80%",
+    justifyContent: "center",
+    borderBottomColor: "gray",
+    borderBottomWidth: 1,
+    marginVertical: 20,
+    alignItems: "center",
   },
 });

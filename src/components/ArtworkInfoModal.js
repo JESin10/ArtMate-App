@@ -16,8 +16,6 @@ export default function ArtworkInfoModal({
   artwork,
   detail,
 }) {
-  // console.log("ArtworkInfoArtwork:", artwork);
-
   const htmlToPlain = (html) => {
     if (!html) return "";
     const plain = String(html)

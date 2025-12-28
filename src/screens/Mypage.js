@@ -51,19 +51,6 @@ export default function Mypage({ navigation }) {
       <ScrollView>
         {/* <TouchableOpacity style={styles.container}> */}
         <View style={styles.container}>
-          {/* <Text
-            style={{
-              fontSize: 35,
-              fontWeight: "bold",
-              color: "#333",
-              marginVertical: 15,
-            }}
-          >
-            ArtMate-Logo
-          </Text>
-          <View style={styles.searchbar}>
-            <TextInput placeholder="search-bar" />
-          </View> */}
           <View style={styles.settingContainer}>
             <TouchableOpacity>
               <AlertIcon width={24} height={24} />
@@ -80,8 +67,7 @@ export default function Mypage({ navigation }) {
                 width={24}
                 height={24}
                 fill={"#333"}
-                onPress={() => navigation.navigate("Setting")}
-              />
+                onPress={() => navigation.navigate("Setting")}              />
             </TouchableOpacity>
           </View>
 
@@ -167,7 +153,15 @@ export default function Mypage({ navigation }) {
             </View>
           </View>
         </View>
-        {/* </TouchableOpacity> */}
+        <TouchableOpacity
+                    onPress={() => navigation.navigate("Signup")}
+>
+          <Text
+            style={{ margin: 15, alignContent: "center" }}
+          >
+            회원가입
+          </Text>
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );

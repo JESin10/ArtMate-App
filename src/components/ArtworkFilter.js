@@ -7,6 +7,7 @@ import {
   Button,
   TouchableOpacity,
   ScrollView,
+  Pressable,
 } from "react-native";
 import { useState, useEffect } from "react";
 import { parseString } from "react-native-xml2js";
@@ -14,19 +15,41 @@ import { parseString } from "react-native-xml2js";
 const SERVER_URL = "http://openapi.seoul.go.kr:8088";
 const API_KEY = "6b44656447746c733835476551776c";
 
+// 회화, 사진, 영상, 조각, 설치, 입체, 아카이브, 회화, 판화,
+// 디지털 드로잉, 평면, 입체, 설치, 영상, 미디어아트, 설치
+//사진, 회화, 판화, 영상, 퍼포먼스
+
 const ARTWORK_PARTS = [
-  "벽화",
-  "판화",
-  "조각",
-  "회화",
-  "사진",
-  "설치",
-  "아크릴",
-  "실크",
+  "공예",
+  "뉴미디어",
+  "도자기",
   "드로잉",
-  "혼합재료",
+  "디지털 드로잉",
+  "미디어",
+  "미디어아트",
+  "무빙 이미지",
+  "벽화",
+  "비디오",
+  "사운드",
+  "사진",
+  "상영",
+  "설치",
+  "아카이브",
+  "액티베이션",
+  "AI",
+  "영상",
+  "워크숍",
+  "입체",
+  "조각",
+  "책",
+  "출판",
+  "커미션",
+  "토크",
+  "판화",
+  "퍼포먼스",
+  "평면",
   "한국화",
-  "서양화",
+  "회화",
 ];
 
 export default function ArtworkFilter({
@@ -110,10 +133,29 @@ export default function ArtworkFilter({
       onRequestClose={onClose}
     >
       <View style={styles.modalBackdrop}>
+        <TouchableOpacity
+          style={styles.backdropTouchable}
+          activeOpacity={1}
+          onPress={onClose}
+        />
         <View style={styles.modalContainer}>
-          <Text style={{ fontWeight: "bold", marginBottom: 8 }}>필터</Text>
+          <View style={styles.handle} />
+          <Text
+            style={{
+              fontWeight: "bold",
+              marginVertical: 8,
+              textAlign: "center",
+              fontSize: 18,
+            }}
+          >
+            필터
+          </Text>
 
-          <Text style={{ marginBottom: 6 }}>카테고리 (DP_ART_PART)</Text>
+          <Text
+            style={{ marginVertical: 12, paddingLeft: 10, fontWeight: "bold" }}
+          >
+            장르
+          </Text>
           <View
             showsHorizontalScrollIndicator={false}
             style={styles.filterContainer}
@@ -154,17 +196,25 @@ export default function ArtworkFilter({
             })}
           </View>
 
-          <View style={{ flexDirection: "row", justifyContent: "flex-end" }}>
-            <Button title="취소" color="#666" onPress={onClose} />
-            <View style={{ width: 12 }} />
-            <Button
-              title={loading ? "적용 중..." : "적용"}
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "center",
+              alignItems: "center",
+              paddingTop: 30,
+            }}
+          >
+            <TouchableOpacity onPress={onClose}>
+              <Text style={styles.cancelBtn}>취소</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
               onPress={() => {
                 fetchAndApply();
                 onClose();
               }}
-              disabled={loading}
-            />
+            >
+              <Text style={styles.selectBtn}>선택완료</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </View>
@@ -176,29 +226,39 @@ const styles = StyleSheet.create({
   modalBackdrop: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.5)",
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: "flex-end",
+  },
+  backdropTouchable: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   modalContainer: {
-    width: "90%",
     backgroundColor: "#fff",
-    borderRadius: 12,
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
     padding: 16,
+    minHeight: 550,
+    maxHeight: "80%",
+    overflow: "scroll",
+    flexDirection: "column",
   },
   partButton: {
     width: "auto",
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 16,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 15,
     borderWidth: 1,
-    borderColor: "blue",
+    borderColor: "black",
     marginRight: 8,
     marginBottom: 8,
     backgroundColor: "#fff",
   },
   partButtonActive: {
-    backgroundColor: "#333",
-    borderColor: "#333",
+    backgroundColor: "#608D00",
+    borderColor: "#608D00",
   },
   partText: { color: "#333" },
   partTextActive: { color: "#fff" },
@@ -206,11 +266,34 @@ const styles = StyleSheet.create({
     width: "100%",
     flexDirection: "row",
     flexWrap: "wrap",
-    borderColor: "red",
-    borderWidth: 1,
+    // borderColor: "red",
+    // borderWidth: 1,
     alignItems: "center",
     paddingHorizontal: 4,
     horizontal: true,
+  },
+  cancelBtn: {
+    marginRight: 12,
+    color: "#608D00",
+    borderWidth: 2,
+    borderRadius: 20,
+    borderColor: "#608D00",
+    textAlign: "center",
+    lineHeight: 32,
+    height: 35,
+    width: 90,
+    fontWeight: "bold",
+  },
+  selectBtn: {
+    marginRight: 12,
+    backgroundColor: "#608D00",
+    color: "#fff",
+    textAlign: "center",
+    lineHeight: 32,
+    borderRadius: 20,
+    height: 35,
+    width: 90,
+    fontWeight: "bold",
   },
 });
 

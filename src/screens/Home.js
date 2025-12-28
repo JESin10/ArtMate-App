@@ -26,7 +26,7 @@ import Mainlogo from "../assets/icons/logo-main.svg";
 const SERVER_URL = "http://openapi.seoul.go.kr:8088";
 const API_KEY = "6b44656447746c733835476551776c";
 
-export default function Home() {
+export default function Home({ navigation }) {
   const [artworks, setArtworks] = useState([]); // 작품들 전체
   const [recentArtworks, setRecentArtworks] = useState([]); // 금주의 최신작품
   const [recentPage, setRecentPage] = useState(0);
