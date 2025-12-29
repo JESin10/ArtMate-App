@@ -10,6 +10,7 @@ import {
   ImageBackground,
   Button,
   Alert,
+  Pressable,
 } from "react-native";
 import LikeIcon from "../../src/assets/icons/heart.svg";
 import BookMarkIcon from "../../src/assets/icons/bookmark.svg";
@@ -67,18 +68,21 @@ export default function Mypage({ navigation }) {
                 width={24}
                 height={24}
                 fill={"#333"}
-                onPress={() => navigation.navigate("Setting")}              />
+                onPress={() => navigation.navigate("Setting")}
+              />
             </TouchableOpacity>
           </View>
 
           <View style={styles.myInfoContainer}>
             <View style={styles.accContainer}>
-              <ImageBackground
-                // source={ExampleImg}
-                source={require("../../src/assets/images/ex.jpg")}
-                style={styles.imageBackground}
-                imageStyle={styles.tumbnail}
-              />
+              <View style={styles.imageContainer}>
+                <ImageBackground
+                  // source={ExampleImg}
+                  source={require("../../src/assets/images/ex.jpg")}
+                  style={styles.imageBackground}
+                  imageStyle={styles.tumbnail}
+                />
+              </View>
               <View style={styles.myAccInfo}>
                 <View style={styles.myFollowInfo}>
                   <Text>이름</Text>
@@ -88,13 +92,13 @@ export default function Mypage({ navigation }) {
                 </View>
 
                 <View style={styles.myFollowInfo}>
-                  <View>
+                  <View style={{ flexDirection: "row" }}>
                     <Text>팔로워</Text>
-                    <Text>00명</Text>
+                    <Text>00</Text>
                   </View>
-                  <View>
+                  <View style={{ flexDirection: "row" }}>
                     <Text>팔로잉</Text>
-                    <Text>ㅁㅁ명</Text>
+                    <Text>ㅁㅁ</Text>
                   </View>
                 </View>
               </View>
@@ -103,7 +107,12 @@ export default function Mypage({ navigation }) {
               <TouchableOpacity style={{ alignItems: "center" }}>
                 <ListIcon width={36} height={36} fill="#fff" />
                 <Text
-                  style={{ marginTop: "15", color: "#fff", fontSize: "14" }}
+                  style={{
+                    marginTop: "15",
+                    color: "#fff",
+                    fontSize: "14",
+                    fontWeight: "bold",
+                  }}
                 >
                   관람 내역
                 </Text>
@@ -119,6 +128,7 @@ export default function Mypage({ navigation }) {
                     marginTop: "15",
                     color: "#fff",
                     fontSize: "14",
+                    fontWeight: "bold",
                   }}
                 >
                   스크랩북
@@ -131,6 +141,7 @@ export default function Mypage({ navigation }) {
                     marginTop: "15",
                     color: "#fff",
                     fontSize: "14",
+                    fontWeight: "bold",
                   }}
                 >
                   좋아요
@@ -139,7 +150,7 @@ export default function Mypage({ navigation }) {
             </View>
           </View>
           <View style={styles.reviewContainer}>
-            <Text>나의 후기 목록</Text>
+            <Text style={styles.reiewText}>나의 후기 목록</Text>
             <View style={styles.reviewTumbContainer}>
               {Array.from({ length: exampleNum }).map((_, idx) => (
                 <ImageBackground
@@ -153,15 +164,42 @@ export default function Mypage({ navigation }) {
             </View>
           </View>
         </View>
-        <TouchableOpacity
-                    onPress={() => navigation.navigate("Signup")}
->
-          <Text
-            style={{ margin: 15, alignContent: "center" }}
-          >
-            회원가입
-          </Text>
-        </TouchableOpacity>
+        <Pressable
+          onPress={() => navigation.navigate("Login")}
+          style={({ pressed }) => [
+            styles.loginBtnWrapper,
+            pressed && styles.loginBtnPressedWrapper,
+          ]}
+        >
+          {({ pressed }) => (
+            <Text
+              style={[
+                styles.loginBtnText,
+                pressed && styles.loginBtnPressedText,
+              ]}
+            >
+              로그인
+            </Text>
+          )}
+        </Pressable>
+        <Pressable
+          onPress={() => navigation.navigate("Signup")}
+          style={({ pressed }) => [
+            styles.signupBtnWrapper,
+            pressed && styles.signupBtnPressedWrapper,
+          ]}
+        >
+          {({ pressed }) => (
+            <Text
+              style={[
+                styles.signupBtnText,
+                pressed && styles.signupBtnPressedText,
+              ]}
+            >
+              회원가입
+            </Text>
+          )}
+        </Pressable>
       </ScrollView>
     </SafeAreaView>
   );
@@ -170,8 +208,8 @@ export default function Mypage({ navigation }) {
 const styles = {
   container: {
     flex: 1,
-    borderColor: "yellow",
-    borderWidth: 5,
+    // borderColor: "yellow",
+    // borderWidth: 5,
     backgroundColor: "#f5f5f5",
     alignItems: "center",
     justifyContent: "center",
@@ -196,21 +234,28 @@ const styles = {
   myInfoContainer: {
     width: "90%",
     height: "auto",
-    borderColor: "green",
+    borderColor: "#608D00",
+    backgroundColor: "#608D00",
     borderWidth: 1,
-    borderRadius: 10,
+    borderRadius: 20,
     flexDirection: "horizontal",
     alignItems: "left",
-    padding: 10,
+    padding: 15,
     marginVertical: 10,
     marginHorizontal: "auto",
+    shadowColor: "#000",
+    shadowOffset: { width: 1, height: 4 },
+    shadowOpacity: 0.5,
+    shadowRadius: 4,
+    elevation: 3,
+    overflow: "visible",
   },
   accContainer: {
     width: "100%",
     height: "auto",
-    borderColor: "red",
-    borderWidth: 3,
-    borderRadius: 10,
+    // borderColor: "red",
+    // borderWidth: 3,
+    // borderRadius: 10,
     padding: 10,
     justifyContent: "beetween",
     flexDirection: "row",
@@ -219,9 +264,9 @@ const styles = {
   myAccInfo: {
     width: "70%",
     height: "auto",
-    borderColor: "orange",
-    borderWidth: 1,
-    borderRadius: 10,
+    // borderColor: "orange",
+    // borderWidth: 1,
+    // borderRadius: 10,
     marginLeft: 5,
     justifyContent: "space-around",
     flexDirection: "horizontal",
@@ -230,7 +275,7 @@ const styles = {
   myFollowInfo: {
     width: "90%",
     height: "auto",
-    backgroundColor: "skyblue",
+    // backgroundColor: "skyblue",
     marginVertical: 10,
     padding: 3,
     alignItems: "center",
@@ -240,23 +285,33 @@ const styles = {
   myActivity: {
     width: "100%",
     height: "auto",
-    borderColor: "blue",
-    borderWidth: 1,
-    borderRadius: 10,
+    // borderColor: "blue",
+    // borderWidth: 1,
+    // borderRadius: 10,
+    // backgroundColor: "gray",
     padding: 10,
-    backgroundColor: "gray",
     marginVertical: 10,
     justifyContent: "space-around",
     flexDirection: "row",
   },
+  imageContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 100,
+    shadowColor: "#000",
+    shadowOffset: { width: 1, height: 4 },
+    shadowOpacity: 0.5,
+    shadowRadius: 4,
+  },
   imageBackground: {
     width: 80,
     height: 80,
+    borderRadius: 100,
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: 10,
-    borderColor: "hotpink",
-    borderWidth: 3,
+
+    // borderColor: "hotpink",
+    // borderWidth: 3,
     overflow: "hidden",
   },
   tumbnail: {
@@ -267,13 +322,13 @@ const styles = {
   reviewContainer: {
     width: "90%",
     height: "auto",
-    backgroundColor: "pink",
     marginVertical: 30,
-    borderWidth: 1,
+    // backgroundColor: "pink",
+    // borderWidth: 1,
   },
   reviewTumblnail: {
-    width: 100,
-    height: 120,
+    width: 110,
+    height: 130,
     borderColor: "black",
     borderwidth: 1,
     margin: 3,
@@ -281,8 +336,67 @@ const styles = {
   ReviewImage: {
     borderRadius: 10,
   },
+  reiewText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 20,
+    marginLeft: 5,
+  },
   reviewTumbContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  loginBtnWrapper: {
+    marginTop: 20,
+    borderColor: "#608D00",
+    borderWidth: 2,
+    width: 300,
+    height: 45,
+    borderRadius: 30,
+    alignItems: "center",
+    justifyContent: "center",
+    marginHorizontal: "auto",
+    backgroundColor: "transparent",
+  },
+  loginBtnPressedWrapper: {
+    backgroundColor: "#608D00",
+  },
+  loginBtnText: {
+    textAlign: "center",
+    lineHeight: 45,
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#608D00",
+  },
+  loginBtnPressedText: {
+    color: "#fff",
+  },
+  signupBtnWrapper: {
+    marginTop: 10,
+    marginBottom: 30,
+    borderColor: "#608D00",
+    borderWidth: 2,
+    width: 300,
+    height: 45,
+    borderRadius: 30,
+    alignItems: "center",
+    justifyContent: "center",
+    marginHorizontal: "auto",
+    backgroundColor: "transparent",
+  },
+  signupBtnPressedWrapper: {
+    backgroundColor: "#608D00",
+  },
+  signupBtnText: {
+    textAlign: "center",
+    lineHeight: 45,
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#608D00",
+  },
+  signupBtnPressedText: {
+    color: "#fff",
   },
 };

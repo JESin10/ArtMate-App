@@ -13,6 +13,10 @@ import {
 import React, { useState, useRef, useEffect } from "react";
 import ReviewModal from "../components/ReviewModal";
 import Mainlogo from "../assets/icons/logo-main.svg";
+import ReloadIcon from "../assets/icons/reload.svg";
+import LikeIcon from "../assets/icons/heart.svg";
+import CommentIcon from "../assets/icons/list.svg";
+import WriteIcon from "../assets/icons/write.svg";
 
 export default function Review() {
   const [exampleNum, setExampleNum] = useState(3);
@@ -62,7 +66,13 @@ export default function Review() {
               <Text style={styles.filterFactor}>추천순</Text>
               <Text style={styles.filterFactor}>최근등록순</Text>
               <TouchableOpacity onPress={onRefresh} disabled={loading}>
-                <Text style={styles.filterFactor}>새로고침</Text>
+                <ReloadIcon
+                  width={24}
+                  height={24}
+                  style={{
+                    color: loading ? "#999" : "#333",
+                  }}
+                />
               </TouchableOpacity>
             </View>
           </View>
@@ -71,7 +81,14 @@ export default function Review() {
             {Array.from({ length: exampleNum }).map((_, idx) => (
               <View key={idx} style={styles.reviewFactor}>
                 <View style={styles.profileContainer}>
-                  <Text style={{ paddingRight: 10 }}>프로필이미지</Text>
+                  {/* <Text style={{ paddingRight: 10 }}>프로필이미지</Text> */}
+                  <ImageBackground
+                    key={idx}
+                    source={require("../../src/assets/images/ex.jpg")}
+                    style={styles.ProfileTumbnail}
+                    imageStyle={styles.ProfileImage}
+                    resizeMode="cover"
+                  />
                   <Text>프로필명</Text>
                 </View>
                 <ImageBackground
@@ -100,13 +117,22 @@ export default function Review() {
                 <View style={styles.reactionContainer}>
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
                     <TouchableOpacity>
-                      <Text style={{ marginRight: 5 }}>❤️</Text>
+                      <LikeIcon
+                        width={16}
+                        height={16}
+                        style={{ marginRight: 5 }}
+                        fill="#000"
+                      />
                     </TouchableOpacity>
                     <Text>{likeCnt}</Text>
                   </View>
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
                     <TouchableOpacity>
-                      <Text style={{ marginRight: 5 }}> 📋 </Text>
+                      <CommentIcon
+                        width={16}
+                        height={16}
+                        style={{ marginRight: 5, marginLeft: 30 }}
+                      />
                     </TouchableOpacity>
                     <Text>{commentCnt}</Text>
                   </View>
@@ -123,7 +149,12 @@ export default function Review() {
           onPress={() => setShowModal(true)}
           activeOpacity={0.8}
         />
-        <Text style={styles.ReviewBtnText}>R</Text>
+        <WriteIcon
+          width={24}
+          height={24}
+          style={{ marginTop: 12 }}
+          fill="#fff"
+        />
       </View>
       <ReviewModal visible={showModal} onClose={() => setShowModal(false)} />
       {loading && (
@@ -154,8 +185,8 @@ const styles = StyleSheet.create({
     width: "100%",
     flexDirection: "row",
     justifyContent: "space-between",
-    borderWidth: 2,
-    borderColor: "black",
+    // borderWidth: 2,
+    // borderColor: "black",
     padding: 10,
     alignItems: "center",
     margin: "auto",
@@ -169,25 +200,27 @@ const styles = StyleSheet.create({
     width: "45%",
     marginLeft: 5,
     flexDirection: "row",
-    // justifyContent: "space-around",
+    justifyContent: "flex-end",
+    alignItems: "center",
   },
   filterFactor: {
-    marginRight: 5,
+    marginRight: 10,
     fontSize: 12,
     color: "black",
     fontWeight: "semi-bold",
   },
   reviewsContainer: {
     width: "100%",
-    borderWidth: 3,
-    borderColor: "red",
+    borderWidth: 1,
+    borderRadius: 10,
+    borderColor: "#608D00",
     padding: 20,
-    marginTop: 30,
+    marginTop: 20,
     margin: "auto",
   },
   reviewFactor: {
-    borderWidth: 1,
-    borderColor: "blue",
+    // borderWidth: 1,
+    // borderColor: "blue",
     marginBottom: 50,
     width: "100%",
     flexDirection: "column",
@@ -200,8 +233,16 @@ const styles = StyleSheet.create({
     padding: 10,
     margin: 10,
   },
-  ReviewImage: {
-    borderRadius: 10,
+  ProfileTumbnail: {
+    width: 40,
+    height: 40,
+    marginRight: 20,
+    borderColor: "#A8A8A8",
+    borderWidth: 1,
+    borderRadius: 100,
+  },
+  ProfileImage: {
+    borderRadius: 100,
   },
   profileContainer: {
     width: "100%",
@@ -210,13 +251,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "flex-start",
     padding: 10,
-    borderWidth: 1,
-    borderColor: "green",
+    // borderWidth: 1,
+    // borderColor: "green",
   },
   reviewTextContainer: {
     padding: 10,
-    borderWidth: 1,
-    borderColor: "purple",
+    // borderWidth: 1,
+    // borderColor: "purple",
   },
   reviewDescStyle: {
     fontSize: 12,
@@ -225,10 +266,13 @@ const styles = StyleSheet.create({
     // rowGap: "120px",
   },
   reactionContainer: {
-    width: "50%",
+    width: "100%",
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "flex-start",
     padding: 10,
+    borderTopColor: "#000",
+    borderTopWidth: 1,
+    // borderWidth: 1,
   },
   overlay: {
     position: "absolute",
@@ -252,13 +296,15 @@ const styles = StyleSheet.create({
     zIndex: 999,
     bottom: 20,
     // left: 100,
-    right: 40,
-    borderColor: "black",
-    borderWidth: 2,
+    right: 20,
+    // borderColor: "black",
+    // borderWidth: ,
+    borderRadius: 100,
+
     alignItems: "center",
     width: 50,
     height: 50,
-    backgroundColor: "lightgray",
+    backgroundColor: "#608D00",
     pointerEvents: "box-none",
   },
   ReviewBtnInner: {

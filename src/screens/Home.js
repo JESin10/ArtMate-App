@@ -247,68 +247,62 @@ export default function Home({ navigation }) {
           <View style={styles.recommandContainer}>
             <View style={styles.subTitle}>
               <Text style={styles.pageTitle}>ㅇㅇ님의 취향저격 전시모음</Text>
-              <FlatList
-                ref={flatListRef}
-                data={data}
-                horizontal
-                pagingEnabled={false}
-                showHorizontalScrollIndicator={false}
-                keyExtractor={(item, index) => String(item.DP_SEQ ?? index)}
-                contentContainerStyle={styles.recommandList}
-                renderItem={({ item }) => (
-                  <TouchableOpacity
-                    style={styles.recommandCard}
-                    activeOpacity={0.8}
-                    onPress={() => {
-                      setShowModal(true);
-                      setSelectedArtwork(item);
-                    }}
-                  >
-                    <ImageBackground
-                      source={{ uri: item.DP_MAIN_IMG }}
-                      style={styles.recommandImage}
-                      imageStyle={styles.backgroundImage}
-                    />
-                    <Text numberOfLines={1} style={styles.recommandPart}>
-                      {item.DP_ART_PART}
-                    </Text>
-                    <Text numberOfLines={1} style={styles.recommandTitle}>
-                      {item.DP_NAME}
-                    </Text>
-                    <Text numberOfLines={3} style={styles.DescStyle}>
-                      {htmlToPlain(item.DP_INFO)}
-                    </Text>
-                    <Text style={styles.DescStyle}>
-                      {item.DP_START} ~ {item.DP_END}
-                    </Text>
-                    {/* <RenderHTML
-                      baseStyle={styles.DescStyle}
-                      contentWidth={width}
-                      source={{ html: item.DP_INFO }}
-                      tagsStyles={{
-                        p: { margin: 0, padding: 0, lineHeight: 12 },
-                        br: { display: "none" },
+              <View style={styles.recommandFactor}>
+                <FlatList
+                  ref={flatListRef}
+                  data={data}
+                  horizontal
+                  pagingEnabled={false}
+                  showHorizontalScrollIndicator={false}
+                  keyExtractor={(item, index) => String(item.DP_SEQ ?? index)}
+                  contentContainerStyle={styles.recommandList}
+                  renderItem={({ item }) => (
+                    <TouchableOpacity
+                      style={styles.recommandCard}
+                      activeOpacity={0.8}
+                      onPress={() => {
+                        setShowModal(true);
+                        setSelectedArtwork(item);
                       }}
-                      defaultTextProps={{
-                        numberOfLines: 3,
-                        ellipsizeMode: "tail",
-                      }}
-                      renderersProps={{
-                        text: { numberOfLines: 3, ellipsizeMode: "tail" },
-                      }}
-                    /> 
-                    // 3줄만 나오게 하는게 안되기 때문에 변경
-                    */}
-                  </TouchableOpacity>
-                )}
-                onViewableItemsChanged={onViewableItemsChanged.current}
-                viewabilityConfig={viewConfigRef.current}
-                getItemLayout={(d, index) => ({
-                  length: ITEM_SIZE,
-                  offset: ITEM_SIZE * index,
-                  index,
-                })}
-              />
+                    >
+                      <ImageBackground
+                        source={{ uri: item.DP_MAIN_IMG }}
+                        style={styles.recommandImage}
+                        imageStyle={styles.MainbackgroundImage}
+                      />
+                      <View
+                        style={{
+                          flexDirection: "column",
+                          backgroundColor: "#608D00",
+                          padding: 8,
+                          borderBottomLeftRadius: 10,
+                          borderBottomRightRadius: 10,
+                        }}
+                      >
+                        <Text numberOfLines={1} style={styles.recommandPart}>
+                          {item.DP_ART_PART}
+                        </Text>
+                        <Text numberOfLines={1} style={styles.recommandTitle}>
+                          {item.DP_NAME}
+                        </Text>
+                        <Text numberOfLines={3} style={styles.DescStyle}>
+                          {htmlToPlain(item.DP_INFO)}
+                        </Text>
+                        <Text style={styles.DescStyle}>
+                          {item.DP_START} ~ {item.DP_END}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                  )}
+                  onViewableItemsChanged={onViewableItemsChanged.current}
+                  viewabilityConfig={viewConfigRef.current}
+                  getItemLayout={(d, index) => ({
+                    length: ITEM_SIZE,
+                    offset: ITEM_SIZE * index,
+                    index,
+                  })}
+                />
+              </View>
               <View style={styles.dotsContainer}>
                 {data.map((_, idx) => (
                   <TouchableOpacity
@@ -372,11 +366,6 @@ export default function Home({ navigation }) {
                   );
                 })}
             </View>
-            {/* <View style={styles.buttonContainer}>
-              <Button title="이전" />
-              <Text>페이지수</Text>
-              <Button title="다음" />
-            </View> */}
             <View style={styles.buttonContainer}>
               <TouchableOpacity
                 onPress={() => setRecentPage((p) => Math.max(0, p - 1))}
@@ -386,7 +375,7 @@ export default function Home({ navigation }) {
                   recentPage === 0 && styles.disabledIcon,
                 ]}
               >
-                <BackwardIcon width={24} height={24} />
+                <BackwardIcon width={24} height={24} fill="#000" />
               </TouchableOpacity>
 
               <Text style={{ alignSelf: "center", marginHorizontal: 12 }}>
@@ -403,7 +392,7 @@ export default function Home({ navigation }) {
                   recentPage >= recentTotalPages - 1 && styles.disabledIcon,
                 ]}
               >
-                <ForwardIcon width={24} height={24} />
+                <ForwardIcon width={24} height={24} fill="#000" />
               </TouchableOpacity>
             </View>
 
@@ -431,7 +420,7 @@ export default function Home({ navigation }) {
                     <ImageBackground
                       source={{ uri: endedartwork.DP_MAIN_IMG }}
                       style={styles.endedImages}
-                      // imageStyle={styles.backgroundImage}
+                      imageStyle={styles.backgroundImage}
                     />
                     <View style={styles.endedContents}>
                       <Text
@@ -465,7 +454,7 @@ export default function Home({ navigation }) {
             <View style={styles.subTitle}>
               <Text style={styles.pageTitle}>현재 전시중인 작가</Text>
             </View>
-            <View>
+            <View style={styles.artistContents}>
               {recentArtworks.slice(0, 4).map((artwork, index) => {
                 return (
                   <View key={index}>
@@ -487,7 +476,7 @@ export default function Home({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "transparent",
     alignItems: "center",
     justifyContent: "center",
     padding: 10,
@@ -518,8 +507,12 @@ const styles = StyleSheet.create({
 
   DescStyle: {
     fontSize: 10,
-    color: "#333",
-    marginVertical: 2,
+    color: "#fff",
+    marginVertical: 4,
+  },
+  MainbackgroundImage: {
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
   },
   backgroundImage: {
     borderRadius: 10,
@@ -530,43 +523,31 @@ const styles = StyleSheet.create({
     borderColor: "black",
     borderWidth: 1,
   },
-  // recommandContents: {
-  //   width: "100%",
-  //   alignItems: "center",
-  //   flexDirection: "column",
-  //   borderColor: "orange",
-  //   borderWidth: 2,
-  //   height: "auto",
-  //   padding: 20,
-  //   marginBottom: 10,
-  // },
+  recommandFactor: {
+    width: "100%",
+    shadowColor: "#000",
+    shadowOffset: { width: 1, height: 4 },
+    shadowOpacity: 0.5,
+    shadowRadius: 4,
+  },
   recommandContainer: {
     width: "100%",
     alignItems: "center",
     display: "flex",
     flexDirection: "row",
-    borderColor: "red",
-    borderWidth: 2,
     height: "auto",
     padding: 20,
     marginBottom: 10,
+    backgroundColor: "transparent",
   },
-  // recommandedImages: {
-  //   width: "100%",
-  //   height: 400,
-  //   borderColor: "black",
-  //   borderWidth: 1,
-  //   marginBottom: 8,
-  // },
   recommandList: {
-    // paddingLeft: 10,
     paddingVertical: 8,
   },
   recommandCard: {
     width: 310,
     marginRight: 12,
     borderRadius: 10,
-    backgroundColor: "#fff",
+    backgroundColor: "transparent",
     padding: 10,
     overflow: "hidden",
   },
@@ -574,15 +555,17 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 450,
     borderRadius: 8,
-    marginBottom: 8,
   },
   recommandPart: {
     fontSize: 12,
     color: "gray",
+    color: "#fff",
   },
   recommandTitle: {
     fontSize: 16,
     fontWeight: "bold",
+    marginVertical: 8,
+    color: "#fff",
   },
   dotsContainer: {
     flexDirection: "row",
@@ -590,7 +573,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 8,
     width: "100%",
-    // backgroundColor: "blue",
   },
   dot: {
     width: 8,
@@ -607,13 +589,9 @@ const styles = StyleSheet.create({
   },
   recentContainer: {
     width: "100%",
-    // height: "100%",
     alignItems: "center",
     flexWrap: "wrap",
     flex: 1,
-    // flexDirection: "column",
-    borderColor: "blue",
-    borderWidth: 2,
     height: "auto",
     padding: 20,
     marginBottom: 10,
@@ -626,33 +604,24 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     flexDirection: "row",
     justifyContent: "spce-between",
-    borderColor: "skyblue",
-    borderWidth: 1,
   },
   recentImagesS: {
-    width: "55%",
+    width: "50%",
     height: 200,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 10,
-    borderColor: "red",
-    borderWidth: 1,
     borderRadius: 10,
     backgroundColor: "white",
-    // padding: 5,
+    margin: 5,
   },
   recentImagesL: {
-    width: "45%",
+    width: "40%",
     height: 200,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 10,
-    borderColor: "yellow",
-    borderWidth: 1,
+    margin: 5,
     borderRadius: 10,
     backgroundColor: "white",
-    // padding: 5,
-    // marginHorizontal: "auto",
   },
   recentPlaceholder: {
     justifyContent: "center",
@@ -663,9 +632,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   iconButton: {
-    padding: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 2,
     alignItems: "center",
     justifyContent: "center",
+    borderColor: "#5f5f5fff",
+    borderWidth: 1,
+    borderRadius: 20,
   },
   disabledIcon: {
     opacity: 0.35,
@@ -677,67 +650,49 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingLeft: "10",
     paddingRight: "10",
-
-    borderColor: "black",
-    borderWidth: 1,
+    marginTop: 10,
   },
   imageBackground: {
     width: "100%",
     height: 200,
     justifyContent: "center",
     alignItems: "center",
-    borderColor: "green",
-    borderWidth: 1,
-    borderRadius: 10,
-  },
-  backgroundImage: {
     borderRadius: 10,
   },
   endedImages: {
     width: 130,
     height: 90,
-    borderColor: "black",
-    borderWidth: 1,
   },
   endedContentsContainer: {
     width: "100%",
     alignItems: "center",
     flexDirection: "row",
-    borderColor: "red",
-    borderWidth: 2,
     height: "auto",
     display: "flex",
-    // padding: 20,
-    marginVertical: 5,
+    marginVertical: 10,
   },
   endedContents: {
     width: "55%",
     flexDirection: "column",
-    borderColor: "purple",
-    borderWidth: 2,
     height: "auto",
     display: "flex",
-    // padding: 20,
     marginVertical: 5,
     marginLeft: 5,
   },
   endedNamecStyle: {
     marginVertical: 2,
     width: "50%",
-    color: "gray",
+    color: "#000",
     fontSize: "13",
     flexWrap: "wrap",
     display: "flex",
     width: "auto",
-    borderColor: "green",
-    borderWidth: 2,
+    fontWeight: "bold",
   },
   endedContainer: {
     width: "100%",
     alignItems: "center",
     flexDirection: "column",
-    borderColor: "green",
-    borderWidth: 2,
     height: "auto",
     padding: 20,
     marginBottom: 10,
@@ -747,9 +702,12 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "center",
     flexDirection: "column",
-    borderColor: "purple",
-    borderWidth: 2,
+    backgroundColor: "#D9D9D9",
     height: "auto",
     padding: 20,
+  },
+  artistContents: {
+    marginTop: 10,
+    width: "100%",
   },
 });

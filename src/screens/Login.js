@@ -12,7 +12,7 @@ import React from "react";
 import Mainlogo from "../assets/icons/logo-main.svg";
 import MainSlogun from "../assets/images/slogan.svg";
 
-export default function Signup({ navigation }) {
+export default function Login({ navigation }) {
   const signup = () => {};
   return (
     <SafeAreaView
@@ -63,8 +63,10 @@ export default function Signup({ navigation }) {
             <TouchableOpacity>
               <Text style={styles.findFactor}>PW 찾기</Text>
             </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate("Signup")}>
+              <Text style={styles.findFactor}>회원가입</Text>
+            </TouchableOpacity>
           </View>
-          {/* </TouchableOpacity> */}
         </View>
         <View>
           <View style={styles.decoLine}>
@@ -201,7 +203,7 @@ const styles = StyleSheet.create({
   findContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    width: "40%",
+    width: "50%",
     marginHorizontal: "auto",
   },
   findFactor: {

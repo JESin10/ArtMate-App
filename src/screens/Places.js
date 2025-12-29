@@ -330,11 +330,13 @@ const styles = StyleSheet.create({
   image: {
     width: "45%",
     height: 160,
-    borderColor: "white",
-    borderWidth: 1,
     borderRadius: 10,
     marginVertical: 10,
     marginHorizontal: "auto",
+    shadowColor: "#000",
+    shadowOffset: { width: 1, height: 4 },
+    shadowOpacity: 0.5,
+    shadowRadius: 4,
   },
   imageContainer: {
     width: "100%",

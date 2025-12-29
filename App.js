@@ -10,13 +10,19 @@ import Places from "./src/screens/Places";
 import Status from "./src/screens/Status";
 import Mypage from "./src/screens/Mypage";
 
-import HomeIcon from "./src/assets/icons/Menubar_home.svg";
-import ArtworksIcon from "./src/assets/icons/Menubar_image.svg";
-import PlacesIcon from "./src/assets/icons/Menubar_gallery.svg";
-import ReviewIcon from "./src/assets/icons/write.svg";
-import MypageIcon from "./src/assets/icons/Menubar_user.svg";
+import HomeIcon from "./src/assets/icons/Menubar_home-filled.svg";
+import HomeLineIcon from "./src/assets/icons/Menubar_home.svg";
+import ArtworksIcon from "./src/assets/icons/Menubar_image-filled.svg";
+import ArtworksLineIcon from "./src/assets/icons/Menubar_image.svg";
+import PlacesIcon from "./src/assets/icons/Menubar_gallery-filled.svg";
+import PlacesLineIcon from "./src/assets/icons/Menubar_gallery.svg";
+import ReviewIcon from "./src/assets/icons/Menubar_bookmark-filled.svg";
+import ReviewLineIcon from "./src/assets/icons/Menubar_bookmark.svg";
+import MypageIcon from "./src/assets/icons/Menubar_user-filled.svg";
+import MypageLineIcon from "./src/assets/icons/Menubar_user.svg";
 import Setting from "./src/screens/Setting";
-import Signup from "./src/screens/Signup";
+import Login from "./src/screens/Login";
+import UserSignup from "./src/components/UserSignup";
 
 // import SignupIcon from "./src/assets/icons/Menubar_user.svg";
 
@@ -31,51 +37,81 @@ export default function App() {
           tabBarShowLabel: false,
           headerShown: false,
           tabBarStyle: {
-            height: 70,
+            height: 80,
+            paddingTop: 10,
+            backgroundColor: "#608D00",
           },
+          tabBarActiveTintColor: "#fff",
+          tabBarInactiveTintColor: "#fff",
           tabBarIcon: ({ focused, size, color }) => {
             if (route.name === "Home") {
-              return (
-                <HomeIcon
+              return focused ? (
+                <HomeIcon width={size ?? 24} height={size ?? 24} fill={color} />
+              ) : (
+                <HomeLineIcon
                   width={size ?? 24}
                   height={size ?? 24}
-                  fill={focused ? "#333" : "#bbb"}
+                  fill={color}
                 />
               );
             }
             if (route.name === "Artworks") {
-              return (
+              return focused ? (
                 <ArtworksIcon
                   width={size ?? 24}
                   height={size ?? 24}
-                  fill={focused ? "#333" : "#bbb"}
+                  fill={color}
+                />
+              ) : (
+                <ArtworksLineIcon
+                  width={size ?? 24}
+                  height={size ?? 24}
+                  fill={color}
                 />
               );
             }
             if (route.name === "Places") {
-              return (
+              return focused ? (
                 <PlacesIcon
                   width={size ?? 24}
                   height={size ?? 24}
-                  fill={focused ? "#333" : "#bbb"}
+                  fill={color}
+                />
+              ) : (
+                <PlacesLineIcon
+                  width={size ?? 24}
+                  height={size ?? 24}
+                  fill={color}
                 />
               );
             }
             if (route.name === "Review") {
-              return (
+              return focused ? (
                 <ReviewIcon
                   width={size ?? 24}
                   height={size ?? 24}
-                  fill={focused ? "#333" : "#bbb"}
+                  fill={color}
+                />
+              ) : (
+                <ReviewLineIcon
+                  width={size ?? 24}
+                  height={size ?? 24}
+                  fill={color}
                 />
               );
             }
             if (route.name === "Mypage") {
-              return (
+              return focused ? (
                 <MypageIcon
                   width={size ?? 24}
                   height={size ?? 24}
-                  fill={focused ? "#333" : "#bbb"}
+                  fill={color}
+                />
+              ) : (
+                <MypageLineIcon
+                  width={size ?? 24}
+                  height={size ?? 24}
+                  fill={color}
                 />
               );
             }
@@ -97,20 +133,24 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Bottom" component={BottomTabScreen} />
-        <Stack.Screen name="Status" component={Status} />
+        {/* <Stack.Screen name="Status" component={Status} /> */}
         <Stack.Screen name="Setting" component={Setting} />
-        <Stack.Screen name="Signup" component={Signup} />
+        <Stack.Screen name="Login" component={Login} />
+        <Stack.Screen name="Signup" component={UserSignup} />
       </Stack.Navigator>
     </NavigationContainer>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    borderColor: "red",
-    borderWidth: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     borderColor: "red",
+//     borderWidth: 1,
+//     alignItems: "center",
+//     justifyContent: "center",
+//   },
+//   menubar: {
+//     backgroundColor: "#608D00",
+//   },
+// });
