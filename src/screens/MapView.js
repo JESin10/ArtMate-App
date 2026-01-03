@@ -12,7 +12,6 @@ import { WebView } from "react-native-webview"; // `expo-location` will be dynam
 const NAVER_CLIENT_ID = "udkk714yfp";
 
 // HTML is generated inside the component so it can use route params for center coordinates.
-
 export default function MapView({ route, navigation }) {
   const [loading, setLoading] = useState(true);
   const region = route?.params?.region;
