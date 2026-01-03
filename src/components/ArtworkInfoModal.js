@@ -9,7 +9,7 @@ import {
   Linking,
   Alert,
 } from "react-native";
-import React from "react";
+import React, { useEffect } from "react";
 import InfoIcon from "../assets/icons/info.svg";
 import { decode } from "html-entities"; // 추가: HTML 엔티티 디코드
 
@@ -18,6 +18,7 @@ export default function ArtworkInfoModal({
   onClose,
   artwork,
   detail,
+  seq,
 }) {
   const htmlToPlain = (html) => {
     if (!html) return "";
@@ -31,15 +32,18 @@ export default function ArtworkInfoModal({
     return decode(plain);
   };
 
+  console.log("artwork in modal:", artwork);
+
   const openLink = async (rawUrl) => {
     if (!rawUrl) {
       Alert.alert("알림", "유효한 링크가 없습니다.");
       return;
     }
     let url = String(rawUrl).trim();
+    console.log("url:", url);
 
     if (!/^https?:\/\//i.test(url)) {
-      url = `https://${url}`;
+      url = `${url}`;
     }
 
     try {
@@ -74,53 +78,50 @@ export default function ArtworkInfoModal({
             showsVerticalScrollIndicator={true}
           >
             <View style={styles.image}>
-              {artwork?.DP_MAIN_IMG && artwork.DP_MAIN_IMG ? (
+              {artwork?.imgUrl ? (
                 <ImageBackground
-                  source={{ uri: artwork.DP_MAIN_IMG }}
+                  source={{ uri: artwork.imgUrl.replace("http", "https") }}
                   style={styles.imageBackground}
-                  resizeMode="cover"
+                  imageStyle={styles.image}
+                  resizeMode="contain"
                 />
               ) : (
-                <Text>No Image</Text>
+                <Text title="NO IMAGE" />
               )}
             </View>
             <View style={styles.textContainer}>
-              <Text style={styles.titleText1}>{artwork?.DP_NAME}</Text>
+              <Text style={styles.titleText1}>{artwork?.title}</Text>
             </View>
-            <View style={styles.textContainer}>
+            {/* <View style={styles.textContainer}>
               <Text style={styles.titleText2}>작가</Text>
               <Text style={styles.subText}>{artwork?.DP_ARTIST}</Text>
+            </View> */}
+
+            <View style={styles.textContainer}>
+              <Text style={styles.titleText2}>전시기간</Text>
+              <Text style={styles.subText}>
+                {artwork?.startDate} ~ {artwork?.endDate}
+              </Text>
             </View>
             <View style={styles.textContainer}>
-              <Text style={styles.titleText2}>장르</Text>
-              {artwork?.DP_ART_PART && artwork.DP_ART_PART ? (
-                <Text style={styles.subText}> {artwork?.DP_ART_PART} </Text>
+              <Text style={styles.titleText2}>전시장소</Text>
+              <Text style={styles.subText}>{artwork?.place}</Text>
+            </View>
+            <View style={styles.textContainer}>
+              <Text style={styles.titleText2}>입장료</Text>
+              {artwork?.price ? (
+                <Text style={styles.subText}> {artwork?.price} </Text>
               ) : (
                 <Text style={styles.subText}> 정보없음</Text>
               )}
             </View>
             <View style={styles.textContainer}>
               <Text style={styles.titleText2}>주소</Text>
-              <Text style={styles.subText}>{artwork?.DP_PLACE}</Text>
-            </View>
-            <View style={styles.textContainer}>
-              <Text style={styles.titleText2}>전시기간</Text>
-              <Text style={styles.subText}>
-                {artwork?.DP_START} ~ {artwork?.DP_END}
-              </Text>
-            </View>
-            <View style={styles.textContainer}>
-              <Text style={styles.titleText2}>운영시간</Text>
-
-              {artwork?.DP_VIEWTIME && artwork.DP_VIEWTIME ? (
-                <Text style={styles.subText}> {artwork?.DP_VIEWTIME} </Text>
-              ) : (
-                <Text style={styles.subText}> 정보없음</Text>
-              )}
+              <Text style={styles.subText}>{artwork?.placeAddr}</Text>
             </View>
             <View style={styles.textContainer}>
               <Text style={styles.titleText2}>홈페이지</Text>
-              {artwork?.DP_LNK ? (
+              {artwork?.url ? (
                 <TouchableOpacity
                   style={styles.linkIcon}
                   onPress={() =>
@@ -131,7 +132,7 @@ export default function ArtworkInfoModal({
                         { text: "취소", style: "cancel" },
                         {
                           text: "이동",
-                          onPress: () => openLink(artwork.DP_LNK),
+                          onPress: () => openLink(artwork.url),
                         },
                       ],
                       { cancelable: true }
@@ -152,9 +153,9 @@ export default function ArtworkInfoModal({
             </View>
             <View style={styles.textContainer}>
               <Text style={styles.titleText2}>상세설명</Text>
-              {artwork?.DP_INFO ? (
+              {artwork?.contents1 ? (
                 <Text style={styles.subText}>
-                  {htmlToPlain(artwork?.DP_INFO)}
+                  {htmlToPlain(artwork?.contents1)}
                 </Text>
               ) : (
                 <Text style={styles.subText}> 정보없음</Text>

@@ -25,9 +25,6 @@ import Mainlogo from "../assets/icons/logo-main.svg";
 const SERVER_URL =
   "https://apis.data.go.kr/B553457/nopenapi/rest/cultureartspaces";
 
-const API_KEY =
-  "iUshbHgoTGazZCC2%2F6vIBZp%2FB97CWSUUeLAbmBto9st2Aj33IThDavcN4Cy1W8e%2FdbjWYG0yBe5qU2lZ%2FZlPMg%3D%3D";
-
 // "iUshbHgoTGazZCC2/6vIBZp/B97CWSUUeLAbmBto9st2Aj33IThDavcN4Cy1W8e/dbjWYG0yBe5qU2lZ/ZlPMg==";
 export default function Places({ navigation }) {
   const [gallery, setGallery] = useState([]);
@@ -42,7 +39,7 @@ export default function Places({ navigation }) {
     try {
       setLoading(true);
       const response = await fetch(
-        `${SERVER_URL}/detail?serviceKey=${API_KEY}&seq=${seq}`
+        `${SERVER_URL}/detail?serviceKey=${process.env.REACT_APP_API_KEY}&seq=${seq}`
       );
       const xmlText = await response.text();
       parseString(xmlText, { explicitArray: false }, (err, jsonData) => {
@@ -64,7 +61,7 @@ export default function Places({ navigation }) {
     try {
       setLoading(true);
       const response = await fetch(
-        `${SERVER_URL}/artgallery?serviceKey=${API_KEY}&PageNo=${pageNum}&numOfrows=${listCnt}`
+        `${SERVER_URL}/artgallery?serviceKey=${process.env.REACT_APP_API_KEY}&PageNo=${pageNum}&numOfrows=${listCnt}`
       );
       const xmlText = await response.text();
 
@@ -142,7 +139,7 @@ export default function Places({ navigation }) {
     getPlace();
     // getDetailPlace();
   }, []);
-  // console.log("Gallery: ", gallery);
+  console.log("Gallery: ", gallery);
   // console.log("details: ", details);
 
   return (
@@ -213,12 +210,6 @@ export default function Places({ navigation }) {
             {gallery?.map((item, index) => {
               const detail = details[item.seq]; // 매칭된 상세 정보
               return (
-                // <View
-                //   title="Place"
-                //   key={index}
-                //   style={styles.imageContainer}
-                //   onPress={() => setShowPopup(true)}
-                // >
                 <TouchableOpacity
                   key={index}
                   activeOpacity={0.8}
@@ -232,7 +223,9 @@ export default function Places({ navigation }) {
                   <View style={styles.image}>
                     {detail?.culViewImg1 ? (
                       <ImageBackground
-                        source={{ uri: detail.culViewImg1 }}
+                        source={{
+                          uri: detail.culViewImg1.replace("http", "https"),
+                        }}
                         style={styles.imageBackground}
                         imageStyle={styles.tumbnail}
                       />
@@ -243,7 +236,7 @@ export default function Places({ navigation }) {
                   <View style={styles.discriptions}>
                     <Text style={styles.titleStyle}>{item.culName}</Text>
                     <Text style={styles.descStyle}>{item.culTel}</Text>
-                    <Text style={styles.descStyle}>{detail?.culAddr}</Text>
+                    {/* <Text style={styles.descStyle}>{detail?.culAddr}</Text> */}
                     {/* <Text>{detail.culCont}</Text> */}
 
                     {/* <Text>distance</Text> */}

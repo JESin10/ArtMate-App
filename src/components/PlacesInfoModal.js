@@ -12,11 +12,12 @@ import {
 import InfoIcon from "../assets/icons/info.svg";
 import React, { useEffect, useState } from "react";
 import { use } from "react";
+import { decode } from "html-entities";
 
 export default function PlacesInfoModal({ visible, onClose, item, detail }) {
   const [city, setCity] = useState("");
   //   console.log("PlacesInfoItem:", item);
-  // console.log("PlacesInfoDetail:", detail);
+  console.log("PlacesInfoDetail:", detail);
 
   const getProvinceFromAddress = (addr) => {
     if (!addr) return "";
@@ -48,8 +49,9 @@ export default function PlacesInfoModal({ visible, onClose, item, detail }) {
       Alert.alert("알림", "유효한 링크가 없습니다.");
       return;
     }
-    let url = String(rawUrl).trim();
-    if (!/^https?:\/\//i.test(url)) url = `https://${url}`;
+    let url = String(rawUrl).replace("http", "https");
+    // if (!/^https?:\/\//i.test(url)) url = `https://${url}`;
+    console.log("url:", url);
 
     try {
       const supported = await Linking.canOpenURL(url);
@@ -62,6 +64,18 @@ export default function PlacesInfoModal({ visible, onClose, item, detail }) {
       console.error("openLink error", err);
       Alert.alert("오류", "링크를 열 수 없습니다.");
     }
+  };
+
+  const htmlToPlain = (html) => {
+    if (!html) return "";
+    const plain = String(html)
+      .replace(/<br\s*\/?>/gi, "\n")
+      .replace(/<\/p>/gi, "\n")
+      .replace(/<p[^>]*>/gi, "")
+      .replace(/&nbsp;/gi, " ")
+      .replace(/<\/?[^>]+(>|$)/g, "") // 남은 모든 태그 제거
+      .trim();
+    return decode(plain);
   };
 
   return (
@@ -85,10 +99,10 @@ export default function PlacesInfoModal({ visible, onClose, item, detail }) {
             <View style={styles.image}>
               {detail?.culViewImg1 ? (
                 <ImageBackground
-                  source={{ uri: detail.culViewImg1 }}
+                  source={{ uri: detail.culViewImg1.replace("http", "https") }}
                   style={styles.imageBackground}
-                  // imageStyle={styles.tumbnail}
-                  resizeMode="cover"
+                  imageStyle={styles.tumbnail}
+                  resizeMode="contain"
                 />
               ) : (
                 <Text>No Image</Text>
@@ -134,6 +148,16 @@ export default function PlacesInfoModal({ visible, onClose, item, detail }) {
                   <InfoIcon width={20} height={20} style={{ marginRight: 8 }} />
                   <Text style={styles.subText}>홈페이지로 이동</Text>
                 </TouchableOpacity>
+              ) : (
+                <Text style={styles.subText}> 정보없음</Text>
+              )}
+            </View>
+            <View style={styles.textContainer}>
+              <Text style={styles.titleText2}>상세설명</Text>
+              {detail?.culCont ? (
+                <Text style={styles.subText}>
+                  {htmlToPlain(detail?.culCont)}
+                </Text>
               ) : (
                 <Text style={styles.subText}> 정보없음</Text>
               )}

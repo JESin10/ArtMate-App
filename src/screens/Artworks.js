@@ -12,16 +12,15 @@ import {
 } from "react-native";
 import React, { useState, useEffect, useMemo } from "react";
 import { parseString } from "react-native-xml2js";
-import { reloadAppAsync } from "expo";
+import { API_KEY } from "@env";
 import ArtworkFilter from "../components/ArtworkFilter";
 import ArtworkInfoModal from "../components/ArtworkInfoModal";
 import FilterIcon from "../assets/icons/filter.svg";
 import ReloadIcon from "../assets/icons/reload.svg";
 import Mainlogo from "../assets/icons/logo-main.svg";
+import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 
-// const SERVER_URL = "https://apis.data.go.kr/B553457/cultureinfo";
-// const API_KEY =
-//   "iUshbHgoTGazZCC2/6vIBZp/B97CWSUUeLAbmBto9st2Aj33IThDavcN4Cy1W8e/dbjWYG0yBe5qU2lZ/ZlPMg==";
+const SERVER_URL = "https://apis.data.go.kr/B553457/cultureinfo";
 // `${SERVER_URL}/area2?serviceKey=${API_KEY}&PageNo=${startIndex}&numOfrows=${endIndex}&sido=${city}`
 
 //국현미
@@ -34,28 +33,27 @@ import Mainlogo from "../assets/icons/logo-main.svg";
 // const API_KEY = "589be839-5c41-4c36-96af-b02330050e14";
 
 //임시-공공데이터
-const SERVER_URL = "http://openapi.seoul.go.kr:8088";
-const API_KEY = "6b44656447746c733835476551776c";
+// const SERVER_URL = "http://openapi.seoul.go.kr:8088";
+// const API_KEY = "6b44656447746c733835476551776c";
 
 export default function Artworks() {
   const [artworks, setArtworks] = useState([]); // 원본 전체
   const [displayedArtworks, setDisplayedArtworks] = useState([]); // 필터 적용된 목록
   const [loading, setLoading] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
-  const [startIndex, setStartIndex] = useState(1);
-  const [endIndex, setEndIndex] = useState(60);
+  const [startIndex, setStartIndex] = useState(parseInt(1));
+  const [endIndex, setEndIndex] = useState(parseInt(20));
   const [showModal, setShowModal] = useState(false);
   const [selectedArtwork, setSelectedArtwork] = useState(null);
-  const [detailArtwork, setDetailArtwork] = useState(null);
+  const [detailArtwork, setDetailArtwork] = useState([]);
 
   const getArtwork = async () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `${SERVER_URL}/${API_KEY}/xml/ListExhibitionOfSeoulMOAInfo/${parseInt(
-          startIndex,
-          10
-        )}/${parseInt(endIndex, 10)}/`
+        `${SERVER_URL}/area2?serviceKey=${
+          process.env.REACT_APP_API_KEY
+        }&PageNo=${parseInt(1)}&numOfrows=${parseInt(20)}`
       );
 
       const xmlText = await response.text();
@@ -67,14 +65,32 @@ export default function Artworks() {
           setLoading(false);
           return;
         }
-        let items = jsonData.ListExhibitionOfSeoulMOAInfo?.row || [];
-        // setDetailArtwork((prev) => ({ ...prev, [seq]: detail }));
+        console.log("getArtwork xml parsed keys:", Object.keys(jsonData || {}));
+        // API 응답 구조: response.body.items.item
+        const rawItems = jsonData?.response?.body?.items?.item || [];
+        const list = Array.isArray(rawItems) ? rawItems : [rawItems];
 
-        if (!Array.isArray(items)) items = [items];
+        // 정규화된 형태로 매핑 (필요한 필드 사용)
+        const normalized = list.map((it) => ({
+          // keep original keys for compatibility, plus DP_* aliases used elsewhere
+          ...it,
+          seq: it.seq,
+          DP_SEQ: it.seq,
+          title: it.title,
+          DP_NAME: it.DP_NAME,
+          DP_START: it.startDate,
+          DP_END: it.endDate,
+          DP_PLACE: it.place,
+          thumbnail: it.thumbnail?.startsWith("http:")
+            ? it.thumbnail.replace("http:", "https:")
+            : it.thumbnail,
+          gpsX: it.gpsX,
+          gpsY: it.gpsY,
+        }));
 
-        setArtworks(items);
+        setArtworks(normalized);
         // 기본은 전체를 표시 (필터 적용 시 applyFilter 호출)
-        setDisplayedArtworks(items);
+        setDisplayedArtworks(normalized);
         setLoading(false);
       });
     } catch (error) {
@@ -92,7 +108,7 @@ export default function Artworks() {
       const lowered = parts.map((p) => String(p).toLowerCase());
       source = source.filter((a) =>
         lowered.some((p) =>
-          String(a.DP_ART_PART || "")
+          String(a.serviceName || "")
             .toLowerCase()
             .includes(p)
         )
@@ -104,10 +120,35 @@ export default function Artworks() {
     setDisplayedArtworks(source.slice(s - 1, e));
   };
 
+  const getDetailArtwork = async (seq) => {
+    try {
+      const response = await fetch(
+        `${SERVER_URL}/detail2?serviceKey=${process.env.REACT_APP_API_KEY}&seq=${seq}`
+      );
+
+      const xmlText = await response.text();
+
+      parseString(xmlText, { explicitArray: false }, (err, jsonData) => {
+        if (err) {
+          setDetailArtwork([]);
+          return;
+        }
+        console.log(
+          "getDetailArtwork xml parsed keys:",
+          Object.keys(jsonData || {})
+        );
+        const detail = jsonData?.response?.body?.items?.item || null;
+        setDetailArtwork(detail);
+      });
+    } catch (error) {}
+  };
+
   useEffect(() => {
     getArtwork();
+    getDetailArtwork(selectedArtwork?.DP_SEQ);
   }, []);
 
+  console.log("Artworks:", detailArtwork);
   return (
     <SafeAreaView
       style={{
@@ -181,16 +222,17 @@ export default function Artworks() {
                     onPress={() => {
                       setShowModal(true);
                       setSelectedArtwork(artwork);
-                      // if (!details[artwork.seq]) getDetailPlace(item.seq);
+                      getDetailArtwork(artwork.DP_SEQ);
                     }}
                   >
                     <ImageBackground
-                      source={{ uri: artwork.DP_MAIN_IMG }}
+                      source={{ uri: artwork.thumbnail }}
                       style={styles.imageBackground}
                       imageStyle={styles.backgroundImage}
+                      resizeMode="cover"
                     />
                     <Text style={{ fontSize: 16, fontWeight: "bold" }}>
-                      {artwork.DP_NAME}
+                      {artwork.title}
                     </Text>
 
                     <Text
@@ -198,12 +240,12 @@ export default function Artworks() {
                       numberOfLines={1}
                       ellipsizeMode="tail"
                     >
-                      {artwork.DP_ARTIST}
+                      {artwork.area} {artwork.sigungu}
                     </Text>
                     <Text style={styles.descStyle}>
-                      {artwork.DP_START} ~ {artwork.DP_END}
+                      {artwork.startDate} ~ {artwork.endDate}
                     </Text>
-                    <Text style={styles.descStyle}>{artwork.DP_PLACE}</Text>
+                    <Text style={styles.descStyle}>{artwork.place}</Text>
                   </TouchableOpacity>
                 );
               })}
@@ -224,9 +266,13 @@ export default function Artworks() {
       />
       <ArtworkInfoModal
         visible={showModal}
-        onClose={() => setShowModal(false)}
-        artwork={selectedArtwork}
-        //  detail=[detai]
+        onClose={() => {
+          setShowModal(false);
+          setDetailArtwork([]);
+          getDetailArtwork();
+        }}
+        artwork={detailArtwork}
+        seq={selectedArtwork?.DP_SEQ}
       />
 
       {loading && (

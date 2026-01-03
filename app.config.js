@@ -11,19 +11,32 @@ module.exports = {
     ios: {
       bundleIdentifier: "com.artmate.app",
       config: {
-        googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
+        googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
+      },
+      infoPlist: {
+        NSAppTransportSecurity: {
+          NSAllowsArbitraryLoads: false,
+          NSExceptionDomains: {
+            "www.culture.go.kr": {
+              NSExceptionAllowsInsecureHTTPLoads: true,
+              NSIncludesSubdomains: true,
+            },
+          },
+        },
       },
     },
     android: {
+      usesCleartextTraffic: true,
+
       config: {
         googleMaps: {
-          apiKey: process.env.GOOGLE_MAPS_API_KEY,
+          apiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
         },
       },
     },
     extra: {
-      apikey: process.env.API_KEY,
-      serverurl: process.env.SERVER_URL,
+      apikey: process.env.REACT_APP_API_KEY,
+      serverurl: process.env.REACT_APP_SERVER_URL,
     },
   },
 };

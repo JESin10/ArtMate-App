@@ -23,8 +23,9 @@ import BackwardIcon from "../assets/icons/backward.svg";
 import ForwardIcon from "../assets/icons/forward.svg";
 import Mainlogo from "../assets/icons/logo-main.svg";
 
-const SERVER_URL = "http://openapi.seoul.go.kr:8088";
-const API_KEY = "6b44656447746c733835476551776c";
+const SERVER_URL = "https://apis.data.go.kr/B553457/cultureinfo/period2";
+const API_KEY =
+  "iUshbHgoTGazZCC2/6vIBZp/B97CWSUUeLAbmBto9st2Aj33IThDavcN4Cy1W8e/dbjWYG0yBe5qU2lZ/ZlPMg==";
 
 export default function Home({ navigation }) {
   const [artworks, setArtworks] = useState([]); // 작품들 전체
@@ -65,23 +66,28 @@ export default function Home({ navigation }) {
   const getArtwork = async () => {
     setLoading(true);
     try {
-      const url = `${SERVER_URL}/${API_KEY}/xml/ListExhibitionOfSeoulMOAInfo/${parseInt(
-        startIndex,
-        10
-      )}/${parseInt(endIndex, 10)}/`;
-      console.log('[Home] getArtwork url:', url);
+      const url = `${SERVER_URL}?serviceKey=${API_KEY}&PageNo=${parseInt(
+        1
+      )}&numOfrows=${parseInt(20)}/`;
+      console.log("[Home] getArtwork url:", url);
       const response = await fetch(url);
       const xmlText = await response.text();
-      console.log('[Home] getArtwork xmlText (start):', xmlText?.slice(0, 1000));
+      console.log(
+        "[Home] getArtwork xmlText (start):",
+        xmlText?.slice(0, 1000)
+      );
 
       parseString(xmlText, { explicitArray: false }, (err, jsonData) => {
         if (err) {
-          console.error('[Home] parseString error:', err);
+          console.error("[Home] parseString error:", err);
           setArtworks([]);
           setLoading(false);
           return;
         }
-        console.log('[Home] getArtwork jsonData keys:', Object.keys(jsonData || {}));
+        console.log(
+          "[Home] getArtwork jsonData keys:",
+          Object.keys(jsonData || {})
+        );
         let items = jsonData.ListExhibitionOfSeoulMOAInfo?.row || [];
 
         if (!Array.isArray(items)) items = [items];
