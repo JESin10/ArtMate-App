@@ -32,7 +32,7 @@ export default function ArtworkInfoModal({
     return decode(plain);
   };
 
-  console.log("artwork in modal:", artwork);
+  // console.log("artwork in modal:", artwork);
 
   const openLink = async (rawUrl) => {
     if (!rawUrl) {

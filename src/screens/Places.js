@@ -22,8 +22,8 @@ import ReloadIcon from "../assets/icons/reload.svg";
 import MapIcon from "../assets/icons/location.svg";
 import Mainlogo from "../assets/icons/logo-main.svg";
 
-const SERVER_URL =
-  "https://apis.data.go.kr/B553457/nopenapi/rest/cultureartspaces";
+// const SERVER_URL =
+//   "https://apis.data.go.kr/B553457/nopenapi/rest/cultureartspaces";
 
 // "iUshbHgoTGazZCC2/6vIBZp/B97CWSUUeLAbmBto9st2Aj33IThDavcN4Cy1W8e/dbjWYG0yBe5qU2lZ/ZlPMg==";
 export default function Places({ navigation }) {
@@ -39,7 +39,7 @@ export default function Places({ navigation }) {
     try {
       setLoading(true);
       const response = await fetch(
-        `${SERVER_URL}/detail?serviceKey=${process.env.REACT_APP_API_KEY}&seq=${seq}`
+        `${process.env.REACT_APP_SERVER_URL}/detail?serviceKey=${process.env.REACT_APP_API_KEY}&seq=${seq}`
       );
       const xmlText = await response.text();
       parseString(xmlText, { explicitArray: false }, (err, jsonData) => {
@@ -61,7 +61,7 @@ export default function Places({ navigation }) {
     try {
       setLoading(true);
       const response = await fetch(
-        `${SERVER_URL}/artgallery?serviceKey=${process.env.REACT_APP_API_KEY}&PageNo=${pageNum}&numOfrows=${listCnt}`
+        `${process.env.REACT_APP_SERVER_URL}/artgallery?serviceKey=${process.env.REACT_APP_API_KEY}&PageNo=${pageNum}&numOfrows=${listCnt}`
       );
       const xmlText = await response.text();
 
@@ -71,8 +71,8 @@ export default function Places({ navigation }) {
         const items = jsonData.response.body.items.item;
         setGallery(items);
 
-        const detailPromises = items.map((item) => getDetailPlace(item.seq));
-        await Promise.all(detailPromises); // 모든 상세 정보 요청을 기다림
+        // const detailPromises = items.map((item) => getDetailPlace(item.seq));
+        // await Promise.all(detailPromises); // 모든 상세 정보 요청을 기다림
         // items.forEach((item) => {
         //   getDetailPlace(item.seq); // 각 seq에 대해 상세 정보 요청
         // });
@@ -83,6 +83,16 @@ export default function Places({ navigation }) {
       console.error("목록 불러오기 오류:", error);
     }
   };
+
+  useEffect(() => {
+    if (selectedPlace?.seq || gallery?.seq) {
+      getPlace();
+      getDetailPlace();
+    } else {
+      getPlace();
+    }
+  }, []);
+  console.log("gallery:", gallery);
 
   const getCoords = (detail, item) => {
     const tryNum = (v) => {
@@ -135,11 +145,7 @@ export default function Places({ navigation }) {
     });
   };
 
-  useEffect(() => {
-    getPlace();
-    // getDetailPlace();
-  }, []);
-  console.log("Gallery: ", gallery);
+  // console.log("Gallery: ", gallery);
   // console.log("details: ", details);
 
   return (

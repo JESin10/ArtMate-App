@@ -12,7 +12,6 @@ import {
 } from "react-native";
 import React, { useState, useEffect, useMemo } from "react";
 import { parseString } from "react-native-xml2js";
-import { API_KEY } from "@env";
 import ArtworkFilter from "../components/ArtworkFilter";
 import ArtworkInfoModal from "../components/ArtworkInfoModal";
 import FilterIcon from "../assets/icons/filter.svg";
@@ -51,7 +50,7 @@ export default function Artworks() {
     try {
       setLoading(true);
       const response = await fetch(
-        `${SERVER_URL}/area2?serviceKey=${
+        `${process.env.REACT_APP_SERVER_URL}/area2?serviceKey=${
           process.env.REACT_APP_API_KEY
         }&PageNo=${parseInt(1)}&numOfrows=${parseInt(20)}`
       );
@@ -127,28 +126,36 @@ export default function Artworks() {
       );
 
       const xmlText = await response.text();
+      console.log("getDetailArtwork: API 응답 XML:", xmlText);
 
       parseString(xmlText, { explicitArray: false }, (err, jsonData) => {
         if (err) {
+          console.error("getDetailArtwork: XML 파싱 오류:", err);
           setDetailArtwork([]);
           return;
         }
-        console.log(
-          "getDetailArtwork xml parsed keys:",
-          Object.keys(jsonData || {})
-        );
+
         const detail = jsonData?.response?.body?.items?.item || null;
+
         setDetailArtwork(detail);
+        // console.log("getDetailArtwork: 파싱된 데이터:", detail);
       });
-    } catch (error) {}
+    } catch (error) {
+      console.error("getDetailArtwork: API 호출 오류:", error);
+      setDetailArtwork([]);
+    }
   };
 
   useEffect(() => {
-    getArtwork();
-    getDetailArtwork(selectedArtwork?.DP_SEQ);
-  }, []);
+    if (selectedArtwork?.DP_SEQ) {
+      getArtwork();
+      getDetailArtwork(selectedArtwork.DP_SEQ);
+    } else {
+      getArtwork();
+    }
+  }, [selectedArtwork]);
 
-  console.log("Artworks:", detailArtwork);
+  // console.log("Artworks:", detailArtwork);
   return (
     <SafeAreaView
       style={{
