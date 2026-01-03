@@ -29,7 +29,7 @@ const API_KEY =
   "iUshbHgoTGazZCC2%2F6vIBZp%2FB97CWSUUeLAbmBto9st2Aj33IThDavcN4Cy1W8e%2FdbjWYG0yBe5qU2lZ%2FZlPMg%3D%3D";
 
 // "iUshbHgoTGazZCC2/6vIBZp/B97CWSUUeLAbmBto9st2Aj33IThDavcN4Cy1W8e/dbjWYG0yBe5qU2lZ/ZlPMg==";
-export default function Places() {
+export default function Places({ navigation }) {
   const [gallery, setGallery] = useState([]);
   const [pageNum, setPageNum] = useState(1);
   const [listCnt, setListCnt] = useState(10);
@@ -37,9 +37,6 @@ export default function Places() {
   const [showPopup, setShowPopup] = useState(false);
   const [loading, setLoading] = useState(false);
   const [selectedPlace, setSelectedPlace] = useState(null);
-
-  const [showMap, setShowMap] = useState(false);
-  const [mapRegion, setMapRegion] = useState(null);
 
   const getDetailPlace = async (seq) => {
     try {
@@ -136,12 +133,9 @@ export default function Places() {
       // 기본값(서울 중심)
       center = { latitude: 37.5665, longitude: 126.978 };
     }
-    setMapRegion({
-      ...center,
-      latitudeDelta: 0.05,
-      longitudeDelta: 0.05,
+    navigation.navigate("Map", {
+      region: { ...center, latitudeDelta: 0.05, longitudeDelta: 0.05 },
     });
-    setShowMap(true);
   };
 
   useEffect(() => {
@@ -213,12 +207,6 @@ export default function Places() {
                   }}
                 />
               </TouchableOpacity>
-              {/* <Button
-                title="지도변환"
-                color="#333"
-                onPress={openMap}
-                disabled={loading}
-              /> */}
             </View>
           </View>
           <View style={{ flexDirection: "column" }}>
@@ -283,18 +271,6 @@ export default function Places() {
             <ActivityIndicator size="large" color="#fff" />
             <Text style={{ color: "#fff", marginTop: 8 }}>로딩중...</Text>
           </View>
-        </View>
-      )}
-
-      {/* 지도클릭시 */}
-      {showMap && mapRegion && (
-        <View style={styles.mapOverlay}>
-          <TouchableOpacity
-            style={styles.mapCloseBtn}
-            onPress={() => setShowMap(false)}
-          >
-            <Text style={{ color: "#fff", fontWeight: "bold" }}>닫기</Text>
-          </TouchableOpacity>
         </View>
       )}
     </SafeAreaView>
