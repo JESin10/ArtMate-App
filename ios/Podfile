@@ -31,7 +31,16 @@ target 'ArtMateApp' do
     ]
   end
 
-  config = use_native_modules!(config_command)
+  # Call autolinking; older/newer helpers may accept different signatures.
+  # Some environments throw a Ruby type error when an Array is passed here,
+  # so try with the prepared command first and fall back to calling
+  # `use_native_modules!` with no arguments.
+  begin
+    config = use_native_modules!(config_command)
+  rescue => e
+    warn "use_native_modules! with config_command failed: #{e}. Falling back to default call"
+    config = use_native_modules!
+  end
 
   use_frameworks! :linkage => podfile_properties['ios.useFrameworks'].to_sym if podfile_properties['ios.useFrameworks']
   use_frameworks! :linkage => ENV['USE_FRAMEWORKS'].to_sym if ENV['USE_FRAMEWORKS']

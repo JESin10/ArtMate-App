@@ -8,8 +8,7 @@ import {
 } from "react-native";
 import React, { useState, useEffect, useRef } from "react";
 import { WebView } from "react-native-webview"; // `expo-location` will be dynamically imported to avoid native module eval errors
-
-const NAVER_CLIENT_ID = "udkk714yfp";
+import { Marker } from "react-native-maps";
 
 // HTML is generated inside the component so it can use route params for center coordinates.
 export default function MapView({ route, navigation }) {
@@ -20,30 +19,29 @@ export default function MapView({ route, navigation }) {
   const [userLocation, setUserLocation] = useState(null);
   const webviewRef = useRef(null);
 
-  const html = `<!DOCTYPE html>
-<html>
+  const html = `<html>
   <head>
-    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0" />
-    <style>
-      html, body, #map { height: 100%; margin: 0; padding: 0; }
-      #map { width: 100%; height: 100%; }
-    </style>
+    <title>Add a Map using HTML</title>
+
+    <link rel="stylesheet" type="text/css" href="./style.css" />
+    <script type="module" src="./index.js"></script>
   </head>
   <body>
-    <div id="map"></div>
-    <script src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${NAVER_CLIENT_ID}"></script>
-    <script>
-      var map = new naver.maps.Map('map', {
-        center: new naver.maps.LatLng(${centerLat}, ${centerLng}),
-        zoom: 13,
-        zoomControl: true
-      });
-      var marker = new naver.maps.Marker({ position: new naver.maps.LatLng(${centerLat}, ${centerLng}), map: map });
-      window.map = map;
-      window.userMarker = null;
-    </script>
+    <gmp-map
+      center="38.7946,-106.5348"
+      zoom="4"
+      map-id="DEMO_MAP_ID"
+      style="height: 400px"
+    >
+    </gmp-map>
+
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key=${process.env.GOOGLE_MAPS_API_KEY}&libraries=maps"
+      defer
+    ></script>
   </body>
-</html>`;
+</html>
+  `;
 
   useEffect(() => {
     let mounted = true;
@@ -79,36 +77,51 @@ export default function MapView({ route, navigation }) {
   };
 
   return (
-    <View style={styles.container}>
-      <TouchableOpacity
-        style={styles.closeBtn}
-        onPress={() => navigation.goBack()}
-      >
-        <Text style={styles.closeText}>닫기</Text>
-      </TouchableOpacity>
+    // <View style={styles.container}>
+    //   <TouchableOpacity
+    //     style={styles.closeBtn}
+    //     onPress={() => navigation.goBack()}
+    //   >
+    //     <Text style={styles.closeText}>닫기</Text>
+    //   </TouchableOpacity>
 
-      <TouchableOpacity style={styles.locBtn} onPress={centerOnUser}>
-        <Text style={styles.locText}>내 위치</Text>
-      </TouchableOpacity>
+    //   <TouchableOpacity style={styles.locBtn} onPress={centerOnUser}>
+    //     <Text style={styles.locText}>내 위치</Text>
+    //   </TouchableOpacity>
 
-      {loading && (
-        <View style={styles.loading} pointerEvents="none">
-          <ActivityIndicator size="large" color="#608D00" />
-          <Text style={{ marginTop: 8 }}>지도 로딩 중...</Text>
-        </View>
-      )}
-      <WebView
-        ref={webviewRef}
-        originWhitelist={["*"]}
-        source={{ html, baseUrl: "http://localhost:8081" }}
-        style={styles.webview}
-        onLoadEnd={() => setLoading(false)}
-        javaScriptEnabled={true}
-        domStorageEnabled={true}
-        mixedContentMode="always"
-        allowFileAccess
+    //   {loading && (
+    //     <View style={styles.loading} pointerEvents="none">
+    //       <ActivityIndicator size="large" color="#608D00" />
+    //       <Text style={{ marginTop: 8 }}>지도 로딩 중...</Text>
+    //     </View>
+    //   )}
+    //   <WebView
+    //     ref={webviewRef}
+    //     originWhitelist={["*"]}
+    //     source={{ html, baseUrl: "http://localhost:8081" }}
+    //     style={styles.webview}
+    //     onLoadEnd={() => setLoading(false)}
+    //     javaScriptEnabled={true}
+    //     domStorageEnabled={true}
+    //     mixedContentMode="always"
+    //     allowFileAccess
+    //   />
+    // </View>
+
+    <MapView
+      style={{ flex: 1 }}
+      initialRegion={{
+        latitude: 37.5665,
+        longitude: 126.978,
+        latitudeDelta: 0.05,
+        longitudeDelta: 0.05,
+      }}
+    >
+      <Marker
+        coordinate={{ latitude: 37.5665, longitude: 126.978 }}
+        title="서울"
       />
-    </View>
+    </MapView>
   );
 }
 

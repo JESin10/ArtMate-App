@@ -65,20 +65,23 @@ export default function Home({ navigation }) {
   const getArtwork = async () => {
     setLoading(true);
     try {
-      const response = await fetch(
-        `${SERVER_URL}/${API_KEY}/xml/ListExhibitionOfSeoulMOAInfo/${parseInt(
-          startIndex,
-          10
-        )}/${parseInt(endIndex, 10)}/`
-      );
+      const url = `${SERVER_URL}/${API_KEY}/xml/ListExhibitionOfSeoulMOAInfo/${parseInt(
+        startIndex,
+        10
+      )}/${parseInt(endIndex, 10)}/`;
+      console.log('[Home] getArtwork url:', url);
+      const response = await fetch(url);
       const xmlText = await response.text();
+      console.log('[Home] getArtwork xmlText (start):', xmlText?.slice(0, 1000));
 
       parseString(xmlText, { explicitArray: false }, (err, jsonData) => {
         if (err) {
+          console.error('[Home] parseString error:', err);
           setArtworks([]);
           setLoading(false);
           return;
         }
+        console.log('[Home] getArtwork jsonData keys:', Object.keys(jsonData || {}));
         let items = jsonData.ListExhibitionOfSeoulMOAInfo?.row || [];
 
         if (!Array.isArray(items)) items = [items];

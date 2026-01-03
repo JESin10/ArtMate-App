@@ -10,10 +10,16 @@ module.exports = {
     platforms: ["ios", "android"],
     ios: {
       bundleIdentifier: "com.artmate.app",
-      newArchEnabled: false,
+      config: {
+        googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
+      },
     },
     android: {
-      package: "com.artmate.app",
+      config: {
+        googleMaps: {
+          apiKey: process.env.GOOGLE_MAPS_API_KEY,
+        },
+      },
     },
     extra: {
       apikey: process.env.API_KEY,
