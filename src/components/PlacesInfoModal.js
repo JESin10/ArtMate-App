@@ -13,6 +13,7 @@ import InfoIcon from "../assets/icons/info.svg";
 import React, { useEffect, useState } from "react";
 import { use } from "react";
 import { decode } from "html-entities";
+import Map from "../screens/Map";
 
 export default function PlacesInfoModal({ visible, onClose, item, detail }) {
   const [city, setCity] = useState("");
@@ -162,10 +163,11 @@ export default function PlacesInfoModal({ visible, onClose, item, detail }) {
                 <Text style={styles.subText}> 정보없음</Text>
               )}
             </View>
-            <View style={styles.textContainer}>
+            <View style={styles.mapContainer}>
               <Text style={styles.titleText2}>지도</Text>
-              <Text style={styles.subText}>{detail?.gpsX}</Text>
-              <Text style={styles.subText}>{detail?.gpsY}</Text>
+              <Map route={null} x={detail?.gpsX} y={detail?.gpsY} />
+              {/* <Text style={styles.subText}>{detail?.gpsX}</Text>
+              <Text style={styles.subText}>{detail?.gpsY}</Text> */}
             </View>
           </ScrollView>
         </View>
@@ -224,6 +226,14 @@ const styles = StyleSheet.create({
     color: "gray",
   },
   textContainer: {
+    marginBottom: 10,
+    width: "100%",
+    flexDirection: "row",
+    border: "solid",
+    padding: 10,
+  },
+  mapContainer: {
+    height: 400,
     marginBottom: 10,
     width: "100%",
     flexDirection: "row",

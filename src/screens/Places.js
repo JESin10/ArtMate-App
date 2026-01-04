@@ -21,6 +21,7 @@ import PlacesInfoModal from "../components/PlacesInfoModal";
 import ReloadIcon from "../assets/icons/reload.svg";
 import MapIcon from "../assets/icons/location.svg";
 import Mainlogo from "../assets/icons/logo-main.svg";
+import Map from "./Map";
 
 // const REACT_APP_SERVER_URL = "https://apis.data.go.kr/B553457/cultureinfo";
 const SERVER_URL =
@@ -30,7 +31,7 @@ const SERVER_URL =
 export default function Places({ navigation }) {
   const [gallery, setGallery] = useState([]);
   const [pageNum, setPageNum] = useState(parseInt(1));
-  const [listCnt, setListCnt] = useState(parseInt(20));
+  const [listCnt, setListCnt] = useState(parseInt(3));
   const [details, setDetails] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -146,8 +147,12 @@ export default function Places({ navigation }) {
       // 기본값(서울 중심)
       center = { latitude: 37.5665, longitude: 126.978 };
     }
+    // navigation.navigate("Map", {
+    //   route: { ...center, latitudeDelta: 0.05, longitudeDelta: 0.05 },
+    // });
     navigation.navigate("Map", {
-      region: { ...center, latitudeDelta: 0.05, longitudeDelta: 0.05 },
+      x: center.latitude,
+      y: center.longitude,
     });
   };
 

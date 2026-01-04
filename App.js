@@ -23,7 +23,7 @@ import MypageLineIcon from "./src/assets/icons/Menubar_user.svg";
 import Setting from "./src/screens/Setting";
 import Login from "./src/screens/Login";
 import UserSignup from "./src/components/UserSignup";
-import MapView from "./src/screens/MapView";
+import Map from "./src/screens/Map";
 import { AuthProvider } from "./src/services/context";
 
 // import SignupIcon from "./src/assets/icons/Menubar_user.svg";
@@ -136,7 +136,7 @@ export default function App() {
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen name="Bottom" component={BottomTabScreen} />
-          <Stack.Screen name="Map" component={MapView} />
+          <Stack.Screen name="Map" component={Map} />
           {/* <Stack.Screen name="Status" component={Status} /> */}
           <Stack.Screen name="Setting" component={Setting} />
           <Stack.Screen name="Login" component={Login} />
