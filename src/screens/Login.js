@@ -7,13 +7,55 @@ import {
   Button,
   SafeAreaView,
   ScrollView,
+  Alert,
 } from "react-native";
-import React from "react";
+import React, { useState, useContext } from "react";
 import Mainlogo from "../assets/icons/logo-main.svg";
 import MainSlogun from "../assets/images/slogan.svg";
+import { collection, getDocs, where } from "firebase/firestore";
+import { db } from "../../firebase";
+import { AuthContext } from "../services/context";
 
 export default function Login({ navigation }) {
-  const signup = () => {};
+  const [userId, setUserId] = useState("");
+  const [userPw, setUserPw] = useState("");
+  const [userName, setUserName] = useState("");
+  const { setUser } = useContext(AuthContext);
+
+  const login = async () => {
+    try {
+      // Firestore에서 'users' 컬렉션에서 email이 userId와 일치하는 문서를 쿼리
+      const querySnapshot = await getDocs(collection(db, "users"));
+      let userFound = false;
+
+      querySnapshot.forEach((doc) => {
+        const userData = doc.data();
+        console.log("userData:", userData);
+        if (userData.email === userId) {
+          userFound = true;
+          if (userData.password === userPw) {
+            setUser({
+              email: userData.email,
+              name: userData.displayName,
+              following: userData.following,
+              follower: userData.followers,
+            });
+            Alert.alert("로그인 성공", "로그인이 완료되었습니다.");
+            navigation.navigate("Bottom", { screen: "Home" });
+          } else {
+            Alert.alert("로그인 실패", "비밀번호가 일치하지 않습니다.");
+          }
+        }
+      });
+
+      if (!userFound) {
+        Alert.alert("로그인 실패", "해당 이메일을 가진 사용자가 없습니다.");
+      }
+    } catch (error) {
+      console.error("Login error: ", error);
+      Alert.alert("로그인 실패", "로그인 중 오류가 발생했습니다.");
+    }
+  };
   return (
     <SafeAreaView
       style={{
@@ -46,10 +88,27 @@ export default function Login({ navigation }) {
           {/* <TouchableOpacity> */}
           <View>
             <View style={styles.inputContainer}>
-              <TextInput style={styles.input} placeholder="아이디" />
-              <TextInput style={styles.input} placeholder="비밀번호" />
+              <TextInput
+                style={styles.input}
+                placeholder="아이디"
+                autoCapitalize="none"
+                autoCorrect={false}
+                textContentType="id"
+                value={userId}
+                onChangeText={(text) => setUserId(text)}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="비밀번호"
+                autoCapitalize="none"
+                autoCorrect={false}
+                secureTextEntry={true}
+                textContentType="password"
+                value={userPw}
+                onChangeText={(text) => setUserPw(text)}
+              />
               <View style={styles.button}>
-                <TouchableOpacity onPress={signup}>
+                <TouchableOpacity onPress={login}>
                   <Text style={{ color: "#fff" }}>로그인</Text>
                 </TouchableOpacity>
                 {/* <Button title="Sign Up" color={"gray"} onPress={signup} /> */}
@@ -102,7 +161,7 @@ export default function Login({ navigation }) {
                 alignItems: "center",
               }}
             >
-              <TouchableOpacity onPress={signup}>
+              <TouchableOpacity onPress={login}>
                 <Text style={styles.socialBtn}>카카오로 시작하기</Text>
               </TouchableOpacity>
             </View>
@@ -117,7 +176,7 @@ export default function Login({ navigation }) {
                 alignItems: "center",
               }}
             >
-              <TouchableOpacity onPress={signup}>
+              <TouchableOpacity onPress={login}>
                 <Text style={styles.socialBtn}>네이버로 시작하기</Text>
               </TouchableOpacity>
             </View>
@@ -133,7 +192,7 @@ export default function Login({ navigation }) {
                 alignItems: "center",
               }}
             >
-              <TouchableOpacity onPress={signup}>
+              <TouchableOpacity onPress={login}>
                 <Text style={styles.socialBtn}>구글로 시작하기</Text>
               </TouchableOpacity>
             </View>

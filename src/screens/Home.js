@@ -14,7 +14,13 @@ import {
 } from "react-native";
 import { decode } from "html-entities"; // 추가: HTML 엔티티 디코드
 import Recent from "../components/Recent";
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useContext,
+} from "react";
 import { parseString } from "react-native-xml2js";
 import ArtworkInfoModal from "../components/ArtworkInfoModal";
 import RenderHTML from "react-native-render-html";
@@ -22,10 +28,13 @@ import RenderHTML from "react-native-render-html";
 import BackwardIcon from "../assets/icons/backward.svg";
 import ForwardIcon from "../assets/icons/forward.svg";
 import Mainlogo from "../assets/icons/logo-main.svg";
+import { AuthContext } from "../services/context";
 
 const SERVER_URL = "https://apis.data.go.kr/B553457/cultureinfo";
 
 export default function Home({ navigation }) {
+  const { user } = useContext(AuthContext);
+
   const [artworks, setArtworks] = useState([]); // 작품들 전체
   const [recentArtworks, setRecentArtworks] = useState([]); // 금주의 최신작품
   const [recentPage, setRecentPage] = useState(0);
@@ -314,7 +323,9 @@ export default function Home({ navigation }) {
           </View>
           <View style={styles.recommandContainer}>
             <View style={styles.subTitle}>
-              <Text style={styles.pageTitle}>ㅇㅇ님의 취향저격 전시모음</Text>
+              <Text style={styles.pageTitle}>
+                {user?.name}님의 취향저격 전시모음
+              </Text>
               <View style={styles.recommandFactor}>
                 <FlatList
                   ref={flatListRef}

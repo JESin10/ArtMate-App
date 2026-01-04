@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import {
   View,
   Text,
@@ -20,8 +20,10 @@ import AlertIcon from "../assets/icons/alert.svg";
 import SettingIcon from "../assets/icons/setting.svg";
 import ShareIcon from "../assets/icons/share.svg";
 import EditIcon from "../assets/icons/edit.svg";
+import { AuthContext } from "../services/context";
 
 export default function Mypage({ navigation }) {
+  const { user } = useContext(AuthContext);
   const [exampleNum, setExampleNum] = useState(7);
   // const Stack = createNativeStackNavigator();
   const showAlertWithChoices = () => {
@@ -85,20 +87,32 @@ export default function Mypage({ navigation }) {
               </View>
               <View style={styles.myAccInfo}>
                 <View style={styles.myFollowInfo}>
-                  <Text>이름</Text>
+                  <Text
+                    style={{ fontWeight: "bold", color: "#fff", fontSize: 22 }}
+                  >
+                    {user?.name}
+                  </Text>
                   <TouchableOpacity>
-                    <EditIcon width={16} height={16} fill="#fff" />
+                    <EditIcon width={20} height={20} fill="#fff" />
                   </TouchableOpacity>
                 </View>
 
                 <View style={styles.myFollowInfo}>
                   <View style={{ flexDirection: "row" }}>
-                    <Text>팔로워</Text>
-                    <Text>00</Text>
+                    <Text style={{ marginRight: 10, color: "#fff" }}>
+                      팔로워
+                    </Text>
+                    <Text style={{ fontWeight: "bold", color: "#fff" }}>
+                      {user?.following}
+                    </Text>
                   </View>
                   <View style={{ flexDirection: "row" }}>
-                    <Text>팔로잉</Text>
-                    <Text>ㅁㅁ</Text>
+                    <Text style={{ marginRight: 10, color: "#fff" }}>
+                      팔로잉
+                    </Text>
+                    <Text style={{ fontWeight: "bold", color: "#fff" }}>
+                      {user?.follower}
+                    </Text>
                   </View>
                 </View>
               </View>
@@ -281,6 +295,10 @@ const styles = {
     alignItems: "center",
     justifyContent: "space-around",
     flexDirection: "row",
+    shadowColor: "#000",
+    shadowOffset: { width: 1, height: 2 },
+    shadowOpacity: 0.5,
+    shadowRadius: 2,
   },
   myActivity: {
     width: "100%",

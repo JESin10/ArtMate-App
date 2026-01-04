@@ -30,12 +30,11 @@ export default function UserSignup({ navigation }) {
         password
       );
       const user = userCredential.user;
-      const userRef = doc(db, "users", user.uid);
+      const userRef = doc(db, "users", user.email);
       if (password !== passwordCheck) {
         Alert.alert("비밀번호 불일치", "비밀번호가 일치하지 않습니다.");
         return;
       }
-      Alert.alert("회원가입 성공", "회원가입이 완료되었습니다.");
 
       await setDoc(userRef, {
         displayName: name,
@@ -43,7 +42,11 @@ export default function UserSignup({ navigation }) {
         password: password,
         uid: user.uid,
         createdAt: new Date().toUTCString(),
+        following: 0,
+        followers: 0,
       });
+      Alert.alert("회원가입 성공", "회원가입이 완료되었습니다.");
+
       navigation.navigate("Login");
       setIsUser(true);
       setName(name);
