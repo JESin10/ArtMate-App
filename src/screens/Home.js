@@ -273,13 +273,14 @@ export default function Home({ navigation }) {
       setRecentArtworks([]);
       setEndedArtworks([]);
       return;
+    } else {
+      setRecentArtworks(computeRecentArtworks(artworks));
+      // computeRecentArtworks(artworks);
+      setEndedArtworks(computeEndedArtworks(artworks));
     }
-    setRecentArtworks(computeRecentArtworks(artworks));
-    // computeRecentArtworks(artworks);
-    setEndedArtworks(computeEndedArtworks(artworks));
   }, [artworks]);
 
-  console.log("check:", recentArtworks);
+  // console.log("check:", recentArtworks);
 
   // Prepare fixed 16-slot array for recent grid; fill missing slots with null placeholders
   const filledRecent = (() => {

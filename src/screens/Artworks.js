@@ -122,7 +122,7 @@ export default function Artworks() {
   const getDetailArtwork = async (seq) => {
     try {
       const response = await fetch(
-        `${SERVER_URL}/detail2?serviceKey=${process.env.REACT_APP_API_KEY}&seq=${seq}`
+        `${process.env.REACT_APP_SERVER_URL}/detail2?serviceKey=${process.env.REACT_APP_API_KEY}&seq=${seq}`
       );
 
       const xmlText = await response.text();

@@ -39,12 +39,19 @@ target 'ArtMateApp' do
     config = use_native_modules!(config_command)
   rescue => e
     warn "use_native_modules! with config_command failed: #{e}. Falling back to default call"
-    config = use_native_modules!
+    begin
+      config = use_native_modules!
+    rescue => fallback_error
+      raise "Both `use_native_modules!` calls failed: #{fallback_error}. Please check your configuration."
+    end
   end
 
   use_frameworks! :linkage => podfile_properties['ios.useFrameworks'].to_sym if podfile_properties['ios.useFrameworks']
   use_frameworks! :linkage => ENV['USE_FRAMEWORKS'].to_sym if ENV['USE_FRAMEWORKS']
 
+    pod 'FirebaseCoreInternal', :modular_headers => true
+  pod 'GoogleUtilities', :modular_headers => true
+  
   use_react_native!(
     :path => config[:reactNativePath],
     :hermes_enabled => podfile_properties['expo.jsEngine'] == nil || podfile_properties['expo.jsEngine'] == 'hermes',

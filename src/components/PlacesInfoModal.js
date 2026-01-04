@@ -17,7 +17,7 @@ import { decode } from "html-entities";
 export default function PlacesInfoModal({ visible, onClose, item, detail }) {
   const [city, setCity] = useState("");
   //   console.log("PlacesInfoItem:", item);
-  console.log("PlacesInfoDetail:", detail);
+  // console.log("PlacesInfoDetail:", detail);
 
   const getProvinceFromAddress = (addr) => {
     if (!addr) return "";

@@ -22,26 +22,27 @@ import ReloadIcon from "../assets/icons/reload.svg";
 import MapIcon from "../assets/icons/location.svg";
 import Mainlogo from "../assets/icons/logo-main.svg";
 
-// const SERVER_URL =
-//   "https://apis.data.go.kr/B553457/nopenapi/rest/cultureartspaces";
+// const REACT_APP_SERVER_URL = "https://apis.data.go.kr/B553457/cultureinfo";
+const SERVER_URL =
+  "https://apis.data.go.kr/B553457/nopenapi/rest/cultureartspaces";
 
 // "iUshbHgoTGazZCC2/6vIBZp/B97CWSUUeLAbmBto9st2Aj33IThDavcN4Cy1W8e/dbjWYG0yBe5qU2lZ/ZlPMg==";
 export default function Places({ navigation }) {
   const [gallery, setGallery] = useState([]);
-  const [pageNum, setPageNum] = useState(1);
-  const [listCnt, setListCnt] = useState(10);
-  const [details, setDetails] = useState({});
+  const [pageNum, setPageNum] = useState(parseInt(1));
+  const [listCnt, setListCnt] = useState(parseInt(20));
+  const [details, setDetails] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [selectedPlace, setSelectedPlace] = useState(null);
+  const [selectedPlace, setSelectedPlace] = useState([]);
 
   const getDetailPlace = async (seq) => {
     try {
-      setLoading(true);
+      // setLoading(true);
       const response = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/detail?serviceKey=${process.env.REACT_APP_API_KEY}&seq=${seq}`
+        `${SERVER_URL}/detail?serviceKey=${process.env.REACT_APP_API_KEY}&seq=${seq}`
       );
-      const xmlText = await response.text();
+      const xmlText = await response?.text();
       parseString(xmlText, { explicitArray: false }, (err, jsonData) => {
         if (err) {
           setLoading(false);
@@ -59,16 +60,16 @@ export default function Places({ navigation }) {
 
   const getPlace = async () => {
     try {
-      setLoading(true);
+      // setLoading(true);
       const response = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/artgallery?serviceKey=${process.env.REACT_APP_API_KEY}&PageNo=${pageNum}&numOfrows=${listCnt}`
+        `${SERVER_URL}/artgallery?serviceKey=${process.env.REACT_APP_API_KEY}&PageNo=${pageNum}&numOfrows=${listCnt}`
       );
       const xmlText = await response.text();
 
       parseString(xmlText, { explicitArray: false }, async (err, jsonData) => {
         if (err) return;
         setLoading(false);
-        const items = jsonData.response.body.items.item;
+        const items = jsonData.response?.body.items.item;
         setGallery(items);
 
         // const detailPromises = items.map((item) => getDetailPlace(item.seq));
@@ -85,14 +86,19 @@ export default function Places({ navigation }) {
   };
 
   useEffect(() => {
-    if (selectedPlace?.seq || gallery?.seq) {
+    if (gallery?.length > 0) {
+      setLoading(true);
       getPlace();
-      getDetailPlace();
+      gallery.forEach((item) => {
+        getDetailPlace(item.seq); // 각 seq에 대해 상세 정보 요청
+      });
     } else {
       getPlace();
     }
-  }, []);
-  console.log("gallery:", gallery);
+  }, [gallery?.length]);
+
+  // console.log("gallery:", gallery);
+  console.log("detail:", details);
 
   const getCoords = (detail, item) => {
     const tryNum = (v) => {
@@ -145,9 +151,6 @@ export default function Places({ navigation }) {
     });
   };
 
-  // console.log("Gallery: ", gallery);
-  // console.log("details: ", details);
-
   return (
     <SafeAreaView
       style={{
@@ -159,17 +162,6 @@ export default function Places({ navigation }) {
     >
       <ScrollView>
         <View style={{ padding: 10 }}>
-          {/* <Text
-            style={{
-              fontSize: 35,
-              fontWeight: "bold",
-              color: "#333",
-              marginVertical: 15,
-              marginHorizontal: "auto",
-            }}
-          >
-            ArtMate-Logo
-          </Text> */}
           <TouchableOpacity style={{ alignItems: "center" }}>
             <Mainlogo width={150} height={50} />
           </TouchableOpacity>
@@ -230,6 +222,7 @@ export default function Places({ navigation }) {
                     {detail?.culViewImg1 ? (
                       <ImageBackground
                         source={{
+                          // uri: detail.thumbnail,
                           uri: detail.culViewImg1.replace("http", "https"),
                         }}
                         style={styles.imageBackground}
@@ -242,8 +235,8 @@ export default function Places({ navigation }) {
                   <View style={styles.discriptions}>
                     <Text style={styles.titleStyle}>{item.culName}</Text>
                     <Text style={styles.descStyle}>{item.culTel}</Text>
-                    {/* <Text style={styles.descStyle}>{detail?.culAddr}</Text> */}
-                    {/* <Text>{detail.culCont}</Text> */}
+                    <Text style={styles.descStyle}>{detail?.culAddr}</Text>
+                    <Text>{detail?.culGrpName}</Text>
 
                     {/* <Text>distance</Text> */}
                   </View>
@@ -257,7 +250,11 @@ export default function Places({ navigation }) {
       {/* 장소 클릭시 modal popup */}
       <PlacesInfoModal
         visible={showPopup}
-        onClose={() => setShowPopup(false)}
+        onClose={() => {
+          setShowPopup(false);
+          setSelectedPlace([]);
+          getDetailPlace();
+        }}
         item={selectedPlace}
         detail={details[selectedPlace?.seq]}
         // detail={selectedPlace ? details[setSelectedPlace.seq] : null}

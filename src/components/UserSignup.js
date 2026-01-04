@@ -6,16 +6,51 @@ import {
   StyleSheet,
   TextInput,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import React, { useState } from "react";
 import Mainlogo from "../assets/icons/logo-main.svg";
 import MainSlogun from "../assets/images/slogan.svg";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth, db } from "../../firebase";
+import { doc, setDoc } from "firebase/firestore";
 
 export default function UserSignup({ navigation }) {
-  const [userId, setUserId] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordCheck, setPasswordCheck] = useState("");
   const [isUser, setIsUser] = useState(false);
-  const signup = () => {};
+
+  const onSignup = async () => {
+    try {
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
+      const userRef = doc(db, "users", user.uid);
+      if (password !== passwordCheck) {
+        Alert.alert("비밀번호 불일치", "비밀번호가 일치하지 않습니다.");
+        return;
+      }
+      Alert.alert("회원가입 성공", "회원가입이 완료되었습니다.");
+
+      await setDoc(userRef, {
+        displayName: name,
+        email: email,
+        password: password,
+        uid: user.uid,
+        createdAt: new Date().toUTCString(),
+      });
+      navigation.navigate("Login");
+      setIsUser(true);
+      setName(name);
+    } catch (error) {
+      Alert.alert("회원가입 실패", error.message);
+    }
+  };
 
   return (
     <SafeAreaView
@@ -38,23 +73,49 @@ export default function UserSignup({ navigation }) {
           </TouchableOpacity>
 
           <View style={styles.inputContainer}>
-            <TextInput style={styles.input} placeholder="이메일" />
+            <TextInput
+              style={styles.input}
+              placeholder="이메일"
+              autoCapitalize="none"
+              keyboardType="email-address"
+              textContentType="emailAddress"
+              autoFocus={true}
+              value={email}
+              onChangeText={(text) => setEmail(text)}
+            />
             <TextInput
               style={styles.input}
               placeholder="닉네임(한/영/숫자/기호/2-10자)"
+              autoCapitalize="none"
+              autoCorrect={false}
+              textContentType="name"
+              value={name}
+              onChangeText={(text) => setName(text)}
             />
             <TextInput
               style={styles.input}
               placeholder="비밀번호 문자+숫자+특수문자 포함 8자이상"
+              autoCapitalize="none"
+              autoCorrect={false}
+              secureTextEntry={true}
+              textContentType="password"
+              value={password}
+              onChangeText={(text) => setPassword(text)}
             />
 
             <TextInput
               style={styles.input}
               placeholder="비밀번호 확인 문자+숫자+특수문자 포함 8자이상"
+              autoCapitalize="none"
+              autoCorrect={false}
+              secureTextEntry={true}
+              textContentType="password"
+              value={passwordCheck}
+              onChangeText={(text) => setPasswordCheck(text)}
             />
 
             <View style={styles.button}>
-              <TouchableOpacity onPress={signup}>
+              <TouchableOpacity onPress={onSignup}>
                 <Text style={{ color: "#fff", fontWeight: "bold" }}>
                   회원가입
                 </Text>
@@ -108,7 +169,7 @@ export default function UserSignup({ navigation }) {
                 alignItems: "center",
               }}
             >
-              <TouchableOpacity onPress={signup}>
+              <TouchableOpacity onPress={onSignup}>
                 <Text style={styles.socialBtn}>카카오로 시작하기</Text>
               </TouchableOpacity>
             </View>
@@ -122,7 +183,7 @@ export default function UserSignup({ navigation }) {
                 alignItems: "center",
               }}
             >
-              <TouchableOpacity onPress={signup}>
+              <TouchableOpacity onPress={onSignup}>
                 <Text style={styles.socialBtn}>네이버로 시작하기</Text>
               </TouchableOpacity>
             </View>
@@ -138,7 +199,7 @@ export default function UserSignup({ navigation }) {
                 alignItems: "center",
               }}
             >
-              <TouchableOpacity onPress={signup}>
+              <TouchableOpacity onPress={onSignup}>
                 <Text style={styles.socialBtn}>구글로 시작하기</Text>
               </TouchableOpacity>
             </View>
