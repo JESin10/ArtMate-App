@@ -107,12 +107,11 @@ export default function Login({ navigation }) {
                 value={userPw}
                 onChangeText={(text) => setUserPw(text)}
               />
-              <View style={styles.button}>
-                <TouchableOpacity onPress={login}>
-                  <Text style={{ color: "#fff" }}>로그인</Text>
-                </TouchableOpacity>
-                {/* <Button title="Sign Up" color={"gray"} onPress={signup} /> */}
-              </View>
+
+              <TouchableOpacity style={styles.button} onPress={login}>
+                <Text style={{ color: "#fff" }}>로그인</Text>
+              </TouchableOpacity>
+              {/* <Button title="Sign Up" color={"gray"} onPress={signup} /> */}
             </View>
           </View>
           <View style={styles.findContainer}>
@@ -150,37 +149,34 @@ export default function Login({ navigation }) {
               flexDirection: "column",
             }}
           >
-            <View
+            <TouchableOpacity
               style={{
                 backgroundColor: "#F4DF4A",
                 borderRadius: 30,
                 width: "80%",
                 height: 45,
-
                 marginBottom: 10,
                 alignItems: "center",
               }}
+              onPress={login}
             >
-              <TouchableOpacity onPress={login}>
-                <Text style={styles.socialBtn}>카카오로 시작하기</Text>
-              </TouchableOpacity>
-            </View>
-            <View
+              <Text style={styles.socialBtn}>카카오로 시작하기</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
               style={{
                 backgroundColor: "#5EC439",
                 borderRadius: 30,
                 width: "80%",
                 height: 45,
-
                 marginBottom: 10,
                 alignItems: "center",
               }}
+              onPress={login}
             >
-              <TouchableOpacity onPress={login}>
-                <Text style={styles.socialBtn}>네이버로 시작하기</Text>
-              </TouchableOpacity>
-            </View>
-            <View
+              <Text style={styles.socialBtn}>네이버로 시작하기</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
               style={{
                 backgroundColor: "white",
                 borderColor: "black",
@@ -191,11 +187,10 @@ export default function Login({ navigation }) {
                 marginBottom: 10,
                 alignItems: "center",
               }}
+              onPress={login}
             >
-              <TouchableOpacity onPress={login}>
-                <Text style={styles.socialBtn}>구글로 시작하기</Text>
-              </TouchableOpacity>
-            </View>
+              <Text style={styles.socialBtn}>구글로 시작하기</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </ScrollView>

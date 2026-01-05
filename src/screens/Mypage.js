@@ -21,11 +21,15 @@ import SettingIcon from "../assets/icons/setting.svg";
 import ShareIcon from "../assets/icons/share.svg";
 import EditIcon from "../assets/icons/edit.svg";
 import { AuthContext } from "../services/context";
+import { collection, doc, getDocs, updateDoc } from "firebase/firestore";
+import { db } from "../../firebase";
 
 export default function Mypage({ navigation }) {
-  const { user } = useContext(AuthContext);
+  const { user, setUser } = useContext(AuthContext);
   const [exampleNum, setExampleNum] = useState(7);
-  // const Stack = createNativeStackNavigator();
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedName, setEditedName] = useState(user?.name);
+
   const showAlertWithChoices = () => {
     Alert.alert(
       "Choose an Option",
@@ -47,6 +51,24 @@ export default function Mypage({ navigation }) {
       ],
       { cancelable: false }
     );
+  };
+
+  const editProfile = async () => {
+    try {
+      setIsEditing(true);
+      const userRef = doc(db, "users", user?.email);
+      await updateDoc(userRef, {
+        displayName: editedName,
+      });
+      setUser((prev) => ({
+        ...prev,
+        name: editedName,
+      }));
+      Alert.alert("프로필이 수정되었습니다");
+      setIsEditing(false);
+    } catch (error) {
+      Alert.alert("수정 실패", "다시 시도해주세요");
+    }
   };
 
   return (
@@ -87,14 +109,53 @@ export default function Mypage({ navigation }) {
               </View>
               <View style={styles.myAccInfo}>
                 <View style={styles.myFollowInfo}>
-                  <Text
-                    style={{ fontWeight: "bold", color: "#fff", fontSize: 22 }}
-                  >
-                    {user?.name}
-                  </Text>
-                  <TouchableOpacity>
-                    <EditIcon width={20} height={20} fill="#fff" />
-                  </TouchableOpacity>
+                  {isEditing ? (
+                    <>
+                      <TextInput
+                        autoCapitalize="none"
+                        keyboardType="editedName"
+                        textContentType="editedName"
+                        autoFocus={true}
+                        value={editedName}
+                        onChangeText={setEditedName}
+                        style={{
+                          backgroundColor: "#fff",
+                          borderRadius: 6,
+                          paddingHorizontal: 10,
+                          paddingVertical: 5,
+                          minWidth: 120,
+                        }}
+                      />
+                      <TouchableOpacity onPress={editProfile}>
+                        <Text style={{ color: "#fff", fontWeight: "bold" }}>
+                          저장
+                        </Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={() => setIsEditing(false)}
+                        setEditedName={user?.name}
+                      >
+                        <Text style={{ color: "#fff", fontWeight: "bold" }}>
+                          취소
+                        </Text>
+                      </TouchableOpacity>
+                    </>
+                  ) : (
+                    <>
+                      <Text
+                        style={{
+                          fontWeight: "bold",
+                          color: "#fff",
+                          fontSize: 22,
+                        }}
+                      >
+                        {user?.name}
+                      </Text>
+                      <TouchableOpacity onPress={() => setIsEditing(true)}>
+                        <EditIcon width={20} height={20} fill="#fff" />
+                      </TouchableOpacity>
+                    </>
+                  )}
                 </View>
 
                 <View style={styles.myFollowInfo}>
@@ -122,7 +183,7 @@ export default function Mypage({ navigation }) {
                 <ListIcon width={36} height={36} fill="#fff" />
                 <Text
                   style={{
-                    marginTop: "15",
+                    marginTop: 15,
                     color: "#fff",
                     fontSize: "14",
                     fontWeight: "bold",
@@ -139,7 +200,7 @@ export default function Mypage({ navigation }) {
                 <BookMarkIcon width={36} height={36} fill="#fff" />
                 <Text
                   style={{
-                    marginTop: "15",
+                    marginTop: 15,
                     color: "#fff",
                     fontSize: "14",
                     fontWeight: "bold",
@@ -152,7 +213,7 @@ export default function Mypage({ navigation }) {
                 <LikeIcon width={36} height={36} fill="#fff" />
                 <Text
                   style={{
-                    marginTop: "15",
+                    marginTop: 15,
                     color: "#fff",
                     fontSize: "14",
                     fontWeight: "bold",
@@ -244,6 +305,7 @@ const styles = {
     width: "90%",
     justifyContent: "flex-end",
     flexDirection: "row",
+    marginVertical: 20,
   },
   myInfoContainer: {
     width: "90%",

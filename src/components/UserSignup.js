@@ -116,14 +116,11 @@ export default function UserSignup({ navigation }) {
               value={passwordCheck}
               onChangeText={(text) => setPasswordCheck(text)}
             />
-
-            <View style={styles.button}>
-              <TouchableOpacity onPress={onSignup}>
-                <Text style={{ color: "#fff", fontWeight: "bold" }}>
-                  회원가입
-                </Text>
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity style={styles.button} onPress={onSignup}>
+              <Text style={{ color: "#fff", fontWeight: "bold" }}>
+                회원가입
+              </Text>
+            </TouchableOpacity>
             <View style={styles.findContainer}>
               <TouchableOpacity>
                 <Text style={styles.findFactor}>ID 찾기</Text>
@@ -161,7 +158,8 @@ export default function UserSignup({ navigation }) {
               flexDirection: "column",
             }}
           >
-            <View
+            <TouchableOpacity
+              onPress={onSignup}
               style={{
                 backgroundColor: "#F4DF4A",
                 borderRadius: 30,
@@ -172,11 +170,10 @@ export default function UserSignup({ navigation }) {
                 alignItems: "center",
               }}
             >
-              <TouchableOpacity onPress={onSignup}>
-                <Text style={styles.socialBtn}>카카오로 시작하기</Text>
-              </TouchableOpacity>
-            </View>
-            <View
+              <Text style={styles.socialBtn}>카카오로 시작하기</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={onSignup}
               style={{
                 backgroundColor: "#5EC439",
                 borderRadius: 30,
@@ -186,11 +183,10 @@ export default function UserSignup({ navigation }) {
                 alignItems: "center",
               }}
             >
-              <TouchableOpacity onPress={onSignup}>
-                <Text style={styles.socialBtn}>네이버로 시작하기</Text>
-              </TouchableOpacity>
-            </View>
-            <View
+              <Text style={styles.socialBtn}>네이버로 시작하기</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={onSignup}
               style={{
                 backgroundColor: "white",
                 borderColor: "black",
@@ -202,10 +198,8 @@ export default function UserSignup({ navigation }) {
                 alignItems: "center",
               }}
             >
-              <TouchableOpacity onPress={onSignup}>
-                <Text style={styles.socialBtn}>구글로 시작하기</Text>
-              </TouchableOpacity>
-            </View>
+              <Text style={styles.socialBtn}>구글로 시작하기</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </ScrollView>
