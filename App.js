@@ -9,6 +9,8 @@ import Artworks from "./src/screens/Artworks";
 import Places from "./src/screens/Places";
 import Status from "./src/screens/Status";
 import Mypage from "./src/screens/Mypage";
+import Map from "./src/screens/Map";
+import AllMap from "./src/screens/AllMap";
 
 import HomeIcon from "./src/assets/icons/Menubar_home-filled.svg";
 import HomeLineIcon from "./src/assets/icons/Menubar_home.svg";
@@ -23,7 +25,6 @@ import MypageLineIcon from "./src/assets/icons/Menubar_user.svg";
 import Setting from "./src/screens/Setting";
 import Login from "./src/screens/Login";
 import UserSignup from "./src/components/UserSignup";
-import Map from "./src/screens/Map";
 import { AuthProvider } from "./src/services/context";
 
 // import SignupIcon from "./src/assets/icons/Menubar_user.svg";
@@ -137,6 +138,8 @@ export default function App() {
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen name="Bottom" component={BottomTabScreen} />
           <Stack.Screen name="Map" component={Map} />
+          <Stack.Screen name="AllMap" component={AllMap} />
+
           {/* <Stack.Screen name="Status" component={Status} /> */}
           <Stack.Screen name="Setting" component={Setting} />
           <Stack.Screen name="Login" component={Login} />

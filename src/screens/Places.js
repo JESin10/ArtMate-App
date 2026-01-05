@@ -21,7 +21,6 @@ import PlacesInfoModal from "../components/PlacesInfoModal";
 import ReloadIcon from "../assets/icons/reload.svg";
 import MapIcon from "../assets/icons/location.svg";
 import Mainlogo from "../assets/icons/logo-main.svg";
-import Map from "./Map";
 
 // const REACT_APP_SERVER_URL = "https://apis.data.go.kr/B553457/cultureinfo";
 const SERVER_URL =
@@ -35,7 +34,7 @@ export default function Places({ navigation }) {
   const [details, setDetails] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [selectedPlace, setSelectedPlace] = useState([]);
+  const [selectedPlace, setSelectedPlace] = useState(null);
 
   const getDetailPlace = async (seq) => {
     try {
@@ -99,7 +98,7 @@ export default function Places({ navigation }) {
   }, [gallery?.length]);
 
   // console.log("gallery:", gallery);
-  console.log("detail:", details);
+  // console.log("detail:", details);
 
   const getCoords = (detail, item) => {
     const tryNum = (v) => {
@@ -107,52 +106,32 @@ export default function Places({ navigation }) {
       const n = parseFloat(v);
       return Number.isFinite(n) ? n : null;
     };
-    const latKeys = [
-      detail?.lat,
-      detail?.latitude,
-      detail?.gpsY,
-      detail?.mapY,
-      detail?.y,
-      detail?.CUL_LAT,
-      item?.lat,
-    ];
-    const lngKeys = [
-      detail?.lng,
-      detail?.longitude,
-      detail?.gpsX,
-      detail?.mapX,
-      detail?.x,
-      detail?.CUL_LON,
-      item?.lng,
-    ];
-    const lat = tryNum(latKeys.find(Boolean));
-    const lng = tryNum(lngKeys.find(Boolean));
+
+    const lat = tryNum(detail?.gpsY || item?.gpsY);
+    const lng = tryNum(detail?.gpsX || item?.gpsX);
+
     if (lat && lng) return { latitude: lat, longitude: lng };
     return null;
   };
 
   const openMap = () => {
-    // 중심 좌표: 첫 번째 유효 좌표 사용
-    let center = null;
-    for (let i = 0; i < gallery.length; i++) {
-      const item = gallery[i];
-      const detail = details[item.seq];
-      const c = getCoords(detail, item);
-      if (c) {
-        center = c;
-        break;
-      }
-    }
-    if (!center) {
-      // 기본값(서울 중심)
-      center = { latitude: 37.5665, longitude: 126.978 };
-    }
-    // navigation.navigate("Map", {
-    //   route: { ...center, latitudeDelta: 0.05, longitudeDelta: 0.05 },
-    // });
-    navigation.navigate("Map", {
-      x: center.latitude,
-      y: center.longitude,
+    if (!details) return;
+
+    const markers = Object.entries(details)
+      .map(([seq, detail]) => {
+        const coords = getCoords(detail);
+        if (!coords) return null;
+
+        return {
+          ...coords,
+          title: detail.culName,
+          seq,
+        };
+      })
+      .filter(Boolean);
+
+    navigation.getParent()?.navigate("AllMap", {
+      markers,
     });
   };
 
@@ -197,7 +176,7 @@ export default function Places({ navigation }) {
                   }}
                 />
               </TouchableOpacity>
-              <TouchableOpacity onPress={openMap} disabled={loading}>
+              <TouchableOpacity disabled={!selectedPlace} onPress={openMap}>
                 <MapIcon
                   width={24}
                   height={24}
@@ -242,7 +221,6 @@ export default function Places({ navigation }) {
                     <Text style={styles.descStyle}>{item.culTel}</Text>
                     <Text style={styles.descStyle}>{detail?.culAddr}</Text>
                     <Text>{detail?.culGrpName}</Text>
-
                     {/* <Text>distance</Text> */}
                   </View>
                 </TouchableOpacity>
@@ -257,7 +235,7 @@ export default function Places({ navigation }) {
         visible={showPopup}
         onClose={() => {
           setShowPopup(false);
-          setSelectedPlace([]);
+          setSelectedPlace(null);
           getDetailPlace();
         }}
         item={selectedPlace}

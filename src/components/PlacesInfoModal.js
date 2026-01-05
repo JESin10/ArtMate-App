@@ -165,7 +165,7 @@ export default function PlacesInfoModal({ visible, onClose, item, detail }) {
             </View>
             <View style={styles.mapContainer}>
               <Text style={styles.titleText2}>지도</Text>
-              <Map route={null} x={detail?.gpsX} y={detail?.gpsY} />
+              <Map x={detail?.gpsY} y={detail?.gpsX} />
               {/* <Text style={styles.subText}>{detail?.gpsX}</Text>
               <Text style={styles.subText}>{detail?.gpsY}</Text> */}
             </View>

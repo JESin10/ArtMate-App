@@ -7,131 +7,45 @@ import {
   TouchableOpacity,
 } from "react-native";
 import React, { useState, useEffect, useRef } from "react";
-import { WebView } from "react-native-webview"; // `expo-location` will be dynamically imported to avoid native module eval errors
 import MapView, { Marker } from "react-native-maps";
 
-const defaultRegion = {
-  latitude: 37.5665,
-  longitude: 126.978,
-  latitudeDelta: 0.5,
-  longitudeDelta: 0.5,
-};
-
-// HTML is generated inside the component so it can use route params for center coordinates.
-export default function Map({ route, navigation, x, y }) {
-  const [loading, setLoading] = useState(true);
-
-  const { region } = route?.params || defaultRegion;
-  const centerLat = x ?? defaultRegion.latitude;
-  const centerLng = y ?? defaultRegion.longitude;
-  const [userLocation, setUserLocation] = useState(null);
-  const webviewRef = useRef(null);
-  console.log("Map x,y:", centerLat, centerLng);
-
-  const html = `<html>
-  <head>
-    <title>Add a Map using HTML</title>
-
-    <link rel="stylesheet" type="text/css" href="./style.css" />
-    <script type="module" src="./index.js"></script>
-  </head>
-  <body>
-    <gmp-map
-      center="38.7946,-106.5348"
-      zoom="14"
-      map-id="884131672414"
-      style="height: 400px"
-    >
-    </gmp-map>
-
-    <script
-      src="https://maps.googleapis.com/maps/api/js?key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}&libraries=maps"
-      defer
-    ></script>
-  </body>
-</html>
-  `;
-
-  // useEffect(() => {
-  //   let mounted = true;
-  //   (async () => {
-  //     try {
-  //       const Location = await import("expo-location");
-  //       if (!Location || !Location.requestForegroundPermissionsAsync) {
-  //         console.warn("expo-location not available in this environment");
-  //         return;
-  //       }
-  //       const { status } = await Location.requestForegroundPermissionsAsync();
-  //       if (status !== "granted") {
-  //         console.warn("Location permission denied");
-  //         return;
-  //       }
-  //       const pos = await Location.getCurrentPositionAsync({});
-  //       const { latitude, longitude } = pos.coords;
-  //       if (mounted) setUserLocation({ latitude, longitude });
-  //       // inject user marker if map is already available
-  //       const js = `(function(){ if(window.map){ if(window.userMarker) window.userMarker.setMap(null); window.userMarker = new naver.maps.Marker({ position: new naver.maps.LatLng(${latitude}, ${longitude}), map: window.map, title: '내 위치' }); } })(); true;`;
-  //       if (webviewRef.current) webviewRef.current.injectJavaScript(js);
-  //     } catch (e) {
-  //       console.warn("Location error:", e);
-  //     }
-  //   })();
-  //   return () => (mounted = false);
-  // }, []);
-
-  const centerOnUser = () => {
-    if (!userLocation || !webviewRef.current) return;
-    const js = `if(window.map){ window.map.setCenter(new naver.maps.LatLng(${userLocation.latitude}, ${userLocation.longitude})); if(!window.userMarker){ window.userMarker = new naver.maps.Marker({ position: new naver.maps.LatLng(${userLocation.latitude}, ${userLocation.longitude}), map: window.map, title: '내 위치' }); } } true;`;
-    webviewRef.current.injectJavaScript(js);
+export default function Map({ x, y }) {
+  const defaultRegion = {
+    latitude: 37.5665,
+    longitude: 126.978,
+    latitudeDelta: 0.01,
+    longitudeDelta: 0.01,
   };
+  // const geo = route?.params?.region ?? defaultRegion;
+  // console.log("Map Factor:", route);
+  // console.log("Map route:", route);
+
+  if (!x) {
+    return (
+      <View style={styles.container}>
+        <Text>지도 정보가 없습니다</Text>
+      </View>
+    );
+  }
 
   return (
-    // <View style={styles.container}>
-    //   <TouchableOpacity
-    //     style={styles.closeBtn}
-    //     onPress={() => navigation.goBack()}
-    //   >
-    //     <Text style={styles.closeText}>닫기</Text>
-    //   </TouchableOpacity>
-
-    //   <TouchableOpacity style={styles.locBtn} onPress={centerOnUser}>
-    //     <Text style={styles.locText}>내 위치</Text>
-    //   </TouchableOpacity>
-
-    //   {loading && (
-    //     <View style={styles.loading} pointerEvents="none">
-    //       <ActivityIndicator size="large" color="#608D00" />
-    //       <Text style={{ marginTop: 8 }}>지도 로딩 중...</Text>
-    //     </View>
-    //   )}
-    //   <WebView
-    //     ref={webviewRef}
-    //     originWhitelist={["*"]}
-    //     source={{ html, baseUrl: "http://localhost:8081" }}
-    //     style={styles.webview}
-    //     onLoadEnd={() => setLoading(false)}
-    //     javaScriptEnabled={true}
-    //     domStorageEnabled={true}
-    //     mixedContentMode="always"
-    //     allowFileAccess
-    //   />
-    // </View>
     <View style={styles.container}>
       <MapView
         style={{ flex: 1 }}
         initialRegion={{
-          latitude: centerLat,
-          longitude: centerLng,
-          latitudeDelta: defaultRegion.latitudeDelta,
-          longitudeDelta: defaultRegion.longitudeDelta,
+          latitude: x,
+          longitude: y,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
         }}
       >
         <Marker
           coordinate={{
             latitude: x,
             longitude: y,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01,
           }}
-          title="선택된 위치"
         />
       </MapView>
     </View>
