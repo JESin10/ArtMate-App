@@ -22,14 +22,14 @@ export default function Map({ x, y }) {
 
   if (!x) {
     return (
-      <View style={styles.container}>
+      <View style={{ flex: 1 }}>
         <Text>지도 정보가 없습니다</Text>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <View style={{ flex: 1 }}>
       <MapView
         style={{ flex: 1 }}
         initialRegion={{
@@ -52,39 +52,6 @@ export default function Map({ x, y }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  webview: { flex: 1, backgroundColor: "#fff" },
-  loading: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
-    alignItems: "center",
-    justifyContent: "center",
-    zIndex: 2,
-  },
-  closeBtn: {
-    position: "absolute",
-    top: Platform.OS === "ios" ? 50 : 20,
-    right: 16,
-    zIndex: 3,
-    backgroundColor: "rgba(0,0,0,0.6)",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 6,
-  },
-  closeText: { color: "#fff", fontWeight: "bold" },
-  locBtn: {
-    position: "absolute",
-    top: Platform.OS === "ios" ? 50 : 20,
-    left: 16,
-    zIndex: 3,
-    backgroundColor: "#fff",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 6,
-  },
-  locText: { color: "#608D00", fontWeight: "bold" },
-});
+// const styles = StyleSheet.create({
+//   container: { flex: 1 },
+// });

@@ -26,11 +26,10 @@ import Mainlogo from "../assets/icons/logo-main.svg";
 const SERVER_URL =
   "https://apis.data.go.kr/B553457/nopenapi/rest/cultureartspaces";
 
-// "iUshbHgoTGazZCC2/6vIBZp/B97CWSUUeLAbmBto9st2Aj33IThDavcN4Cy1W8e/dbjWYG0yBe5qU2lZ/ZlPMg==";
 export default function Places({ navigation }) {
   const [gallery, setGallery] = useState([]);
   const [pageNum, setPageNum] = useState(parseInt(1));
-  const [listCnt, setListCnt] = useState(parseInt(3));
+  const [listCnt, setListCnt] = useState(parseInt(20));
   const [details, setDetails] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -176,7 +175,7 @@ export default function Places({ navigation }) {
                   }}
                 />
               </TouchableOpacity>
-              <TouchableOpacity disabled={!selectedPlace} onPress={openMap}>
+              <TouchableOpacity disabled={loading} onPress={openMap}>
                 <MapIcon
                   width={24}
                   height={24}
