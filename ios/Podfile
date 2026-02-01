@@ -8,7 +8,6 @@ ENV['RCT_NEW_ARCH_ENABLED'] = podfile_properties['newArchEnabled'] == 'true' ? '
 ENV['EX_DEV_CLIENT_NETWORK_INSPECTOR'] = podfile_properties['EX_DEV_CLIENT_NETWORK_INSPECTOR']
 
 platform :ios, podfile_properties['ios.deploymentTarget'] || '15.1'
-use_modular_headers!
 
 
 install! 'cocoapods',
@@ -24,6 +23,10 @@ target 'ArtMateApp' do
   # 🔹 react-native-maps (Expo prebuild)
   pod 'react-native-google-maps',
       :path => File.dirname(`node --print "require.resolve('react-native-maps/package.json')"`)
+
+  pod 'FirebaseCoreInternal', :modular_headers => true
+  pod 'GoogleUtilities', :modular_headers => true
+  pod 'Firebase/CoreOnly', :modular_headers => true
 
   use_react_native!(
     :path => config[:reactNativePath],
