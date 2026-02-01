@@ -6,7 +6,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyAIYLEU2fecfYvbco7S2eHIorocm_bg0Vw",
   authDomain: "art-mate-app.firebaseapp.com",
   projectId: "art-mate-app",
-  storageBucket: "art-mate-app.firebasestorage.app",
+  storageBucket: "art-mate-app.appspot.com",
   messagingSenderId: "884131672414",
   appId: "1:884131672414:web:ed9abcb820e200acb05fcf",
   measurementId: "G-PGC9N2RKGJ",
