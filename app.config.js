@@ -8,7 +8,9 @@ module.exports = {
     version: "1.0.0",
     sdkVersion: "52.0.0",
     platforms: ["ios", "android"],
+    icon: "./assets/icon.png",
     ios: {
+      ios: { icon: "./assets/icon.png" },
       bundleIdentifier: "com.artmate.app",
       config: {
         googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
