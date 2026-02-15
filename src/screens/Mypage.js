@@ -49,7 +49,7 @@ export default function Mypage({ navigation }) {
           style: "cancel",
         },
       ],
-      { cancelable: false }
+      { cancelable: false },
     );
   };
 
@@ -239,42 +239,66 @@ export default function Mypage({ navigation }) {
             </View>
           </View>
         </View>
-        <Pressable
-          onPress={() => navigation.navigate("Login")}
-          style={({ pressed }) => [
-            styles.loginBtnWrapper,
-            pressed && styles.loginBtnPressedWrapper,
-          ]}
-        >
-          {({ pressed }) => (
-            <Text
-              style={[
-                styles.loginBtnText,
-                pressed && styles.loginBtnPressedText,
+        {!user.name ? (
+          <>
+            <Pressable
+              onPress={() => navigation.navigate("Login")}
+              style={({ pressed }) => [
+                styles.loginBtnWrapper,
+                pressed && styles.loginBtnPressedWrapper,
               ]}
             >
-              로그인
-            </Text>
-          )}
-        </Pressable>
-        <Pressable
-          onPress={() => navigation.navigate("Signup")}
-          style={({ pressed }) => [
-            styles.signupBtnWrapper,
-            pressed && styles.signupBtnPressedWrapper,
-          ]}
-        >
-          {({ pressed }) => (
-            <Text
-              style={[
-                styles.signupBtnText,
-                pressed && styles.signupBtnPressedText,
+              {({ pressed }) => (
+                <Text
+                  style={[
+                    styles.loginBtnText,
+                    pressed && styles.loginBtnPressedText,
+                  ]}
+                >
+                  로그인
+                </Text>
+              )}
+            </Pressable>
+
+            <Pressable
+              onPress={() => navigation.navigate("Signup")}
+              style={({ pressed }) => [
+                styles.signupBtnWrapper,
+                pressed && styles.signupBtnPressedWrapper,
               ]}
             >
-              회원가입
-            </Text>
-          )}
-        </Pressable>
+              {({ pressed }) => (
+                <Text
+                  style={[
+                    styles.signupBtnText,
+                    pressed && styles.signupBtnPressedText,
+                  ]}
+                >
+                  회원가입
+                </Text>
+              )}
+            </Pressable>
+          </>
+        ) : (
+          <Pressable
+            onPress={() => setUser(null)}
+            style={({ pressed }) => [
+              styles.logoutBtnWrapper,
+              pressed && styles.logoutBtnPressedWrapper,
+            ]}
+          >
+            {({ pressed }) => (
+              <Text
+                style={[
+                  styles.logoutBtnText,
+                  pressed && styles.logoutBtnPressedText,
+                ]}
+              >
+                로그아웃
+              </Text>
+            )}
+          </Pressable>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -478,5 +502,31 @@ const styles = {
   },
   signupBtnPressedText: {
     color: "#fff",
+  },
+  logoutBtnWrapper: {
+    marginTop: 20,
+    marginBottom: 30,
+    borderColor: "#608D00",
+    borderWidth: 2,
+    width: 300,
+    height: 45,
+    borderRadius: 30,
+    alignItems: "center",
+    justifyContent: "center",
+    marginHorizontal: "auto",
+    backgroundColor: "#608D00",
+  },
+  logoutBtnPressedWrapper: {
+    backgroundColor: "transparent",
+  },
+  logoutBtnText: {
+    textAlign: "center",
+    lineHeight: 45,
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "white",
+  },
+  logoutBtnPressedText: {
+    color: "#608D00",
   },
 };
