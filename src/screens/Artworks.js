@@ -11,13 +11,13 @@ import {
   TouchableOpacity,
 } from "react-native";
 import React, { useState, useEffect, useMemo } from "react";
-import { parseString } from "react-native-xml2js";
 import ArtworkFilter from "../components/ArtworkFilter";
 import ArtworkInfoModal from "../components/ArtworkInfoModal";
 import FilterIcon from "../assets/icons/filter.svg";
 import ReloadIcon from "../assets/icons/reload.svg";
 import Mainlogo from "../assets/icons/logo-main.svg";
 import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
+import { XMLParser } from "fast-xml-parser";
 
 const SERVER_URL = "https://apis.data.go.kr/B553457/cultureinfo";
 // `${SERVER_URL}/area2?serviceKey=${API_KEY}&PageNo=${startIndex}&numOfrows=${endIndex}&sido=${city}`
@@ -45,55 +45,85 @@ export default function Artworks() {
   const [showModal, setShowModal] = useState(false);
   const [selectedArtwork, setSelectedArtwork] = useState(null);
   const [detailArtwork, setDetailArtwork] = useState([]);
+  const parser = new XMLParser({
+    ignoreAttributes: false,
+  });
 
   const getArtwork = async () => {
     try {
       setLoading(true);
+
       const response = await fetch(
         `${process.env.REACT_APP_SERVER_URL}/area2?serviceKey=${
           process.env.REACT_APP_API_KEY
-        }&PageNo=${parseInt(1)}&numOfrows=${parseInt(20)}`
+        }&PageNo=${parseInt(1)}&numOfrows=${parseInt(20)}`,
       );
 
       const xmlText = await response.text();
 
-      parseString(xmlText, { explicitArray: false }, (err, jsonData) => {
-        if (err) {
-          setArtworks([]);
-          setDisplayedArtworks([]);
-          setLoading(false);
-          return;
-        }
-        console.log("getArtwork xml parsed keys:", Object.keys(jsonData || {}));
-        // API 응답 구조: response.body.items.item
-        const rawItems = jsonData?.response?.body?.items?.item || [];
-        const list = Array.isArray(rawItems) ? rawItems : [rawItems];
-
-        // 정규화된 형태로 매핑 (필요한 필드 사용)
-        const normalized = list.map((it) => ({
-          // keep original keys for compatibility, plus DP_* aliases used elsewhere
-          ...it,
-          seq: it.seq,
-          DP_SEQ: it.seq,
-          title: it.title,
-          DP_NAME: it.DP_NAME,
-          DP_START: it.startDate,
-          DP_END: it.endDate,
-          DP_PLACE: it.place,
-          thumbnail: it.thumbnail?.startsWith("http:")
-            ? it.thumbnail.replace("http:", "https:")
-            : it.thumbnail,
-          gpsX: it.gpsX,
-          gpsY: it.gpsY,
-        }));
-
-        setArtworks(normalized);
-        // 기본은 전체를 표시 (필터 적용 시 applyFilter 호출)
-        setDisplayedArtworks(normalized);
+      if (!xmlText || xmlText.trim().length === 0) {
+        setArtworks([]);
+        setDisplayedArtworks([]);
         setLoading(false);
-      });
+        return;
+      }
+
+      const jsonData = parser.parse(xmlText);
+
+      console.log("getArtwork xml parsed keys:", Object.keys(jsonData || {}));
+
+      const rawItems = jsonData?.response?.body?.items?.item || [];
+      const list = Array.isArray(rawItems) ? rawItems : [rawItems];
+
+      const normalized = list.map((it) => ({
+        ...it,
+        seq: it?.seq,
+        DP_SEQ: it?.seq,
+        title: it?.title,
+        DP_NAME: it?.DP_NAME,
+        DP_START: it?.startDate,
+        DP_END: it?.endDate,
+        DP_PLACE: it?.place,
+        thumbnail: it?.thumbnail?.startsWith("http:")
+          ? it.thumbnail.replace("http:", "https:")
+          : it?.thumbnail,
+        gpsX: it?.gpsX,
+        gpsY: it?.gpsY,
+      }));
+
+      setArtworks(normalized);
+      setDisplayedArtworks(normalized);
     } catch (error) {
-      setLoading(false);
+      setArtworks([]);
+      setDisplayedArtworks([]);
+    }
+
+    setLoading(false);
+  };
+
+  const getDetailArtwork = async (seq) => {
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_SERVER_URL}/detail2?serviceKey=${process.env.REACT_APP_API_KEY}&seq=${seq}`,
+      );
+
+      const xmlText = await response.text();
+
+      if (!xmlText || xmlText.trim().length === 0) {
+        setDetailArtwork([]);
+        return;
+      }
+
+      console.log("getDetailArtwork: API 응답 XML:", xmlText);
+
+      const jsonData = parser.parse(xmlText);
+
+      const detail = jsonData?.response?.body?.items?.item || null;
+
+      setDetailArtwork(detail);
+    } catch (error) {
+      console.error("getDetailArtwork: API 호출 오류:", error);
+      setDetailArtwork([]);
     }
   };
 
@@ -109,41 +139,14 @@ export default function Artworks() {
         lowered.some((p) =>
           String(a.serviceName || "")
             .toLowerCase()
-            .includes(p)
-        )
+            .includes(p),
+        ),
       );
     }
     // start/end 범위 적용 (안정성: 1-based)
     const s = Math.max(1, start);
     const e = Math.min(source.length, end);
     setDisplayedArtworks(source.slice(s - 1, e));
-  };
-
-  const getDetailArtwork = async (seq) => {
-    try {
-      const response = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/detail2?serviceKey=${process.env.REACT_APP_API_KEY}&seq=${seq}`
-      );
-
-      const xmlText = await response.text();
-      console.log("getDetailArtwork: API 응답 XML:", xmlText);
-
-      parseString(xmlText, { explicitArray: false }, (err, jsonData) => {
-        if (err) {
-          console.error("getDetailArtwork: XML 파싱 오류:", err);
-          setDetailArtwork([]);
-          return;
-        }
-
-        const detail = jsonData?.response?.body?.items?.item || null;
-
-        setDetailArtwork(detail);
-        // console.log("getDetailArtwork: 파싱된 데이터:", detail);
-      });
-    } catch (error) {
-      console.error("getDetailArtwork: API 호출 오류:", error);
-      setDetailArtwork([]);
-    }
   };
 
   useEffect(() => {
@@ -216,10 +219,10 @@ export default function Artworks() {
                   pos === 0
                     ? styles.artworks_S
                     : pos === 1
-                    ? styles.artworks_B
-                    : pos === 2
-                    ? styles.artworks_B
-                    : styles.artworks_S;
+                      ? styles.artworks_B
+                      : pos === 2
+                        ? styles.artworks_B
+                        : styles.artworks_S;
 
                 return (
                   <TouchableOpacity

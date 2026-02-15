@@ -10,7 +10,7 @@ import {
   Pressable,
 } from "react-native";
 import { useState, useEffect } from "react";
-import { parseString } from "react-native-xml2js";
+import { XMLParser } from "fast-xml-parser";
 
 const SERVER_URL = "http://openapi.seoul.go.kr:8088";
 const API_KEY = "6b44656447746c733835476551776c";
@@ -64,6 +64,8 @@ export default function ArtworkFilter({
   const [eIdx, setEIdx] = useState(String(initEnd ?? "60"));
   const [selectedParts, setSelectedParts] = useState([]);
   const [loading, setLoading] = useState(false);
+  const parser = new XMLParser();
+  // const result = parser.parse(xmlString);
 
   useEffect(() => {
     if (initStart !== undefined) setSIdx(String(initStart));
@@ -77,7 +79,7 @@ export default function ArtworkFilter({
   const togglePart = (dp_artpart) => {
     if (selectedParts.includes(dp_artpart)) {
       setSelectedParts((prev) =>
-        prev.filter((inputText) => inputText !== dp_artpart)
+        prev.filter((inputText) => inputText !== dp_artpart),
       );
     } else {
       setSelectedParts((prev) => [...prev, dp_artpart]);
@@ -91,34 +93,39 @@ export default function ArtworkFilter({
 
     try {
       const res = await fetch(
-        `${SERVER_URL}/${API_KEY}/xml/ListExhibitionOfSeoulMOAInfo/${start}/${end}/`
+        `${SERVER_URL}/${API_KEY}/xml/ListExhibitionOfSeoulMOAInfo/${start}/${end}/`,
       );
+
       const xmlText = await res.text();
 
-      parseString(xmlText, { explicitArray: false }, (error, jsonData) => {
-        setLoading(false);
-        if (error) {
-          onApply({ items: [], parts: selectedParts, start, end });
-          return;
-        }
-        let items = jsonData.ListExhibitionOfSeoulMOAInfo?.row || [];
-        if (!Array.isArray(items)) items = [items];
-
-        if (Array.isArray(selectedParts) && selectedParts.length > 0) {
-          const lowered = selectedParts.map((dp_artpart) =>
-            String(dp_artpart).toLowerCase()
-          );
-          items = items.filter((parts) =>
-            lowered.some((dp_artpart) =>
-              String(parts.DP_ART_PART || "")
-                .toLowerCase()
-                .includes(dp_artpart)
-            )
-          );
-        }
-
-        onApply({ items, parts: selectedParts, start, end });
+      // 🔥 여기 변경됨
+      const parser = new XMLParser({
+        ignoreAttributes: false,
       });
+
+      const jsonData = parser.parse(xmlText);
+
+      setLoading(false);
+
+      let items = jsonData?.ListExhibitionOfSeoulMOAInfo?.row || [];
+
+      if (!Array.isArray(items)) items = [items];
+
+      if (Array.isArray(selectedParts) && selectedParts.length > 0) {
+        const lowered = selectedParts.map((dp_artpart) =>
+          String(dp_artpart).toLowerCase(),
+        );
+
+        items = items.filter((parts) =>
+          lowered.some((dp_artpart) =>
+            String(parts?.DP_ART_PART || "")
+              .toLowerCase()
+              .includes(dp_artpart),
+          ),
+        );
+      }
+
+      onApply({ items, parts: selectedParts, start, end });
     } catch (error) {
       setLoading(false);
       onApply({ items: [], parts: selectedParts, start, end });

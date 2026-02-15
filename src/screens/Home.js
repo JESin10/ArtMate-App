@@ -21,7 +21,6 @@ import React, {
   useCallback,
   useContext,
 } from "react";
-import { parseString } from "react-native-xml2js";
 import ArtworkInfoModal from "../components/ArtworkInfoModal";
 import RenderHTML from "react-native-render-html";
 
@@ -29,6 +28,7 @@ import BackwardIcon from "../assets/icons/backward.svg";
 import ForwardIcon from "../assets/icons/forward.svg";
 import Mainlogo from "../assets/icons/logo-main.svg";
 import { AuthContext } from "../services/context";
+import { XMLParser } from "fast-xml-parser";
 
 const SERVER_URL = "https://apis.data.go.kr/B553457/cultureinfo";
 
@@ -55,8 +55,11 @@ export default function Home({ navigation }) {
   const RECENT_TOTAL_ITEMS = 16; // 총 슬롯 수 (항상 16개로 맞춤)
   const recentTotalPages = Math.max(
     1,
-    Math.ceil(RECENT_TOTAL_ITEMS / RECENT_PER_PAGE)
+    Math.ceil(RECENT_TOTAL_ITEMS / RECENT_PER_PAGE),
   );
+  const parser = new XMLParser({
+    ignoreAttributes: false,
+  });
 
   const htmlToPlain = (html) => {
     if (!html) return "";
@@ -70,8 +73,55 @@ export default function Home({ navigation }) {
     return decode(plain);
   };
 
+  const fetchAndApply = async () => {
+    const start = Math.max(1, parseInt(sIdx || "1", 10));
+    const end = Math.max(start, parseInt(eIdx || String(start + 59), 10));
+    setLoading(true);
+
+    try {
+      const res = await fetch(
+        `${SERVER_URL}/${API_KEY}/xml/ListExhibitionOfSeoulMOAInfo/${start}/${end}/`,
+      );
+
+      const xmlText = await res.text();
+
+      // 🔥 여기 변경됨
+      const parser = new XMLParser({
+        ignoreAttributes: false,
+      });
+
+      const jsonData = parser.parse(xmlText);
+
+      setLoading(false);
+
+      let items = jsonData?.ListExhibitionOfSeoulMOAInfo?.row || [];
+
+      if (!Array.isArray(items)) items = [items];
+
+      if (Array.isArray(selectedParts) && selectedParts.length > 0) {
+        const lowered = selectedParts.map((dp_artpart) =>
+          String(dp_artpart).toLowerCase(),
+        );
+
+        items = items.filter((parts) =>
+          lowered.some((dp_artpart) =>
+            String(parts?.DP_ART_PART || "")
+              .toLowerCase()
+              .includes(dp_artpart),
+          ),
+        );
+      }
+
+      onApply({ items, parts: selectedParts, start, end });
+    } catch (error) {
+      setLoading(false);
+      onApply({ items: [], parts: selectedParts, start, end });
+    }
+  };
+
   const getArtwork = async () => {
     setLoading(true);
+
     try {
       const url = `${SERVER_URL}/area2?serviceKey=${
         process.env.REACT_APP_API_KEY
@@ -80,56 +130,50 @@ export default function Home({ navigation }) {
       const response = await fetch(url);
       const xmlText = await response.text();
 
-      parseString(xmlText, { explicitArray: false }, (err, jsonData) => {
-        if (err) {
-          console.error("[Home] parseString error:", err);
-          setArtworks([]);
-          setLoading(false);
-          return;
-        }
-        const rawItems = jsonData?.response?.body?.items?.item || [];
-        const list = Array.isArray(rawItems) ? rawItems : [rawItems];
+      const jsonData = parser.parse(xmlText);
 
-        const normalized = list.map((item) => ({
-          seq: item.seq,
-          title: item.title,
-          startDate: item.startDate,
-          endDate: item.endDate,
-          place: item.place,
-          area: item.area,
-          sigungu: item.sigungu,
-          thumbnail: item.thumbnail?.startsWith("http:")
-            ? item.thumbnail.replace("http:", "https:")
-            : item.thumbnail,
-          gpsX: item.gpsX,
-          gpsY: item.gpsY,
-        }));
+      const rawItems = jsonData?.response?.body?.items?.item || [];
+      const list = Array.isArray(rawItems) ? rawItems : [rawItems];
 
-        setArtworks(normalized);
-        setLoading(false);
-      });
+      const normalized = list.map((item) => ({
+        seq: item?.seq,
+        title: item?.title,
+        startDate: item?.startDate,
+        endDate: item?.endDate,
+        place: item?.place,
+        area: item?.area,
+        sigungu: item?.sigungu,
+        thumbnail: item?.thumbnail?.startsWith("http:")
+          ? item.thumbnail.replace("http:", "https:")
+          : item?.thumbnail,
+        gpsX: item?.gpsX,
+        gpsY: item?.gpsY,
+      }));
+
+      setArtworks(normalized);
     } catch (error) {
-      setLoading(false);
       console.error("홈화면 작품 불러오기 오류:", error);
+      setArtworks([]);
     }
+
+    setLoading(false);
   };
 
   const getDetailArtwork = async (seq) => {
     try {
       const response = await fetch(
-        `${SERVER_URL}/detail2?serviceKey=${process.env.REACT_APP_API_KEY}&seq=${seq}`
+        `${SERVER_URL}/detail2?serviceKey=${process.env.REACT_APP_API_KEY}&seq=${seq}`,
       );
 
       if (!response.ok) {
         console.error(
-          `getDetailArtwork: API 호출 실패 (상태 코드: ${response.status})`
+          `getDetailArtwork: API 호출 실패 (상태 코드: ${response.status})`,
         );
         setDetailArtwork([]);
         return;
       }
 
       const xmlText = await response.text();
-      // console.log("getDetailArtwork: API 응답 XML:", xmlText);
 
       if (!xmlText || xmlText.trim().length === 0) {
         console.error("getDetailArtwork: 응답이 비어 있습니다.");
@@ -137,20 +181,15 @@ export default function Home({ navigation }) {
         return;
       }
 
-      parseString(xmlText, { explicitArray: false }, (err, jsonData) => {
-        if (err) {
-          console.error("getDetailArtwork: XML 파싱 오류:", err);
-          setDetailArtwork([]);
-          return;
-        }
+      const jsonData = parser.parse(xmlText);
 
-        const detail = jsonData?.response?.body?.items?.item || null;
-        if (!detail) {
-          console.warn("getDetailArtwork: detail 데이터가 없습니다.");
-        }
-        setDetailArtwork(detail);
-        // console.log("getDetailArtwork: 파싱된 데이터:", detail);
-      });
+      const detail = jsonData?.response?.body?.items?.item || null;
+
+      if (!detail) {
+        console.warn("getDetailArtwork: detail 데이터가 없습니다.");
+      }
+
+      setDetailArtwork(detail);
     } catch (error) {
       console.error("getDetailArtwork: API 호출 오류:", error);
       setDetailArtwork([]);
@@ -217,7 +256,7 @@ export default function Home({ navigation }) {
       });
       setCurrentIndex(index);
     },
-    [flatListRef]
+    [flatListRef],
   );
 
   // 날짜 문자열을 안전하게 Date로 파싱 (YYYY-MM-DD 같은 형태 예상)
@@ -406,7 +445,7 @@ export default function Home({ navigation }) {
               {filledRecent
                 .slice(
                   recentPage * RECENT_PER_PAGE,
-                  recentPage * RECENT_PER_PAGE + RECENT_PER_PAGE
+                  recentPage * RECENT_PER_PAGE + RECENT_PER_PAGE,
                 )
                 .map((artwork, index) => {
                   const recentNum = index % 4;
@@ -414,10 +453,10 @@ export default function Home({ navigation }) {
                     recentNum === 0
                       ? styles.recentImagesS
                       : recentNum === 1
-                      ? styles.recentImagesL
-                      : recentNum === 2
-                      ? styles.recentImagesL
-                      : styles.recentImagesS;
+                        ? styles.recentImagesL
+                        : recentNum === 2
+                          ? styles.recentImagesL
+                          : styles.recentImagesS;
 
                   if (artwork) {
                     return (

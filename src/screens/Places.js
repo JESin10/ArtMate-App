@@ -15,12 +15,12 @@ import React, { useEffect, useState } from "react";
 // import { XMLParser } from "fast-xml-parser";
 // import Config from "react-native-config";
 import Constants from "expo-constants";
-import { parseString } from "react-native-xml2js";
 import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 import PlacesInfoModal from "../components/PlacesInfoModal";
 import ReloadIcon from "../assets/icons/reload.svg";
 import MapIcon from "../assets/icons/location.svg";
 import Mainlogo from "../assets/icons/logo-main.svg";
+import { XMLParser } from "fast-xml-parser";
 
 // const REACT_APP_SERVER_URL = "https://apis.data.go.kr/B553457/cultureinfo";
 const SERVER_URL =
@@ -34,54 +34,49 @@ export default function Places({ navigation }) {
   const [showPopup, setShowPopup] = useState(false);
   const [loading, setLoading] = useState(false);
   const [selectedPlace, setSelectedPlace] = useState(null);
+  const parser = new XMLParser({
+    ignoreAttributes: false,
+  });
 
   const getDetailPlace = async (seq) => {
     try {
-      // setLoading(true);
       const response = await fetch(
-        `${SERVER_URL}/detail?serviceKey=${process.env.REACT_APP_API_KEY}&seq=${seq}`
+        `${SERVER_URL}/detail?serviceKey=${process.env.REACT_APP_API_KEY}&seq=${seq}`,
       );
-      const xmlText = await response?.text();
-      parseString(xmlText, { explicitArray: false }, (err, jsonData) => {
-        if (err) {
-          setLoading(false);
-          return;
-        }
-        const detail = jsonData.response?.body.items.item;
-        setDetails((prev) => ({ ...prev, [seq]: detail }));
-      });
-      setLoading(false);
+
+      const xmlText = await response.text();
+
+      const jsonData = parser.parse(xmlText);
+
+      const detail = jsonData?.response?.body?.items?.item;
+
+      setDetails((prev) => ({ ...prev, [seq]: detail }));
     } catch (error) {
-      setLoading(false);
       console.error("상세 정보 오류:", error);
     }
+
+    setLoading(false);
   };
 
   const getPlace = async () => {
     try {
-      // setLoading(true);
       const response = await fetch(
-        `${SERVER_URL}/artgallery?serviceKey=${process.env.REACT_APP_API_KEY}&PageNo=${pageNum}&numOfrows=${listCnt}`
+        `${SERVER_URL}/artgallery?serviceKey=${process.env.REACT_APP_API_KEY}&PageNo=${pageNum}&numOfrows=${listCnt}`,
       );
+
       const xmlText = await response.text();
 
-      parseString(xmlText, { explicitArray: false }, async (err, jsonData) => {
-        if (err) return;
-        setLoading(false);
-        const items = jsonData.response?.body.items.item;
-        setGallery(items);
+      const jsonData = parser.parse(xmlText);
 
-        // const detailPromises = items.map((item) => getDetailPlace(item.seq));
-        // await Promise.all(detailPromises); // 모든 상세 정보 요청을 기다림
-        // items.forEach((item) => {
-        //   getDetailPlace(item.seq); // 각 seq에 대해 상세 정보 요청
-        // });
-        setLoading(false);
-      });
+      const rawItems = jsonData?.response?.body?.items?.item || [];
+      const items = Array.isArray(rawItems) ? rawItems : [rawItems];
+
+      setGallery(items);
     } catch (error) {
-      setLoading(false);
       console.error("목록 불러오기 오류:", error);
     }
+
+    setLoading(false);
   };
 
   useEffect(() => {
