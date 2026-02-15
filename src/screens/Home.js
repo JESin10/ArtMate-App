@@ -29,8 +29,9 @@ import ForwardIcon from "../assets/icons/forward.svg";
 import Mainlogo from "../assets/icons/logo-main.svg";
 import { AuthContext } from "../services/context";
 import { XMLParser } from "fast-xml-parser";
+import { type } from "firebase/firestore/pipelines";
 
-const SERVER_URL = "https://apis.data.go.kr/B553457/cultureinfo";
+// const SERVER_URL = "https://apis.data.go.kr/B553457/cultureinfo";
 
 export default function Home({ navigation }) {
   const { user } = useContext(AuthContext);
@@ -73,57 +74,67 @@ export default function Home({ navigation }) {
     return decode(plain);
   };
 
-  const fetchAndApply = async () => {
-    const start = Math.max(1, parseInt(sIdx || "1", 10));
-    const end = Math.max(start, parseInt(eIdx || String(start + 59), 10));
-    setLoading(true);
-
-    try {
-      const res = await fetch(
-        `${SERVER_URL}/${API_KEY}/xml/ListExhibitionOfSeoulMOAInfo/${start}/${end}/`,
-      );
-
-      const xmlText = await res.text();
-
-      // 🔥 여기 변경됨
-      const parser = new XMLParser({
-        ignoreAttributes: false,
-      });
-
-      const jsonData = parser.parse(xmlText);
-
-      setLoading(false);
-
-      let items = jsonData?.ListExhibitionOfSeoulMOAInfo?.row || [];
-
-      if (!Array.isArray(items)) items = [items];
-
-      if (Array.isArray(selectedParts) && selectedParts.length > 0) {
-        const lowered = selectedParts.map((dp_artpart) =>
-          String(dp_artpart).toLowerCase(),
-        );
-
-        items = items.filter((parts) =>
-          lowered.some((dp_artpart) =>
-            String(parts?.DP_ART_PART || "")
-              .toLowerCase()
-              .includes(dp_artpart),
-          ),
-        );
-      }
-
-      onApply({ items, parts: selectedParts, start, end });
-    } catch (error) {
-      setLoading(false);
-      onApply({ items: [], parts: selectedParts, start, end });
+  // useEffect 수정
+  useEffect(() => {
+    if (selectedArtwork?.seq) {
+      getArtwork();
+      getDetailArtwork(selectedArtwork.seq);
+    } else {
+      getArtwork();
     }
-  };
+  }, [selectedArtwork]);
+
+  // const fetchAndApply = async () => {
+  //   const start = Math.max(1, parseInt(sIdx || "1", 10));
+  //   const end = Math.max(start, parseInt(eIdx || String(start + 59), 10));
+  //   setLoading(true);
+
+  //   try {
+  //     const res = await fetch(
+  //       `${SERVER_URL}/${API_KEY}/xml/ListExhibitionOfSeoulMOAInfo/${start}/${end}/`,
+  //     );
+
+  //     const xmlText = await res.text();
+
+  //     // 🔥 여기 변경됨
+  //     const parser = new XMLParser({
+  //       ignoreAttributes: false,
+  //     });
+
+  //     const jsonData = parser.parse(xmlText);
+
+  //     setLoading(false);
+
+  //     let items = jsonData?.ListExhibitionOfSeoulMOAInfo?.row || [];
+
+  //     if (!Array.isArray(items)) items = [items];
+
+  //     if (Array.isArray(selectedParts) && selectedParts.length > 0) {
+  //       const lowered = selectedParts.map((dp_artpart) =>
+  //         String(dp_artpart).toLowerCase(),
+  //       );
+
+  //       items = items.filter((parts) =>
+  //         lowered.some((dp_artpart) =>
+  //           String(parts?.DP_ART_PART || "")
+  //             .toLowerCase()
+  //             .includes(dp_artpart),
+  //         ),
+  //       );
+  //     }
+
+  //     onApply({ items, parts: selectedParts, start, end });
+  //   } catch (error) {
+  //     setLoading(false);
+  //     onApply({ items: [], parts: selectedParts, start, end });
+  //   }
+  // };
 
   const getArtwork = async () => {
     setLoading(true);
 
     try {
-      const url = `${SERVER_URL}/area2?serviceKey=${
+      const url = `${process.env.REACT_APP_SERVER_URL}/area2?serviceKey=${
         process.env.REACT_APP_API_KEY
       }&PageNo=${parseInt(1)}&numOfrows=${parseInt(30)}`;
 
@@ -134,9 +145,9 @@ export default function Home({ navigation }) {
 
       const rawItems = jsonData?.response?.body?.items?.item || [];
       const list = Array.isArray(rawItems) ? rawItems : [rawItems];
-
+      console.log(list);
       const normalized = list.map((item) => ({
-        seq: item?.seq,
+        seq: item.seq,
         title: item?.title,
         startDate: item?.startDate,
         endDate: item?.endDate,
@@ -155,14 +166,13 @@ export default function Home({ navigation }) {
       console.error("홈화면 작품 불러오기 오류:", error);
       setArtworks([]);
     }
-
     setLoading(false);
   };
 
   const getDetailArtwork = async (seq) => {
     try {
       const response = await fetch(
-        `${SERVER_URL}/detail2?serviceKey=${process.env.REACT_APP_API_KEY}&seq=${seq}`,
+        `${process.env.REACT_APP_SERVER_URL}/detail2?serviceKey=${process.env.REACT_APP_API_KEY}&seq=${seq}`,
       );
 
       if (!response.ok) {
@@ -196,19 +206,9 @@ export default function Home({ navigation }) {
     }
   };
 
-  // useEffect 수정
-  useEffect(() => {
-    if (selectedArtwork?.seq) {
-      getArtwork();
-      getDetailArtwork(selectedArtwork.seq);
-    } else {
-      getArtwork();
-    }
-  }, [selectedArtwork]);
-
-  const handleModalOpen = (artwork) => {
-    if (!artwork) return;
-    setSelectedArtwork(artwork);
+  const handleModalOpen = (seq) => {
+    if (!seq) return;
+    getDetailArtwork(seq);
     setShowModal(true);
   };
 
@@ -268,13 +268,20 @@ export default function Home({ navigation }) {
     return isNaN(d.getTime()) ? null : d;
   };
 
-  // 날짜 문자열을 'M월 D일' 형식으로 변환 (예: 2026-04-01 -> 4월 1일)
-  const formatDateKorean = (dateStr) => {
-    if (!dateStr || dateStr.length !== 8) return dateStr ?? "";
-    const year = dateStr.slice(0, 4);
-    const month = dateStr.slice(4, 6);
-    const day = dateStr.slice(6, 8);
-    return `${year}년 ${month}월 ${day}일`;
+  // 날짜 문자열을 'YYYY년 M월 D일' 형식으로 변환
+  const Dateformat = (dateStr) => {
+    if (dateStr == null) return "";
+    const s = String(dateStr).trim();
+
+    // 'YYYYMMDD' 형태
+    if (/^\d{8}$/.test(s)) {
+      const year = s.slice(0, 4);
+      const month = String(parseInt(s.slice(4, 6), 10));
+      const day = String(parseInt(s.slice(6, 8), 10));
+      return `${year}년 ${month}월 ${day}일`;
+    }
+
+    return String(dateStr) ?? "";
   };
 
   // artworks 배열을 받아 DP_START 기준으로 현재 날짜와 가까운 순으로 정렬하여 설정
@@ -328,7 +335,7 @@ export default function Home({ navigation }) {
     }
   }, [artworks]);
 
-  // console.log("check:", recentArtworks);
+  // console.log("check:", endedArtworks);
 
   // Prepare fixed 16-slot array for recent grid; fill missing slots with null placeholders
   const filledRecent = (() => {
@@ -362,9 +369,19 @@ export default function Home({ navigation }) {
           </View>
           <View style={styles.recommandContainer}>
             <View style={styles.subTitle}>
-              <Text style={styles.pageTitle}>
-                {user?.name}님의 취향저격 전시모음
-              </Text>
+              {user ? (
+                <>
+                  <Text style={styles.pageTitle}>
+                    {user?.name}님의 취향저격 전시모음
+                  </Text>
+                </>
+              ) : (
+                <>
+                  <Text style={styles.pageTitle}>
+                    당신을 위한 취향저격 전시모음
+                  </Text>
+                </>
+              )}
               <View style={styles.recommandFactor}>
                 <FlatList
                   ref={flatListRef}
@@ -379,9 +396,8 @@ export default function Home({ navigation }) {
                       style={styles.recommandCard}
                       activeOpacity={0.8}
                       onPress={() => {
-                        setShowModal(true);
                         setSelectedArtwork(item);
-                        handleModalOpen(item);
+                        handleModalOpen(item?.seq);
                       }}
                     >
                       <ImageBackground
@@ -409,7 +425,8 @@ export default function Home({ navigation }) {
                           {htmlToPlain(item.DP_INFO)}
                         </Text> */}
                         <Text style={styles.DescStyle}>
-                          {item.startDate} ~ {item.endDate}
+                          {Dateformat(item.startDate)} ~
+                          {Dateformat(item.endDate)}
                         </Text>
                       </View>
                     </TouchableOpacity>
@@ -464,9 +481,8 @@ export default function Home({ navigation }) {
                         key={artwork.seq ?? index}
                         style={ImgStyle}
                         onPress={() => {
-                          setShowModal(true);
                           setSelectedArtwork(artwork);
-                          handleModalOpen(artwork);
+                          handleModalOpen(artwork?.seq);
                         }}
                       >
                         <ImageBackground
@@ -516,17 +532,6 @@ export default function Home({ navigation }) {
                 <ForwardIcon width={24} height={24} fill="#000" />
               </TouchableOpacity>
             </View>
-
-            <ArtworkInfoModal
-              visible={showModal}
-              onClose={() => {
-                setShowModal(false);
-                setDetailArtwork([]);
-                getDetailArtwork();
-              }}
-              artwork={detailArtwork}
-              seq={selectedArtwork?.seq}
-            />
           </View>
           <View style={styles.endedContainer}>
             <View style={styles.subTitle}>
@@ -537,8 +542,8 @@ export default function Home({ navigation }) {
                     key={index}
                     style={styles.endedContentsContainer}
                     onPress={() => {
-                      setShowModal(true);
                       setSelectedArtwork(endedartwork);
+                      handleModalOpen(endedartwork?.seq);
                     }}
                   >
                     <ImageBackground
@@ -554,8 +559,8 @@ export default function Home({ navigation }) {
                           fontSize: 10,
                         }}
                       >
-                        {formatDateKorean(endedartwork.endDate)}까지 만날 수
-                        있는 전시!
+                        {Dateformat(endedartwork?.endDate)}까지 만날 수 있는
+                        전시!
                       </Text>
                       <Text style={styles.endedNamecStyle} numberOfLines={3}>
                         {endedartwork.title}
@@ -571,7 +576,7 @@ export default function Home({ navigation }) {
               onClose={() => {
                 setShowModal(false);
                 setDetailArtwork([]);
-                getDetailArtwork();
+                setSelectedArtwork(null);
               }}
               artwork={detailArtwork}
               seq={selectedArtwork?.seq}

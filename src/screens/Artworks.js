@@ -19,22 +19,6 @@ import Mainlogo from "../assets/icons/logo-main.svg";
 import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 import { XMLParser } from "fast-xml-parser";
 
-const SERVER_URL = "https://apis.data.go.kr/B553457/cultureinfo";
-// `${SERVER_URL}/area2?serviceKey=${API_KEY}&PageNo=${startIndex}&numOfrows=${endIndex}&sido=${city}`
-
-//국현미
-// const SERVER_URL = "https://api.kcisa.kr/openapi/service/rest/moca/docMeta";
-// const API_KEY = "87140534-51de-4ad2-aa86-76dc3130a321";
-
-//서울시립미술관
-// const SERVER_URL =
-//   "https://api.kcisa.kr/openapi/service/rest/other/getSEMN5601";
-// const API_KEY = "589be839-5c41-4c36-96af-b02330050e14";
-
-//임시-공공데이터
-// const SERVER_URL = "http://openapi.seoul.go.kr:8088";
-// const API_KEY = "6b44656447746c733835476551776c";
-
 export default function Artworks() {
   const [artworks, setArtworks] = useState([]); // 원본 전체
   const [displayedArtworks, setDisplayedArtworks] = useState([]); // 필터 적용된 목록
@@ -58,6 +42,9 @@ export default function Artworks() {
           process.env.REACT_APP_API_KEY
         }&PageNo=${parseInt(1)}&numOfrows=${parseInt(20)}`,
       );
+      //  const response = await fetch(
+      //         `${process.env.REACT_APP_CULTURE_URL}/request?serviceKey=${process.env.REACT_APP_CULTURE_API_KEY}&numOfRows=${parseInt(20)}&pageNo=${parseInt(1)}`,
+      //       );
 
       const xmlText = await response.text();
 
@@ -69,9 +56,6 @@ export default function Artworks() {
       }
 
       const jsonData = parser.parse(xmlText);
-
-      console.log("getArtwork xml parsed keys:", Object.keys(jsonData || {}));
-
       const rawItems = jsonData?.response?.body?.items?.item || [];
       const list = Array.isArray(rawItems) ? rawItems : [rawItems];
 

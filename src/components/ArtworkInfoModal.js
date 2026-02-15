@@ -32,7 +32,21 @@ export default function ArtworkInfoModal({
     return decode(plain);
   };
 
-  // console.log("artwork in modal:", artwork);
+  // 날짜 문자열을 'YYYY년 M월 D일' 형식으로 변환
+  const Dateformat = (dateStr) => {
+    if (dateStr == null) return "";
+    const s = String(dateStr).trim();
+
+    // 'YYYYMMDD' 형태
+    if (/^\d{8}$/.test(s)) {
+      const year = s.slice(0, 4);
+      const month = String(parseInt(s.slice(4, 6), 10));
+      const day = String(parseInt(s.slice(6, 8), 10));
+      return `${year}년 ${month}월 ${day}일`;
+    }
+
+    return String(dateStr) ?? "";
+  };
 
   const openLink = async (rawUrl) => {
     if (!rawUrl) {
@@ -100,7 +114,8 @@ export default function ArtworkInfoModal({
             <View style={styles.textContainer}>
               <Text style={styles.titleText2}>전시기간</Text>
               <Text style={styles.subText}>
-                {artwork?.startDate} ~ {artwork?.endDate}
+                {Dateformat(artwork?.startDate)} ~{" "}
+                {Dateformat(artwork?.endDate)}
               </Text>
             </View>
             <View style={styles.textContainer}>
@@ -135,7 +150,7 @@ export default function ArtworkInfoModal({
                           onPress: () => openLink(artwork.url),
                         },
                       ],
-                      { cancelable: true }
+                      { cancelable: true },
                     )
                   }
                 >
