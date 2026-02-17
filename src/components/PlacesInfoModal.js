@@ -102,14 +102,13 @@ export default function PlacesInfoModal({ visible, onClose, item, detail }) {
                 <ImageBackground
                   source={{ uri: detail.culViewImg1.replace("http", "https") }}
                   style={styles.imageBackground}
-                  imageStyle={styles.tumbnail}
                   resizeMode="contain"
                 />
               ) : (
                 <Text>No Image</Text>
               )}
             </View>
-            <View>
+            <View style={styles.titleContainer}>
               <Text style={styles.titleText1}>
                 {detail?.culName} / {city}
               </Text>
@@ -142,7 +141,7 @@ export default function PlacesInfoModal({ visible, onClose, item, detail }) {
                           onPress: () => openLink(detail.culHomeUrl),
                         },
                       ],
-                      { cancelable: true }
+                      { cancelable: true },
                     )
                   }
                 >
@@ -205,12 +204,16 @@ const styles = StyleSheet.create({
   titleText1: {
     fontWeight: "bold",
     fontSize: 16,
-    marginBottom: 24,
-    borderColor: "white",
-    borderBottomColor: "#C6C6C6",
-    borderWidth: 1,
-    paddingVertical: 14,
+    paddingVertical: 20,
     paddingHorizontal: 10,
+  },
+
+  titleContainer: {
+    width: "100%",
+    borderColor: "transparent",
+    borderBottomColor: "#C6C6C6",
+    borderBottomWidth: 1,
+    marginBottom: 20,
   },
   titleText2: {
     width: "20%",
@@ -242,8 +245,7 @@ const styles = StyleSheet.create({
   },
   image: {
     width: "100%",
-    height: 300,
-
+    height: 250,
     marginVertical: 10,
     alignSelf: "center",
     overflow: "hidden",

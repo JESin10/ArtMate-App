@@ -23,35 +23,57 @@ export default function UserSignup({ navigation }) {
   const [isUser, setIsUser] = useState(false);
 
   const onSignup = async () => {
+    // 기본 유효성 검사
+    if (!email || !password || !passwordCheck) {
+      Alert.alert("입력 오류", "이메일과 비밀번호를 모두 입력해주세요.");
+      return;
+    }
+
+    if (password !== passwordCheck) {
+      Alert.alert("비밀번호 불일치", "비밀번호가 일치하지 않습니다.");
+      return;
+    }
+
     try {
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
-        password
+        password,
       );
       const user = userCredential.user;
-      const userRef = doc(db, "users", user.email);
-      if (password !== passwordCheck) {
-        Alert.alert("비밀번호 불일치", "비밀번호가 일치하지 않습니다.");
-        return;
-      }
+      const userRef = doc(db, "users", user.uid);
 
+      // 보안상 비밀번호는 DB에 저장하지 않습니다.
       await setDoc(userRef, {
         displayName: name,
         email: email,
-        password: password,
         uid: user.uid,
         createdAt: new Date().toUTCString(),
         following: 0,
         followers: 0,
       });
-      Alert.alert("회원가입 성공", "회원가입이 완료되었습니다.");
 
+      Alert.alert("회원가입 성공", "회원가입이 완료되었습니다.");
       navigation.navigate("Login");
       setIsUser(true);
-      setName(name);
     } catch (error) {
-      Alert.alert("회원가입 실패", error.message);
+      // Firebase auth 에러 코드별 안내
+      const code = error?.code || "";
+      if (code === "auth/email-already-in-use") {
+        Alert.alert(
+          "회원가입 실패",
+          "이미 사용 중인 이메일입니다. 로그인 해주세요.",
+        );
+      } else if (code === "auth/invalid-email") {
+        Alert.alert("회원가입 실패", "유효하지 않은 이메일 형식입니다.");
+      } else if (code === "auth/weak-password") {
+        Alert.alert(
+          "회원가입 실패",
+          "비밀번호가 너무 약합니다. 6자리 이상으로 설정해주세요.",
+        );
+      } else {
+        Alert.alert("회원가입 실패", error.message || String(error));
+      }
     }
   };
 

@@ -20,6 +20,7 @@ import React, {
   useRef,
   useCallback,
   useContext,
+  createContext,
 } from "react";
 import ArtworkInfoModal from "../components/ArtworkInfoModal";
 import RenderHTML from "react-native-render-html";
@@ -31,11 +32,8 @@ import { AuthContext } from "../services/context";
 import { XMLParser } from "fast-xml-parser";
 import { type } from "firebase/firestore/pipelines";
 
-// const SERVER_URL = "https://apis.data.go.kr/B553457/cultureinfo";
-
 export default function Home({ navigation }) {
   const { user } = useContext(AuthContext);
-
   const [artworks, setArtworks] = useState([]); // 작품들 전체
   const [recentArtworks, setRecentArtworks] = useState([]); // 금주의 최신작품
   const [recentPage, setRecentPage] = useState(0);
@@ -61,7 +59,6 @@ export default function Home({ navigation }) {
   const parser = new XMLParser({
     ignoreAttributes: false,
   });
-
   const htmlToPlain = (html) => {
     if (!html) return "";
     const plain = String(html)
@@ -73,6 +70,8 @@ export default function Home({ navigation }) {
       .trim();
     return decode(plain);
   };
+
+  // console.log("user in home:", user);
 
   // useEffect 수정
   useEffect(() => {
@@ -145,7 +144,7 @@ export default function Home({ navigation }) {
 
       const rawItems = jsonData?.response?.body?.items?.item || [];
       const list = Array.isArray(rawItems) ? rawItems : [rawItems];
-      console.log(list);
+      // console.log(list);
       const normalized = list.map((item) => ({
         seq: item.seq,
         title: item?.title,
@@ -372,7 +371,7 @@ export default function Home({ navigation }) {
               {user ? (
                 <>
                   <Text style={styles.pageTitle}>
-                    {user?.name}님의 취향저격 전시모음
+                    {user?.displayName}님의 취향저격 전시모음
                   </Text>
                 </>
               ) : (

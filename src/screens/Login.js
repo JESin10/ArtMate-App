@@ -12,50 +12,47 @@ import {
 import React, { useState, useContext } from "react";
 import Mainlogo from "../assets/icons/logo-main.svg";
 import MainSlogun from "../assets/images/slogan.svg";
-import { collection, getDocs, where } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, where } from "firebase/firestore";
 import { db } from "../../firebase";
 import { AuthContext } from "../services/context";
+import { deleteUser, getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
 export default function Login({ navigation }) {
   const [userId, setUserId] = useState("");
   const [userPw, setUserPw] = useState("");
   const [userName, setUserName] = useState("");
   const { setUser } = useContext(AuthContext);
+  const auth = getAuth();
 
   const login = async () => {
     try {
-      // Firestore에서 'users' 컬렉션에서 email이 userId와 일치하는 문서를 쿼리
-      const querySnapshot = await getDocs(collection(db, "users"));
-      let userFound = false;
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        userId,
+        userPw,
+      );
 
-      querySnapshot.forEach((doc) => {
-        const userData = doc.data();
-        console.log("userData:", userData);
-        if (userData.email === userId) {
-          userFound = true;
-          if (userData.password === userPw) {
-            setUser({
-              email: userData.email,
-              name: userData.displayName,
-              following: userData.following,
-              follower: userData.followers,
-            });
-            Alert.alert("로그인 성공", "로그인이 완료되었습니다.");
-            navigation.navigate("Bottom", { screen: "Home" });
-          } else {
-            Alert.alert("로그인 실패", "비밀번호가 일치하지 않습니다.");
-          }
-        }
-      });
+      const uid = userCredential.user.uid;
 
-      if (!userFound) {
-        Alert.alert("로그인 실패", "해당 이메일을 가진 사용자가 없습니다.");
+      const userDoc = await getDoc(doc(db, "users", uid));
+
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        setUser({
+          uid,
+          email: userData.email,
+          displayName: userData.displayName,
+          follower: userData.followers,
+          following: userData.following,
+        });
       }
+      Alert.alert("로그인 성공", "로그인이 완료되었습니다.");
+      navigation.navigate("Bottom", { screen: "Home" });
     } catch (error) {
-      console.error("Login error: ", error);
-      Alert.alert("로그인 실패", "로그인 중 오류가 발생했습니다.");
+      console.log(error);
     }
   };
+
   return (
     <SafeAreaView
       style={{
@@ -96,6 +93,7 @@ export default function Login({ navigation }) {
                 textContentType="id"
                 value={userId}
                 onChangeText={(text) => setUserId(text)}
+                keyboardType="email-address"
               />
               <TextInput
                 style={styles.input}

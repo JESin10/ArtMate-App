@@ -9,9 +9,25 @@ import {
   Linking,
   Alert,
 } from "react-native";
-import React, { useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import InfoIcon from "../assets/icons/info.svg";
 import { decode } from "html-entities"; // 추가: HTML 엔티티 디코드
+import BookmarkIcon from "../assets/icons/bookmark.svg";
+import FilledBookmarkIcon from "../assets/icons/bookmark-filled.svg";
+import ShareIcon from "../assets/icons/share.svg";
+import { AuthContext } from "../services/context";
+import {
+  doc,
+  setDoc,
+  deleteDoc,
+  updateDoc,
+  increment,
+  serverTimestamp,
+  getDocs,
+  collection,
+} from "firebase/firestore";
+import { db } from "../../firebase";
+import { use } from "react";
 
 export default function ArtworkInfoModal({
   visible,
@@ -20,6 +36,9 @@ export default function ArtworkInfoModal({
   detail,
   seq,
 }) {
+  const [filled, setFilled] = useState(false);
+  const { user, setUser } = useContext(AuthContext);
+
   const htmlToPlain = (html) => {
     if (!html) return "";
     const plain = String(html)
@@ -73,6 +92,80 @@ export default function ArtworkInfoModal({
     }
   };
 
+  useEffect(() => {
+    if (user && artwork) {
+      getBookmarks(user.uid);
+    }
+  });
+  const getBookmarks = async (uid) => {
+    try {
+      const bookmarksSnapshot = await getDocs(
+        collection(db, "users", uid, "bookmarks"),
+      );
+      const bookmarks = bookmarksSnapshot.docs.map((doc) => doc.data());
+      const isBookmarked = bookmarks.some(
+        (b) => b.artworkSeq === String(artwork.seq),
+      );
+      setFilled(isBookmarked);
+      console.log("bookmark check", isBookmarked);
+    } catch (error) {
+      console.error("Error fetching bookmarks:", error);
+    }
+  };
+  const BookmarkHandler = async () => {
+    if (!user) {
+      Alert.alert("알림", "로그인 후 이용가능합니다.");
+      return;
+    }
+
+    const seq = String(artwork.seq);
+    const uid = String(user.uid);
+    const img = (artwork?.imgUrl ?? "").replace("http", "https");
+
+    const bookmarkRef = doc(db, "users", uid, "bookmarks", seq);
+    const artworkRef = doc(db, "artworks", seq);
+
+    try {
+      if (!filled) {
+        // 1️⃣ 유저 북마크 저장
+        await setDoc(bookmarkRef, {
+          artworkSeq: seq,
+          artworkTitle: artwork.title ?? "",
+          artworkImgUrl: img,
+          createdAt: serverTimestamp(),
+        });
+
+        // 2️⃣ 작품 컬렉션에 count 증가 (문서 없으면 자동 생성)
+        await setDoc(
+          artworkRef,
+          {
+            artworkTitle: artwork.title ?? "",
+            artworkImgUrl: img,
+            bookmarkCount: increment(1),
+          },
+          { merge: true },
+        );
+
+        setFilled(true);
+        Alert.alert("북마크", "북마크에 추가되었습니다.");
+      } else {
+        // 1️⃣ 유저 북마크 삭제
+        await deleteDoc(bookmarkRef);
+
+        // 2️⃣ 작품 count 감소
+        await updateDoc(artworkRef, {
+          bookmarkCount: increment(-1),
+        });
+
+        setFilled(false);
+        Alert.alert("북마크", "북마크에서 제거되었습니다.");
+      }
+    } catch (error) {
+      console.error("BookmarkHandler error", error);
+      Alert.alert("오류", "북마크 처리 중 오류가 발생했습니다.");
+    }
+  };
+
   return (
     <Modal
       visible={visible}
@@ -91,7 +184,7 @@ export default function ArtworkInfoModal({
             contentContainerStyle={styles.ModalContent}
             showsVerticalScrollIndicator={true}
           >
-            <View style={styles.image}>
+            <View style={styles.imageContainer}>
               {artwork?.imgUrl ? (
                 <ImageBackground
                   source={{ uri: artwork.imgUrl.replace("http", "https") }}
@@ -103,7 +196,33 @@ export default function ArtworkInfoModal({
                 <Text title="NO IMAGE" />
               )}
             </View>
-            <View style={styles.textContainer}>
+            <View style={styles.IconContainer}>
+              <TouchableOpacity
+                style={{ marginHorizontal: 12 }}
+                onPress={() =>
+                  Alert.alert("공유하기", "공유하기 기능은 곧 업데이트됩니다.")
+                }
+              >
+                <ShareIcon width={24} height={24} />
+              </TouchableOpacity>
+              {filled ? (
+                <TouchableOpacity onPress={() => BookmarkHandler()}>
+                  <FilledBookmarkIcon width={24} height={24} fill="#608D00" />
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity onPress={() => BookmarkHandler()}>
+                  <BookmarkIcon
+                    width={24}
+                    height={24}
+                    style={{
+                      color: "black",
+                    }}
+                    fill="#000"
+                  />
+                </TouchableOpacity>
+              )}
+            </View>
+            <View style={styles.titleContainer}>
               <Text style={styles.titleText1}>{artwork?.title}</Text>
             </View>
             {/* <View style={styles.textContainer}>
@@ -212,12 +331,18 @@ const styles = StyleSheet.create({
   titleText1: {
     fontWeight: "bold",
     fontSize: 16,
-    marginBottom: 20,
-    borderColor: "white",
-    borderBottomColor: "#C6C6C6",
-    borderWidth: 1,
     width: "100%",
-    padding: 10,
+    paddingVertical: 20,
+    paddingHorizontal: 10,
+  },
+  titleContainer: {
+    width: "100%",
+    borderColor: "transparent",
+    borderBottomColor: "#C6C6C6",
+    borderBottomWidth: 1,
+    marginBottom: 20,
+    justifyContent: "space-between",
+    flexDirection: "row",
   },
   titleText2: {
     width: "20%",
@@ -232,7 +357,13 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     color: "gray",
   },
-
+  IconContainer: {
+    marginBottom: 2,
+    width: "100%",
+    height: 30,
+    flexDirection: "row",
+    justifyContent: "flex-end",
+  },
   linkIcon: {
     marginBottom: 2,
     flexDirection: "row",
@@ -246,17 +377,25 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     padding: 10,
   },
+  imageContainer: {
+    width: "100%",
+    height: 400,
+    paddingVertical: 30,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   image: {
     width: "100%",
-    height: 300,
-    marginVertical: 10,
+    height: "auto",
     alignSelf: "center",
     overflow: "hidden",
   },
+
   imageBackground: {
     width: "100%",
     height: "100%",
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "#e8e8e8",
   },
 });

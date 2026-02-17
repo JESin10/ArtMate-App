@@ -23,12 +23,14 @@ import EditIcon from "../assets/icons/edit.svg";
 import { AuthContext } from "../services/context";
 import { collection, doc, getDocs, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase";
+import Bookmarks from "./Bookmarks";
 
 export default function Mypage({ navigation }) {
   const { user, setUser } = useContext(AuthContext);
   const [exampleNum, setExampleNum] = useState(7);
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState(user?.name);
+  const [bookmarks, setBookmarks] = useState([]);
 
   const showAlertWithChoices = () => {
     Alert.alert(
@@ -68,6 +70,21 @@ export default function Mypage({ navigation }) {
       setIsEditing(false);
     } catch (error) {
       Alert.alert("수정 실패", "다시 시도해주세요");
+    }
+  };
+
+  const getBookmarks = async (uid) => {
+    try {
+      const snapshot = await getDocs(collection(db, "users", uid, "bookmarks"));
+
+      const bookmark = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setBookmarks(bookmark);
+      navigation.navigate("Bookmarks");
+    } catch (error) {
+      console.error("북마크 불러오기 에러:", error);
     }
   };
 
@@ -149,7 +166,7 @@ export default function Mypage({ navigation }) {
                           fontSize: 22,
                         }}
                       >
-                        {user?.name}
+                        {user?.displayName}
                       </Text>
                       <TouchableOpacity onPress={() => setIsEditing(true)}>
                         <EditIcon width={20} height={20} fill="#fff" />
@@ -196,6 +213,9 @@ export default function Mypage({ navigation }) {
                 style={{
                   alignItems: "center",
                 }}
+                onPress={() => {
+                  getBookmarks(user.uid);
+                }}
               >
                 <BookMarkIcon width={36} height={36} fill="#fff" />
                 <Text
@@ -239,7 +259,7 @@ export default function Mypage({ navigation }) {
             </View>
           </View>
         </View>
-        {!user.name ? (
+        {!user.email ? (
           <>
             <Pressable
               onPress={() => navigation.navigate("Login")}

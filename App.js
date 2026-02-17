@@ -9,7 +9,7 @@ import Setting from "./src/screens/Setting";
 import Login from "./src/screens/Login";
 import UserSignup from "./src/components/UserSignup";
 import { AuthContext, AuthProvider } from "./src/services/context";
-import { useContext } from "react";
+import Bookmarks from "./src/screens/Bookmarks";
 
 export default function App() {
   const Stack = createNativeStackNavigator();
@@ -24,6 +24,8 @@ export default function App() {
 
           {/* <Stack.Screen name="Status" component={Status} /> */}
           <Stack.Screen name="Setting" component={Setting} />
+          <Stack.Screen name="Bookmarks" component={Bookmarks} />
+
           <Stack.Screen name="Login" component={Login} />
           <Stack.Screen name="Signup" component={UserSignup} />
         </Stack.Navigator>
