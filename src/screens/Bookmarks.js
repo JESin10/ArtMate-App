@@ -29,7 +29,7 @@ export default function Bookmarks({ navigation }) {
     }
   };
 
-  console.log("Bookmarks:", myBookmarks);
+  // console.log("Bookmarks:", myBookmarks);
 
   return (
     <SafeAreaView>

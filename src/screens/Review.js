@@ -10,20 +10,25 @@ import {
   TouchableOpacity,
   Button,
 } from "react-native";
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useContext } from "react";
 import ReviewModal from "../components/ReviewModal";
 import Mainlogo from "../assets/icons/logo-main.svg";
 import ReloadIcon from "../assets/icons/reload.svg";
 import LikeIcon from "../assets/icons/heart.svg";
 import CommentIcon from "../assets/icons/list.svg";
 import WriteIcon from "../assets/icons/write.svg";
+import { AuthContext } from "../services/context";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../../firebase";
 
 export default function Review() {
+  const { user } = useContext(AuthContext);
   const [exampleNum, setExampleNum] = useState(3);
   const [likeCnt, setLikeCnt] = useState(10);
   const [commentCnt, setCommentCnt] = useState(20);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [reviews, setReviews] = useState([]);
   const timerRef = useRef(null);
   const onRefresh = React.useCallback(() => {
     setLoading(true);
@@ -34,6 +39,7 @@ export default function Review() {
   }, []);
 
   useEffect(() => {
+    getAllReviews();
     return () => {
       if (timerRef.current) {
         clearTimeout(timerRef.current);
@@ -41,6 +47,21 @@ export default function Review() {
       }
     };
   }, []);
+
+  const getAllReviews = async () => {
+    try {
+      const snapshot = await getDocs(collection(db, "reviews"));
+      const reviews = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setReviews(reviews);
+    } catch (error) {
+      console.error("리뷰 불러오기 에러:", error);
+    }
+  };
+
+  console.log("reviews", reviews);
 
   return (
     <SafeAreaView
@@ -104,14 +125,7 @@ export default function Review() {
                     numberOfLines={3}
                     ellipsizeMode="tail"
                   >
-                    후기 내용 예시입니다. 말하는 사람은 ‘화자’에 대한 이야기다.
-                    시에는 언제나 말하는 사람이 존재하는데, 화자는 시인 자신일
-                    수도 있고 시인이 내세운 대리인 혹은 페르소나일 수도 있다.
-                    전시는 정말 재미있었고, 작품들이 매우 인상적이었습니다. 특히
-                    현대 미술 작품들이 마음에 들었고, 작가들의 창의적인 표현
-                    방식이 인상적이었습니다. 전시회는 잘 구성되어 있었고, 작품들
-                    사이의 흐름도 자연스러웠습니다. 전시회를 통해 새로운 시각과
-                    영감을 얻을 수 있었습니다. 다음에도 꼭 방문하고 싶습니다.
+                    {reviews[idx]?.content || "리뷰 내용이 없습니다."}
                   </Text>
                 </View>
                 <View style={styles.reactionContainer}>
@@ -124,7 +138,7 @@ export default function Review() {
                         fill="#000"
                       />
                     </TouchableOpacity>
-                    <Text>{likeCnt}</Text>
+                    <Text>{reviews[idx]?.LikeCnt}</Text>
                   </View>
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
                     <TouchableOpacity>
@@ -134,7 +148,7 @@ export default function Review() {
                         style={{ marginRight: 5, marginLeft: 30 }}
                       />
                     </TouchableOpacity>
-                    <Text>{commentCnt}</Text>
+                    <Text>{reviews[idx]?.CommentCnt}</Text>
                   </View>
                 </View>
               </View>
@@ -146,13 +160,15 @@ export default function Review() {
       <View style={styles.ReviewBtn}>
         <TouchableOpacity
           style={styles.ReviewBtnInner}
-          onPress={() => setShowModal(true)}
           activeOpacity={0.8}
+          onPress={() =>
+            user ? setShowModal(true) : alert("로그인이 필요한 서비스입니다.")
+          }
         />
         <WriteIcon
           width={24}
           height={24}
-          style={{ marginTop: 12 }}
+          style={{ marginTop: 12, backgroundColor: "transparent" }}
           fill="#fff"
         />
       </View>

@@ -21,7 +21,15 @@ import SettingIcon from "../assets/icons/setting.svg";
 import ShareIcon from "../assets/icons/share.svg";
 import EditIcon from "../assets/icons/edit.svg";
 import { AuthContext } from "../services/context";
-import { collection, doc, getDocs, updateDoc } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  orderBy,
+  query,
+  updateDoc,
+} from "firebase/firestore";
 import { db } from "../../firebase";
 import Bookmarks from "./Bookmarks";
 
@@ -85,6 +93,23 @@ export default function Mypage({ navigation }) {
       navigation.navigate("Bookmarks");
     } catch (error) {
       console.error("북마크 불러오기 에러:", error);
+    }
+  };
+
+  const getUserReviews = async (userId) => {
+    try {
+      const reviewsRef = collection(db, "users", userId, "reviews");
+      const q = query(reviewsRef, orderBy("createdAt", "desc"));
+      const snapshot = await getDoc(q);
+
+      const reviews = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      return reviews;
+    } catch (error) {
+      console.error("리뷰 불러오기 실패:", error);
+      return [];
     }
   };
 

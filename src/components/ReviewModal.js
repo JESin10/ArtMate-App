@@ -6,23 +6,87 @@ import {
   TouchableOpacity,
   ScrollView,
   TextInput,
+  Alert,
+  Button,
 } from "react-native";
-import React from "react";
+import React, { useContext, useState } from "react";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
+import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { db } from "../../firebase";
+import { AuthContext } from "../services/context";
 
 export default function ReviewModal({ visible, onClose }) {
-  const [text, onChangeText] = React.useState("");
-  const [number, onChangeNumber] = React.useState("");
-  const [isDatePickerVisible, setDatePickerVisible] = React.useState(false);
+  const { user } = useContext(AuthContext);
+  const artworkId = "319005"; // 실제로는 선택된 작품의 ID를 받아와야 함
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [rating, setRating] = useState(0);
+  const [LikeCnt, setLikeCnt] = useState(0);
+  const [CommentCnt, setCommentCnt] = useState(0);
+  const [visitedDate, setVisitedDate] = useState(new Date());
+  const [number, onChangeNumber] = useState("");
+  const [isDatePickerVisible, setDatePickerVisible] = useState(false);
 
   const handleConfirm = (date) => {
-    // date 처리 (예: YYYY-MM-DD 문자열로 저장)
-    const yyyy = date.getFullYear();
-    const mm = String(date.getMonth() + 1).padStart(2, "0");
-    const dd = String(date.getDate()).padStart(2, "0");
-    onChangeNumber(`${yyyy}-${mm}-${dd}`);
+    setVisitedDate(date); // 선택한 날짜로 상태 갱신
     setDatePickerVisible(false);
   };
+
+  const addUserReview = async (
+    userId,
+    artworkId,
+    content,
+    rating,
+    visitedDate,
+  ) => {
+    try {
+      const userReviewRef = collection(db, "users", userId, "reviews");
+      await addDoc(userReviewRef, {
+        artworkId,
+        title,
+        content,
+        rating,
+        LikeCnt,
+        CommentCnt,
+        createdAt: serverTimestamp(),
+        visitedDate: visitedDate.toISOString().split("T")[0],
+      });
+
+      const allReviewsRef = collection(db, "reviews");
+      await addDoc(allReviewsRef, {
+        userId,
+        title,
+        artworkId,
+        content,
+        rating,
+        LikeCnt,
+        CommentCnt,
+        createdAt: serverTimestamp(),
+        visitedDate: visitedDate.toISOString().split("T")[0],
+      });
+
+      Alert.alert("리뷰 작성 완료!");
+    } catch (error) {
+      console.error("리뷰 작성 실패:", error);
+    }
+  };
+
+  const StarRating = () => {
+    return (
+      <View style={{ flexDirection: "row" }}>
+        {[1, 2, 3, 4, 5].map((i) => (
+          <TouchableOpacity key={i} onPress={() => setRating(i)}>
+            <Text
+              style={{ fontSize: 30, color: i <= rating ? "gold" : "gray" }}
+            >
+              ★
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+    );
+  };
+
   return (
     <Modal
       visible={visible}
@@ -42,7 +106,6 @@ export default function ReviewModal({ visible, onClose }) {
             showsVerticalScrollIndicator={true}
           >
             <Text>Review 작성 폼</Text>
-
             <View style={styles.inputContainer}>
               <TextInput
                 placeholder="전시제목을 입력하세요"
@@ -50,38 +113,53 @@ export default function ReviewModal({ visible, onClose }) {
                 multiline
                 maxLength={30}
                 style={styles.titleInput}
+                value={title}
+                onChangeText={setTitle}
               />
               <TextInput
                 placeholder="후기내용을 입력하세요"
                 editable
                 multiline
                 maxLength={300}
-                onChangeText={(text) => onChangeText(text)}
-                value={text}
-                // onChangeText={onChangeText}
+                onChangeText={setContent}
+                value={content}
                 style={styles.contentInput}
               />
-              <TextInput
-                vlaue={number}
-                keyboardType="numeric"
-                placeholder="방문일자를 입력하세요"
-                onChangeText={onChangeNumber}
-
-                // style={styles.contentInput}
-              />
               <TouchableOpacity onPress={() => setDatePickerVisible(true)}>
-                <TextInput
-                  value={number}
-                  editable={false}
-                  placeholder="방문일자를 입력하세요"
-                  style={styles.titleInput}
-                />
+                <Text>방문 날짜: {visitedDate.toString().split("T")[0]}</Text>
               </TouchableOpacity>
               <DateTimePickerModal
                 isVisible={isDatePickerVisible}
                 mode="date"
                 onConfirm={handleConfirm}
                 onCancel={() => setDatePickerVisible(false)}
+              />
+              <Text>평점 선택</Text>
+              <View style={{ flexDirection: "row", marginVertical: 10 }}>
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <TouchableOpacity key={i} onPress={() => setRating(i)}>
+                    <Text
+                      style={{
+                        fontSize: 30,
+                        color: i <= rating ? "gold" : "gray",
+                      }}
+                    >
+                      ★
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+              <Button
+                title="리뷰 작성"
+                onPress={() =>
+                  addUserReview(
+                    user.uid,
+                    artworkId,
+                    content,
+                    rating,
+                    visitedDate,
+                  )
+                }
               />
             </View>
           </ScrollView>
