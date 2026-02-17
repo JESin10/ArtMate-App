@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   Button,
+  Alert,
 } from "react-native";
 import React, { useState, useRef, useEffect, useContext } from "react";
 import ReviewModal from "../components/ReviewModal";
@@ -18,17 +19,14 @@ import LikeIcon from "../assets/icons/heart.svg";
 import CommentIcon from "../assets/icons/list.svg";
 import WriteIcon from "../assets/icons/write.svg";
 import { AuthContext } from "../services/context";
-import { collection, getDocs } from "firebase/firestore";
+import useAllReview from "../components/useAllReview";
+import { deleteDoc, doc } from "firebase/firestore";
 import { db } from "../../firebase";
 
 export default function Review() {
-  const { user } = useContext(AuthContext);
-  const [exampleNum, setExampleNum] = useState(3);
-  const [likeCnt, setLikeCnt] = useState(10);
-  const [commentCnt, setCommentCnt] = useState(20);
+  const { user, setUser } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [reviews, setReviews] = useState([]);
   const timerRef = useRef(null);
   const onRefresh = React.useCallback(() => {
     setLoading(true);
@@ -37,9 +35,9 @@ export default function Review() {
       timerRef.current = null;
     }, 2000);
   }, []);
+  const reviews = useAllReview();
 
   useEffect(() => {
-    getAllReviews();
     return () => {
       if (timerRef.current) {
         clearTimeout(timerRef.current);
@@ -48,20 +46,17 @@ export default function Review() {
     };
   }, []);
 
-  const getAllReviews = async () => {
+  const ReviewDelete = async (reviewId, userId) => {
     try {
-      const snapshot = await getDocs(collection(db, "reviews"));
-      const reviews = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setReviews(reviews);
+      await deleteDoc(doc(db, "reviews", reviewId));
+      await deleteDoc(doc(db, "users", userId, "reviews", reviewId));
+
+      Alert.alert("리뷰가 삭제되었습니다.");
     } catch (error) {
-      console.error("리뷰 불러오기 에러:", error);
+      console.error("리뷰 삭제 에러:", error);
+      Alert.alert("리뷰 삭제에 실패했습니다. 다시 시도해주세요.");
     }
   };
-
-  console.log("reviews", reviews);
 
   return (
     <SafeAreaView
@@ -98,19 +93,31 @@ export default function Review() {
             </View>
           </View>
           <View style={styles.reviewsContainer}>
-            {/* <View style={styles.reviewFactor}> */}
-            {Array.from({ length: exampleNum }).map((_, idx) => (
-              <View key={idx} style={styles.reviewFactor}>
-                <View style={styles.profileContainer}>
-                  {/* <Text style={{ paddingRight: 10 }}>프로필이미지</Text> */}
-                  <ImageBackground
-                    key={idx}
-                    source={require("../../src/assets/images/ex.jpg")}
-                    style={styles.ProfileTumbnail}
-                    imageStyle={styles.ProfileImage}
-                    resizeMode="cover"
-                  />
-                  <Text>프로필명</Text>
+            {reviews.map((review, idx) => (
+              <View key={review.id || idx} style={styles.reviewFactor}>
+                <View
+                  style={{
+                    width: "90%",
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <View style={styles.profileContainer}>
+                    <ImageBackground
+                      source={require("../../src/assets/images/ex.jpg")}
+                      style={styles.ProfileTumbnail}
+                      imageStyle={styles.ProfileImage}
+                      resizeMode="cover"
+                    />
+                    <Text>{review.displayName || "익명"}</Text>
+                  </View>
+                  {user && review.userId === user.uid && (
+                    <TouchableOpacity
+                      onPress={() => ReviewDelete(review.id, review.userId)}
+                    >
+                      <Text style={{ color: "red" }}>삭제</Text>
+                    </TouchableOpacity>
+                  )}
                 </View>
                 <ImageBackground
                   key={idx}
@@ -119,15 +126,17 @@ export default function Review() {
                   imageStyle={styles.ReviewImage}
                   resizeMode="cover"
                 />
+
                 <View style={styles.reviewTextContainer}>
                   <Text
                     style={styles.reviewDescStyle}
                     numberOfLines={3}
                     ellipsizeMode="tail"
                   >
-                    {reviews[idx]?.content || "리뷰 내용이 없습니다."}
+                    {review.content || "리뷰 내용이 없습니다."}
                   </Text>
                 </View>
+
                 <View style={styles.reactionContainer}>
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
                     <TouchableOpacity>
@@ -138,7 +147,7 @@ export default function Review() {
                         fill="#000"
                       />
                     </TouchableOpacity>
-                    <Text>{reviews[idx]?.LikeCnt}</Text>
+                    <Text>{review.LikeCnt}</Text>
                   </View>
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
                     <TouchableOpacity>
@@ -148,12 +157,11 @@ export default function Review() {
                         style={{ marginRight: 5, marginLeft: 30 }}
                       />
                     </TouchableOpacity>
-                    <Text>{reviews[idx]?.CommentCnt}</Text>
+                    <Text>{review.CommentCnt}</Text>
                   </View>
                 </View>
               </View>
             ))}
-            {/* </View> */}
           </View>
         </View>
       </ScrollView>

@@ -37,8 +37,10 @@ export default function Mypage({ navigation }) {
   const { user, setUser } = useContext(AuthContext);
   const [exampleNum, setExampleNum] = useState(7);
   const [isEditing, setIsEditing] = useState(false);
-  const [editedName, setEditedName] = useState(user?.name);
+  const [editedName, setEditedName] = useState(user?.displayName || "");
   const [bookmarks, setBookmarks] = useState([]);
+
+  console.log("users:", user);
 
   const showAlertWithChoices = () => {
     Alert.alert(
@@ -63,16 +65,16 @@ export default function Mypage({ navigation }) {
     );
   };
 
-  const editProfile = async () => {
+  const editProfile = async (editedName) => {
     try {
       setIsEditing(true);
-      const userRef = doc(db, "users", user?.email);
+      const userRef = doc(db, "users", user?.uid);
       await updateDoc(userRef, {
         displayName: editedName,
       });
       setUser((prev) => ({
         ...prev,
-        name: editedName,
+        displayName: editedName,
       }));
       Alert.alert("프로필이 수정되었습니다");
       setIsEditing(false);
@@ -168,14 +170,14 @@ export default function Mypage({ navigation }) {
                           minWidth: 120,
                         }}
                       />
-                      <TouchableOpacity onPress={editProfile}>
+                      <TouchableOpacity onPress={() => editProfile(editedName)}>
                         <Text style={{ color: "#fff", fontWeight: "bold" }}>
                           저장
                         </Text>
                       </TouchableOpacity>
                       <TouchableOpacity
                         onPress={() => setIsEditing(false)}
-                        setEditedName={user?.name}
+                        setEditedName={user?.displayName}
                       >
                         <Text style={{ color: "#fff", fontWeight: "bold" }}>
                           취소
