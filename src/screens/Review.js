@@ -29,6 +29,9 @@ export default function Review() {
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [showCmtModal, setShowCmtModal] = useState(false);
+  const [selectedReview, setSelectedReview] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+
   const timerRef = useRef(null);
   const onRefresh = React.useCallback(() => {
     setLoading(true);
@@ -40,6 +43,7 @@ export default function Review() {
 
   // 리뷰 데이터만
   const reviews = useAllReview();
+  console.log(reviews);
 
   useEffect(() => {
     return () => {
@@ -116,11 +120,23 @@ export default function Review() {
                     <Text>{review.displayName || "익명"}</Text>
                   </View>
                   {user && review.userId === user.uid && (
-                    <TouchableOpacity
-                      onPress={() => ReviewDelete(review.id, review.userId)}
-                    >
-                      <Text style={{ color: "red" }}>삭제</Text>
-                    </TouchableOpacity>
+                    <View style={{ flexDirection: "row" }}>
+                      <TouchableOpacity
+                        onPress={() => {
+                          setSelectedReview(review);
+                          setIsEditing(true);
+                          setShowModal(true);
+                        }}
+                      >
+                        <Text>수정</Text>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        onPress={() => ReviewDelete(review.id, review.userId)}
+                      >
+                        <Text style={{ color: "red" }}>삭제</Text>
+                      </TouchableOpacity>
+                    </View>
                   )}
                 </View>
                 <ImageBackground
@@ -159,6 +175,7 @@ export default function Review() {
                         width={16}
                         height={16}
                         style={{ marginRight: 5, marginLeft: 30 }}
+                        reviewId={reviews.Id}
                       />
                     </TouchableOpacity>
                     <Text>{review.CommentCnt}</Text>
@@ -188,7 +205,16 @@ export default function Review() {
         visible={showCmtModal}
         onClose={() => setShowCmtModal(false)}
       />
-      <ReviewModal visible={showModal} onClose={() => setShowModal(false)} />
+      <ReviewModal
+        visible={showModal}
+        onClose={() => {
+          setShowModal(false);
+          setIsEditing(false);
+          setSelectedReview(null);
+        }}
+        isEditing={isEditing}
+        reviewData={selectedReview}
+      />
       {loading && (
         <View style={styles.overlay}>
           <View style={styles.overlayContent}>

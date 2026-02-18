@@ -34,7 +34,15 @@ export default function CommentModal({ visible, onClose }) {
         comment,
         createdAt: serverTimestamp(),
       });
-
+      //cmt 숫자 +1
+      await setDoc(collection(db, "reviews", reviewId), {
+        CommentCnt: increment(1),
+      });
+      await setDoc(
+        collection(collection(db, "users", userId, "reviews"), {
+          CommentCnt: increment(1),
+        }),
+      );
       // 리뷰별 댓글
       const reviewCommentRef = collection(db, "reviews", reviewId, "comments");
       await addDoc(reviewCommentRef, {
@@ -88,15 +96,26 @@ export default function CommentModal({ visible, onClose }) {
                 <Text style={styles.cmtTime}>2026년2월18일</Text>
               </View>
             </View>
-            <View style={styles.inputContainer}>
-              <TextInput
-                style={styles.cmtInput}
-                placeholder="댓글을 남겨보세요"
-              />
-              <TouchableOpacity style={styles.cmtBtn}>
-                <Button title="전송" />
-              </TouchableOpacity>
-            </View>
+            {user ? (
+              <View style={styles.inputContainer}>
+                <TextInput
+                  style={styles.cmtInput}
+                  placeholder="댓글을 남겨보세요"
+                />
+                <TouchableOpacity
+                  style={styles.cmtBtn}
+                  onPress={() => addComment(user.uid)}
+                >
+                  <Button title="전송" />
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <View style={styles.inputContainer}>
+                <Text style={{ justifyContent: "center", margin: "auto" }}>
+                  로그인 후 이용 가능합니다
+                </Text>
+              </View>
+            )}
           </ScrollView>
         </View>
       </View>

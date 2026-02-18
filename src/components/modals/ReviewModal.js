@@ -9,13 +9,26 @@ import {
   Alert,
   Button,
 } from "react-native";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  getDoc,
+  serverTimestamp,
+  setDoc,
+  doc,
+  updateDoc,
+} from "firebase/firestore";
 import { db } from "../../../firebase";
 import { AuthContext } from "../../services/context";
 
-export default function ReviewModal({ visible, onClose }) {
+export default function ReviewModal({
+  visible,
+  onClose,
+  isEditing,
+  reviewData,
+}) {
   const { user } = useContext(AuthContext);
   const artworkId = "319005"; // 실제로는 선택된 작품의 ID를 받아와야 함
   const [title, setTitle] = useState("");
@@ -32,44 +45,83 @@ export default function ReviewModal({ visible, onClose }) {
     setDatePickerVisible(false);
   };
 
-  const addUserReview = async (
-    userId,
-    artworkId,
-    content,
-    rating,
-    visitedDate,
-  ) => {
+  const addUserReview = async () => {
     try {
-      const userReviewRef = collection(db, "users", userId, "reviews");
-      await addDoc(userReviewRef, {
+      const newReviewRef = await addDoc(collection(db, "reviews"), {
+        userId: user.uid,
         artworkId,
         title,
         content,
         rating,
-        LikeCnt,
-        CommentCnt,
+        LikeCnt: 0,
+        CommentCnt: 0,
         createdAt: serverTimestamp(),
         visitedDate: visitedDate.toISOString().split("T")[0],
       });
 
-      const allReviewsRef = collection(db, "reviews");
-      await addDoc(allReviewsRef, {
-        userId,
-        title,
+      await setDoc(doc(db, "users", user.uid, "reviews", newReviewRef.id), {
         artworkId,
+        title,
         content,
         rating,
-        LikeCnt,
-        CommentCnt,
+        LikeCnt: 0,
+        CommentCnt: 0,
         createdAt: serverTimestamp(),
         visitedDate: visitedDate.toISOString().split("T")[0],
       });
 
       Alert.alert("리뷰 작성 완료!");
+      onClose();
     } catch (error) {
       console.error("리뷰 작성 실패:", error);
     }
   };
+
+  const getMyReview = async (userId, reviewId) => {
+    try {
+      await getDoc(collection(db, "users", userId, "reviews", reviewId));
+    } catch (err) {
+      console.error("불러오기 실패: ", err);
+    }
+  };
+
+  const updateReview = async () => {
+    try {
+      const reviewId = reviewData.id;
+
+      const updateData = {
+        title,
+        content,
+        rating,
+        visitedDate: visitedDate.toISOString().split("T")[0],
+        updatedAt: serverTimestamp(), // 선택사항 (수정 시간 기록용)
+      };
+
+      // 1️⃣ 전체 리뷰 컬렉션 수정 (부분 수정)
+      await updateDoc(doc(db, "reviews", reviewId), updateData);
+
+      // 2️⃣ 유저 하위 리뷰 수정 (없으면 생성하되 기존 필드 유지)
+      const userReviewRef = doc(db, "users", user.uid, "reviews", reviewId);
+
+      await setDoc(userReviewRef, updateData, { merge: true });
+
+      Alert.alert("리뷰 수정 완료!");
+      onClose();
+    } catch (error) {
+      console.error("리뷰 수정 실패:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (isEditing && reviewData) {
+      setTitle(reviewData.title || "");
+      setContent(reviewData.content || "");
+      setRating(reviewData.rating || 0);
+      setVisitedDate(
+        reviewData.visitedDate ? new Date(reviewData.visitedDate) : new Date(),
+      );
+    }
+  }, [isEditing, reviewData]);
 
   const StarRating = () => {
     return (
@@ -126,7 +178,9 @@ export default function ReviewModal({ visible, onClose }) {
                 style={styles.contentInput}
               />
               <TouchableOpacity onPress={() => setDatePickerVisible(true)}>
-                <Text>방문 날짜: {visitedDate.toString().split("T")[0]}</Text>
+                <Text>
+                  방문 날짜: {visitedDate.toISOString().split("T")[0]}
+                </Text>
               </TouchableOpacity>
               <DateTimePickerModal
                 isVisible={isDatePickerVisible}
@@ -150,16 +204,8 @@ export default function ReviewModal({ visible, onClose }) {
                 ))}
               </View>
               <Button
-                title="리뷰 작성"
-                onPress={() =>
-                  addUserReview(
-                    user.uid,
-                    artworkId,
-                    content,
-                    rating,
-                    visitedDate,
-                  )
-                }
+                title={isEditing ? "리뷰 수정" : "리뷰 작성"}
+                onPress={isEditing ? updateReview : addUserReview}
               />
             </View>
           </ScrollView>
