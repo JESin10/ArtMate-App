@@ -120,8 +120,14 @@ export default function ReviewModal({
       setVisitedDate(
         reviewData.visitedDate ? new Date(reviewData.visitedDate) : new Date(),
       );
+    } else {
+      // 🔥 작성 모드일 때 초기화
+      setTitle("");
+      setContent("");
+      setRating(0);
+      setVisitedDate(new Date());
     }
-  }, [isEditing, reviewData]);
+  }, [isEditing, reviewData, visible]);
 
   const StarRating = () => {
     return (

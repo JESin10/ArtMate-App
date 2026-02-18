@@ -43,7 +43,7 @@ export default function Review() {
 
   // 리뷰 데이터만
   const reviews = useAllReview();
-  console.log(reviews);
+  // console.log(reviews);
 
   useEffect(() => {
     return () => {
@@ -65,7 +65,7 @@ export default function Review() {
       Alert.alert("리뷰 삭제에 실패했습니다. 다시 시도해주세요.");
     }
   };
-
+  // console.log("selectedReview", selectedReview);
   return (
     <SafeAreaView
       style={{
@@ -170,7 +170,12 @@ export default function Review() {
                     <Text>{review.LikeCnt}</Text>
                   </View>
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
-                    <TouchableOpacity onPress={() => setShowCmtModal(true)}>
+                    <TouchableOpacity
+                      onPress={() => {
+                        setShowCmtModal(true);
+                        setSelectedReview(review);
+                      }}
+                    >
                       <CommentIcon
                         width={16}
                         height={16}
@@ -190,9 +195,16 @@ export default function Review() {
         <TouchableOpacity
           style={styles.ReviewBtnInner}
           activeOpacity={0.8}
-          onPress={() =>
-            user ? setShowModal(true) : alert("로그인이 필요한 서비스입니다.")
-          }
+          onPress={() => {
+            if (!user) {
+              alert("로그인이 필요한 서비스입니다.");
+              return;
+            }
+
+            setIsEditing(false); // 🔥 수정모드 해제
+            setSelectedReview(null); // 🔥 선택 리뷰 초기화
+            setShowModal(true); // 모달 열기
+          }}
         />
         <WriteIcon
           width={24}
@@ -204,6 +216,7 @@ export default function Review() {
       <CommentModal
         visible={showCmtModal}
         onClose={() => setShowCmtModal(false)}
+        reviewId={selectedReview}
       />
       <ReviewModal
         visible={showModal}
