@@ -7,7 +7,7 @@ import BottomTabScreen from "./src/screens/BottomTopScreen";
 
 import Setting from "./src/screens/Setting";
 import Login from "./src/screens/Login";
-import UserSignup from "./src/components/UserSignup";
+import UserSignup from "./src/screens/UserSignup";
 import { AuthContext, AuthProvider } from "./src/services/context";
 import Bookmarks from "./src/screens/Bookmarks";
 

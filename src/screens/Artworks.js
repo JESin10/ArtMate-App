@@ -11,8 +11,8 @@ import {
   TouchableOpacity,
 } from "react-native";
 import React, { useState, useEffect, useMemo } from "react";
-import ArtworkFilter from "../components/ArtworkFilter";
-import ArtworkInfoModal from "../components/ArtworkInfoModal";
+import ArtworkFilter from "../components/hooks/ArtworkFilter.js";
+import ArtworkInfoModal from "../components/modals/ArtworkInfoModal";
 import FilterIcon from "../assets/icons/filter.svg";
 import ReloadIcon from "../assets/icons/reload.svg";
 import Mainlogo from "../assets/icons/logo-main.svg";

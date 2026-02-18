@@ -12,8 +12,8 @@ import {
 import React, { useContext, useState } from "react";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
-import { db } from "../../firebase";
-import { AuthContext } from "../services/context";
+import { db } from "../../../firebase";
+import { AuthContext } from "../../services/context";
 
 export default function ReviewModal({ visible, onClose }) {
   const { user } = useContext(AuthContext);

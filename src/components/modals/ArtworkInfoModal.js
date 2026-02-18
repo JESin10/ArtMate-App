@@ -10,12 +10,12 @@ import {
   Alert,
 } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
-import InfoIcon from "../assets/icons/info.svg";
 import { decode } from "html-entities"; // 추가: HTML 엔티티 디코드
-import BookmarkIcon from "../assets/icons/bookmark.svg";
-import FilledBookmarkIcon from "../assets/icons/bookmark-filled.svg";
-import ShareIcon from "../assets/icons/share.svg";
-import { AuthContext } from "../services/context";
+import BookmarkIcon from "../../assets/icons/bookmark.svg";
+import FilledBookmarkIcon from "../../assets/icons/bookmark-filled.svg";
+import ShareIcon from "../../assets/icons/share.svg";
+import InfoIcon from "../../assets/icons/info.svg";
+import { AuthContext } from "../../services/context";
 import {
   doc,
   setDoc,
@@ -26,7 +26,7 @@ import {
   getDocs,
   collection,
 } from "firebase/firestore";
-import { db } from "../../firebase";
+import { db } from "../../../firebase";
 import { use } from "react";
 
 export default function ArtworkInfoModal({
@@ -39,6 +39,7 @@ export default function ArtworkInfoModal({
   const [filled, setFilled] = useState(false);
   const { user, setUser } = useContext(AuthContext);
 
+  //태그 텍스트 적용
   const htmlToPlain = (html) => {
     if (!html) return "";
     const plain = String(html)
@@ -67,6 +68,7 @@ export default function ArtworkInfoModal({
     return String(dateStr) ?? "";
   };
 
+  //링크 열기
   const openLink = async (rawUrl) => {
     if (!rawUrl) {
       Alert.alert("알림", "유효한 링크가 없습니다.");
@@ -97,6 +99,8 @@ export default function ArtworkInfoModal({
       getBookmarks(user.uid);
     }
   });
+
+  // 북마크 여부 가져오기
   const getBookmarks = async (uid) => {
     try {
       const bookmarksSnapshot = await getDocs(
@@ -112,6 +116,8 @@ export default function ArtworkInfoModal({
       console.error("Error fetching bookmarks:", error);
     }
   };
+
+  //북마크 하기
   const BookmarkHandler = async () => {
     if (!user) {
       Alert.alert("알림", "로그인 후 이용가능합니다.");

@@ -16,7 +16,7 @@ import React, { useEffect, useState } from "react";
 // import Config from "react-native-config";
 import Constants from "expo-constants";
 import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
-import PlacesInfoModal from "../components/PlacesInfoModal";
+import PlacesInfoModal from "../components/modals/PlacesInfoModal.js";
 import ReloadIcon from "../assets/icons/reload.svg";
 import MapIcon from "../assets/icons/location.svg";
 import Mainlogo from "../assets/icons/logo-main.svg";

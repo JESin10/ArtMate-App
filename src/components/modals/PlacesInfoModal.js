@@ -9,11 +9,11 @@ import {
   Linking,
   Alert,
 } from "react-native";
-import InfoIcon from "../assets/icons/info.svg";
+import InfoIcon from "../../assets/icons/info.svg";
 import React, { useEffect, useState } from "react";
 import { use } from "react";
 import { decode } from "html-entities";
-import Map from "../screens/Map";
+import Map from "../../screens/Map";
 
 export default function PlacesInfoModal({ visible, onClose, item, detail }) {
   const [city, setCity] = useState("");

@@ -13,7 +13,6 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { decode } from "html-entities"; // 추가: HTML 엔티티 디코드
-import Recent from "../components/Recent";
 import React, {
   useState,
   useEffect,
@@ -22,9 +21,9 @@ import React, {
   useContext,
   createContext,
 } from "react";
-import ArtworkInfoModal from "../components/ArtworkInfoModal";
+import ArtworkInfoModal from "../components/modals/ArtworkInfoModal";
 import RenderHTML from "react-native-render-html";
-
+import useRecentArtworks from "../components/hooks/useRecentArtworks";
 import BackwardIcon from "../assets/icons/backward.svg";
 import ForwardIcon from "../assets/icons/forward.svg";
 import Mainlogo from "../assets/icons/logo-main.svg";

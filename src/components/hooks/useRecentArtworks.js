@@ -18,7 +18,7 @@ import React, { useState, useEffect } from "react";
 const SERVER_URL = "http://openapi.seoul.go.kr:8088";
 const API_KEY = "6b44656447746c733835476551776c";
 
-export default function Recent() {
+export default function useRecentArtworks() {
   const [recentArtworks, setRecentArtworks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [startIndex, setStartIndex] = useState(1);
@@ -30,8 +30,8 @@ export default function Recent() {
       const response = await fetch(
         `${SERVER_URL}/${API_KEY}/xml/ListExhibitionOfSeoulMOAInfo/${parseInt(
           startIndex,
-          10
-        )}/${parseInt(endIndex, 10)}/`
+          10,
+        )}/${parseInt(endIndex, 10)}/`,
       );
 
       const xmlText = await response.text();

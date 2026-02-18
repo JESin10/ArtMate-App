@@ -12,21 +12,23 @@ import {
   Alert,
 } from "react-native";
 import React, { useState, useRef, useEffect, useContext } from "react";
-import ReviewModal from "../components/ReviewModal";
+import ReviewModal from "../components/modals/ReviewModal";
 import Mainlogo from "../assets/icons/logo-main.svg";
 import ReloadIcon from "../assets/icons/reload.svg";
 import LikeIcon from "../assets/icons/heart.svg";
 import CommentIcon from "../assets/icons/list.svg";
 import WriteIcon from "../assets/icons/write.svg";
 import { AuthContext } from "../services/context";
-import useAllReview from "../components/useAllReview";
+import useAllReview from "../components/hooks/useAllReview";
 import { deleteDoc, doc } from "firebase/firestore";
 import { db } from "../../firebase";
+import CommentModal from "../components/modals/CommentModal";
 
 export default function Review() {
   const { user, setUser } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [showCmtModal, setShowCmtModal] = useState(false);
   const timerRef = useRef(null);
   const onRefresh = React.useCallback(() => {
     setLoading(true);
@@ -35,6 +37,8 @@ export default function Review() {
       timerRef.current = null;
     }, 2000);
   }, []);
+
+  // 리뷰 데이터만
   const reviews = useAllReview();
 
   useEffect(() => {
@@ -93,7 +97,7 @@ export default function Review() {
             </View>
           </View>
           <View style={styles.reviewsContainer}>
-            {reviews.map((review, idx) => (
+            {reviews?.map((review, idx) => (
               <View key={review.id || idx} style={styles.reviewFactor}>
                 <View
                   style={{
@@ -150,7 +154,7 @@ export default function Review() {
                     <Text>{review.LikeCnt}</Text>
                   </View>
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
-                    <TouchableOpacity>
+                    <TouchableOpacity onPress={() => setShowCmtModal(true)}>
                       <CommentIcon
                         width={16}
                         height={16}
@@ -180,6 +184,10 @@ export default function Review() {
           fill="#fff"
         />
       </View>
+      <CommentModal
+        visible={showCmtModal}
+        onClose={() => setShowCmtModal(false)}
+      />
       <ReviewModal visible={showModal} onClose={() => setShowModal(false)} />
       {loading && (
         <View style={styles.overlay}>
