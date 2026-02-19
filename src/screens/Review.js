@@ -49,16 +49,26 @@ export default function Review() {
   const [likeCnts, setLikeCnts] = useState(0);
   const [likedMap, setLikedMap] = useState({});
   const [reviews, setReviews] = useState([]);
-
+  const [sortType, setSortType] = useState("like");
   const timerRef = useRef(null);
   const onRefresh = React.useCallback(() => {
     setLoading(true);
+
+    // 🔥 정렬 초기화
+    setSortType("like");
+
+    // 🔥 혹시 모를 상태 초기화 (선택)
+    setSelectedReview(null);
+    setShowModal(false);
+    setShowCmtModal(false);
+
     timerRef.current = setTimeout(() => {
       setLoading(false);
       timerRef.current = null;
-    }, 2000);
+    }, 800);
   }, []);
 
+  // 새로고침 타이머 정리용
   useEffect(() => {
     return () => {
       if (timerRef.current) {
@@ -67,8 +77,16 @@ export default function Review() {
       }
     };
   }, []);
+
+  //리뷰 실시간 구독(좋아요 숫자 정렬)
   useEffect(() => {
-    const q = query(collection(db, "reviews"), orderBy("LikeCnt", "desc"));
+    let q;
+    //firestore는 orderBy로 정렬
+    if (sortType === "like") {
+      q = query(collection(db, "reviews"), orderBy("LikeCnt", "desc"));
+    } else {
+      q = query(collection(db, "reviews"), orderBy("createdAt", "desc"));
+    }
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const data = snapshot.docs.map((doc) => ({
@@ -80,11 +98,11 @@ export default function Review() {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [sortType]);
 
+  //유저별 좋아요 상태
   useEffect(() => {
     const fetchLikedReviews = async () => {
-      // 🔥 로그아웃 상태면 likedMap 초기화
       if (!user) {
         setLikedMap({});
         return;
@@ -105,6 +123,7 @@ export default function Review() {
     fetchLikedReviews();
   }, [user]);
 
+  //리뷰 삭제
   const ReviewDelete = async (reviewId, userId) => {
     try {
       await deleteDoc(doc(db, "reviews", reviewId));
@@ -117,6 +136,7 @@ export default function Review() {
     }
   };
 
+  //토글 좋아요
   const toggleLike = async (reviewId) => {
     if (!user) {
       Alert.alert("로그인 후 이용 가능합니다");
@@ -173,8 +193,33 @@ export default function Review() {
           <View style={styles.topFactorContainer}>
             <Text style={styles.pageTitle}>관람후기</Text>
             <View style={styles.filterContianer}>
-              <Text style={styles.filterFactor}>추천순</Text>
-              <Text style={styles.filterFactor}>최근등록순</Text>
+              <TouchableOpacity onPress={() => setSortType("like")}>
+                <Text
+                  style={[
+                    styles.filterFactor,
+                    sortType === "like" && {
+                      fontWeight: "bold",
+                      color: "#608D00",
+                    },
+                  ]}
+                >
+                  좋아요순
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={() => setSortType("recent")}>
+                <Text
+                  style={[
+                    styles.filterFactor,
+                    sortType === "recent" && {
+                      fontWeight: "bold",
+                      color: "#608D00",
+                    },
+                  ]}
+                >
+                  최근등록순
+                </Text>
+              </TouchableOpacity>
               <TouchableOpacity onPress={onRefresh} disabled={loading}>
                 <ReloadIcon
                   width={24}
