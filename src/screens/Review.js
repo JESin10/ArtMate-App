@@ -15,12 +15,27 @@ import React, { useState, useRef, useEffect, useContext } from "react";
 import ReviewModal from "../components/modals/ReviewModal";
 import Mainlogo from "../assets/icons/logo-main.svg";
 import ReloadIcon from "../assets/icons/reload.svg";
+import FilledLikeIcon from "../assets/icons/heart-filled.svg";
 import LikeIcon from "../assets/icons/heart.svg";
 import CommentIcon from "../assets/icons/list.svg";
 import WriteIcon from "../assets/icons/write.svg";
 import { AuthContext } from "../services/context";
 import useAllReview from "../components/hooks/useAllReview";
-import { deleteDoc, doc } from "firebase/firestore";
+import {
+  addDoc,
+  deleteDoc,
+  serverTimestamp,
+  doc,
+  setDoc,
+  updateDoc,
+  runTransaction,
+  increment,
+  collection,
+  query,
+  orderBy,
+  onSnapshot,
+  getDocs,
+} from "firebase/firestore";
 import { db } from "../../firebase";
 import CommentModal from "../components/modals/CommentModal";
 
@@ -31,6 +46,9 @@ export default function Review() {
   const [showCmtModal, setShowCmtModal] = useState(false);
   const [selectedReview, setSelectedReview] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [likeCnts, setLikeCnts] = useState(0);
+  const [likedMap, setLikedMap] = useState({});
+  const [reviews, setReviews] = useState([]);
 
   const timerRef = useRef(null);
   const onRefresh = React.useCallback(() => {
@@ -41,10 +59,6 @@ export default function Review() {
     }, 2000);
   }, []);
 
-  // 리뷰 데이터만
-  const reviews = useAllReview();
-  // console.log(reviews);
-
   useEffect(() => {
     return () => {
       if (timerRef.current) {
@@ -53,6 +67,43 @@ export default function Review() {
       }
     };
   }, []);
+  useEffect(() => {
+    const q = query(collection(db, "reviews"), orderBy("LikeCnt", "desc"));
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const data = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      setReviews(data);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const fetchLikedReviews = async () => {
+      // 🔥 로그아웃 상태면 likedMap 초기화
+      if (!user) {
+        setLikedMap({});
+        return;
+      }
+
+      const snapshot = await getDocs(
+        collection(db, "users", user.uid, "likedReview"),
+      );
+
+      const liked = {};
+      snapshot.forEach((doc) => {
+        liked[doc.id] = true;
+      });
+
+      setLikedMap(liked);
+    };
+
+    fetchLikedReviews();
+  }, [user]);
 
   const ReviewDelete = async (reviewId, userId) => {
     try {
@@ -65,7 +116,42 @@ export default function Review() {
       Alert.alert("리뷰 삭제에 실패했습니다. 다시 시도해주세요.");
     }
   };
-  // console.log("selectedReview", selectedReview);
+
+  const toggleLike = async (reviewId) => {
+    if (!user) {
+      Alert.alert("로그인 후 이용 가능합니다");
+      return;
+    }
+
+    const userLikeRef = doc(db, "users", user.uid, "likedReview", reviewId);
+    const reviewRef = doc(db, "reviews", reviewId);
+
+    const alreadyLiked = !!likedMap[reviewId];
+
+    try {
+      if (alreadyLiked) {
+        await deleteDoc(userLikeRef);
+        await updateDoc(reviewRef, { LikeCnt: increment(-1) });
+
+        setLikedMap((prev) => {
+          const newMap = { ...prev };
+          delete newMap[reviewId];
+          return newMap;
+        });
+      } else {
+        await setDoc(userLikeRef, { reviewId });
+        await updateDoc(reviewRef, { LikeCnt: increment(1) });
+
+        setLikedMap((prev) => ({
+          ...prev,
+          [reviewId]: true,
+        }));
+      }
+    } catch (error) {
+      console.error("좋아요 토글 실패:", error);
+    }
+  };
+
   return (
     <SafeAreaView
       style={{
@@ -159,13 +245,12 @@ export default function Review() {
 
                 <View style={styles.reactionContainer}>
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
-                    <TouchableOpacity>
-                      <LikeIcon
-                        width={16}
-                        height={16}
-                        style={{ marginRight: 5 }}
-                        fill="#000"
-                      />
+                    <TouchableOpacity onPress={() => toggleLike(review.id)}>
+                      {likedMap[review.id] ? (
+                        <FilledLikeIcon width={16} height={16} fill="red" />
+                      ) : (
+                        <LikeIcon width={16} height={16} />
+                      )}
                     </TouchableOpacity>
                     <Text>{review.LikeCnt}</Text>
                   </View>
@@ -180,7 +265,7 @@ export default function Review() {
                         width={16}
                         height={16}
                         style={{ marginRight: 5, marginLeft: 30 }}
-                        reviewId={reviews.Id}
+                        reviewId={reviews.id}
                       />
                     </TouchableOpacity>
                     <Text>{review.CommentCnt}</Text>
