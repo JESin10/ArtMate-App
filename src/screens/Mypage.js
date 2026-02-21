@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import {
   View,
   Text,
@@ -25,10 +25,13 @@ import {
   collection,
   doc,
   getDoc,
-  getDocs,
-  orderBy,
   query,
   updateDoc,
+  orderBy,
+  onSnapshot,
+  getDocs,
+  where,
+  collectionGroup,
 } from "firebase/firestore";
 import { db } from "../../firebase";
 import Bookmarks from "./Bookmarks";
@@ -39,8 +42,59 @@ export default function Mypage({ navigation }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState(user?.displayName || "");
   const [bookmarks, setBookmarks] = useState([]);
+  const [myReviews, setMyReviews] = useState([]);
+  const [myLikeRV, setMyLikeRV] = useState([]);
+  const [myComments, setMyComments] = useState([]);
 
-  console.log("users:", user);
+  //리뷰, 좋아요, 댓글 실시간 구독
+  useEffect(() => {
+    if (!user) return;
+
+    const q = query(
+      collection(db, "reviews"),
+      where("userId", "==", user.uid),
+      orderBy("createdAt", "desc"),
+    );
+    const l = query(
+      collection(db, "users", user.uid, "likedReview"),
+      orderBy("createdAt", "desc"),
+    );
+    const c = query(
+      collectionGroup(db, "comments"),
+      where("userId", "==", user.uid),
+      orderBy("createdAt", "desc"),
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const data = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setMyReviews(data);
+    });
+    const L_unsubscribe = onSnapshot(l, (snapshot) => {
+      const l_data = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setMyLikeRV(l_data);
+    });
+    const C_unsubscribe = onSnapshot(c, (snapshot) => {
+      const c_data = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setMyComments(c_data);
+    });
+
+    return () => {
+      unsubscribe();
+      L_unsubscribe();
+      C_unsubscribe();
+    };
+  }, [user]);
+
+  // console.log("myliked:", myLikeRV);
 
   const showAlertWithChoices = () => {
     Alert.alert(
@@ -95,23 +149,6 @@ export default function Mypage({ navigation }) {
       navigation.navigate("Bookmarks");
     } catch (error) {
       console.error("북마크 불러오기 에러:", error);
-    }
-  };
-
-  const getUserReviews = async (userId) => {
-    try {
-      const reviewsRef = collection(db, "users", userId, "reviews");
-      const q = query(reviewsRef, orderBy("createdAt", "desc"));
-      const snapshot = await getDoc(q);
-
-      const reviews = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      return reviews;
-    } catch (error) {
-      console.error("리뷰 불러오기 실패:", error);
-      return [];
     }
   };
 

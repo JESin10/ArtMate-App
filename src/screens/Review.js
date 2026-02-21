@@ -35,6 +35,7 @@ import {
   orderBy,
   onSnapshot,
   getDocs,
+  getDoc,
 } from "firebase/firestore";
 import { db } from "../../firebase";
 import CommentModal from "../components/modals/CommentModal";
@@ -80,23 +81,44 @@ export default function Review() {
 
   //리뷰 실시간 구독(좋아요 숫자 정렬)
   useEffect(() => {
+    const reviewsRef = collection(db, "reviews");
     let q;
     //firestore는 orderBy로 정렬
     if (sortType === "like") {
-      q = query(collection(db, "reviews"), orderBy("LikeCnt", "desc"));
+      q = query(reviewsRef, orderBy("LikeCnt", "desc"));
     } else {
-      q = query(collection(db, "reviews"), orderBy("createdAt", "desc"));
+      q = query(reviewsRef, orderBy("createdAt", "desc"));
     }
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
+    const unsubscribe = onSnapshot(q, async (snapshot) => {
       const data = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
 
-      setReviews(data);
-    });
+      // setReviews(data);
+      // 유저 displayName 한 번만 가져오기
+      const userIds = [...new Set(data.map((r) => r.userId))];
+      const displayNameMap = {};
 
+      for (const uid of userIds) {
+        try {
+          const userSnap = await getDoc(doc(db, "users", uid));
+          displayNameMap[uid] = userSnap.exists()
+            ? userSnap.data().displayName || "익명"
+            : "익명";
+        } catch (err) {
+          displayNameMap[uid] = "익명";
+        }
+      }
+
+      // 리뷰 + displayName 합쳐서 상태 업데이트 (한 번만)
+      const fetchReview = data.map((r) => ({
+        ...r,
+        displayName: displayNameMap[r.userId] || "익명",
+      }));
+      setReviews(fetchReview);
+    });
     return () => unsubscribe();
   }, [sortType]);
 
@@ -159,7 +181,7 @@ export default function Review() {
           return newMap;
         });
       } else {
-        await setDoc(userLikeRef, { reviewId });
+        await setDoc(userLikeRef, { reviewId, createdAt: serverTimestamp() });
         await updateDoc(reviewRef, { LikeCnt: increment(1) });
 
         setLikedMap((prev) => ({
@@ -294,7 +316,7 @@ export default function Review() {
                       {likedMap[review.id] ? (
                         <FilledLikeIcon width={16} height={16} fill="red" />
                       ) : (
-                        <LikeIcon width={16} height={16} />
+                        <LikeIcon width={16} height={16} fill="black" />
                       )}
                     </TouchableOpacity>
                     <Text>{review.LikeCnt}</Text>

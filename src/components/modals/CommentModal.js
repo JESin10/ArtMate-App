@@ -21,6 +21,11 @@ import {
   doc,
   updateDoc,
   getDocs,
+  collectionGroup,
+  onSnapshot,
+  query,
+  where,
+  orderBy,
 } from "firebase/firestore";
 import { db } from "../../../firebase";
 import { AuthContext } from "../../services/context";
@@ -32,10 +37,24 @@ export default function CommentModal({ visible, onClose, reviewId }) {
   //   console.log("reviewId", reviewId.id);
 
   useEffect(() => {
-    if (reviewId?.id) {
-      getComment(reviewId.id);
-    }
-  }, [reviewId]);
+    if (!reviewId?.id) return;
+    const q = query(
+      collection(db, "reviews", reviewId.id, "comments"),
+      orderBy("createdAt", "desc"),
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const data = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setCmtList(data);
+    });
+
+    return () => unsubscribe();
+  }, [user, reviewId]);
+
+  console.log(cmtList);
 
   const formatDate = (timestampObj) => {
     if (!timestampObj) return "";
@@ -52,23 +71,6 @@ export default function CommentModal({ visible, onClose, reviewId }) {
       //   hour12: true,
       //   timeZone: "Asia/Seoul",
     });
-  };
-
-  const getComment = async (reviewId) => {
-    try {
-      const snapshot = await getDocs(
-        collection(db, "reviews", reviewId, "comments"),
-      );
-
-      const comments = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-
-      setCmtList(comments);
-    } catch (err) {
-      console.error("댓글 불러오기 실패:", err);
-    }
   };
 
   const addComment = async (userId, reviewId, comment) => {

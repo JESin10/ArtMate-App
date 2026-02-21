@@ -57,6 +57,7 @@ export default function ReviewModal({
         CommentCnt: 0,
         createdAt: serverTimestamp(),
         visitedDate: visitedDate.toISOString().split("T")[0],
+        //image
       });
 
       await setDoc(doc(db, "users", user.uid, "reviews", newReviewRef.id), {
