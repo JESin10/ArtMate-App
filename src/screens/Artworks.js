@@ -98,8 +98,6 @@ export default function Artworks() {
         return;
       }
 
-      console.log("getDetailArtwork: API 응답 XML:", xmlText);
-
       const jsonData = parser.parse(xmlText);
 
       const detail = jsonData?.response?.body?.items?.item || null;

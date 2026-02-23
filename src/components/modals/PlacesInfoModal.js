@@ -17,8 +17,6 @@ import Map from "../../screens/Map";
 
 export default function PlacesInfoModal({ visible, onClose, item, detail }) {
   const [city, setCity] = useState("");
-  //   console.log("PlacesInfoItem:", item);
-  // console.log("PlacesInfoDetail:", detail);
 
   const getProvinceFromAddress = (addr) => {
     if (!addr) return "";
@@ -164,7 +162,11 @@ export default function PlacesInfoModal({ visible, onClose, item, detail }) {
             </View>
             <View style={styles.mapContainer}>
               <Text style={styles.titleText2}>지도</Text>
-              <Map x={detail?.gpsY} y={detail?.gpsX} />
+              <Map
+                x={detail?.gpsY}
+                y={detail?.gpsX}
+                // address={detail?.placeAddr}
+              />
               {/* <Text style={styles.subText}>{detail?.gpsX}</Text>
               <Text style={styles.subText}>{detail?.gpsY}</Text> */}
             </View>

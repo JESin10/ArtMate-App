@@ -25,17 +25,13 @@ import {
   serverTimestamp,
   getDocs,
   collection,
+  getDoc,
 } from "firebase/firestore";
 import { db } from "../../../firebase";
 import { use } from "react";
+import Map from "../../screens/Map";
 
-export default function ArtworkInfoModal({
-  visible,
-  onClose,
-  artwork,
-  detail,
-  seq,
-}) {
+export default function ArtworkInfoModal({ visible, onClose, artwork }) {
   const [filled, setFilled] = useState(false);
   const { user, setUser } = useContext(AuthContext);
 
@@ -94,28 +90,30 @@ export default function ArtworkInfoModal({
     }
   };
 
+  // Modal 열릴 때 북마크 여부 가져오기
   useEffect(() => {
-    if (user && artwork) {
-      getBookmarks(user.uid);
-    }
-  });
+    if (!visible) return;
+    if (!user || !artwork?.seq) return;
 
-  // 북마크 여부 가져오기
-  const getBookmarks = async (uid) => {
-    try {
-      const bookmarksSnapshot = await getDocs(
-        collection(db, "users", uid, "bookmarks"),
-      );
-      const bookmarks = bookmarksSnapshot.docs.map((doc) => doc.data());
-      const isBookmarked = bookmarks.some(
-        (b) => b.artworkSeq === String(artwork.seq),
-      );
-      setFilled(isBookmarked);
-      console.log("bookmark check", isBookmarked);
-    } catch (error) {
-      console.error("Error fetching bookmarks:", error);
-    }
-  };
+    const checkBookmark = async () => {
+      try {
+        const bookmarkRef = doc(
+          db,
+          "users",
+          user.uid,
+          "bookmarks",
+          String(artwork.seq),
+        );
+
+        const snap = await getDoc(bookmarkRef);
+        setFilled(snap.exists());
+      } catch (error) {
+        console.error("Bookmark check error:", error);
+      }
+    };
+
+    checkBookmark();
+  }, [visible, user?.uid, artwork?.seq]);
 
   //북마크 하기
   const BookmarkHandler = async () => {
@@ -301,6 +299,11 @@ export default function ArtworkInfoModal({
                 <Text style={styles.subText}> 정보없음</Text>
               )}
             </View>
+            <View style={styles.mapContainer}>
+              <Text style={styles.titleText2}>지도</Text>
+
+              <Map x={artwork?.gpsY} y={artwork?.gpsX} />
+            </View>
           </ScrollView>
         </View>
       </View>
@@ -403,5 +406,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#e8e8e8",
+  },
+  mapContainer: {
+    height: 400,
+    marginBottom: 10,
+    width: "100%",
+    flexDirection: "row",
+    border: "solid",
+    padding: 10,
   },
 });

@@ -20,7 +20,7 @@ export default function Map({ x, y }) {
   // console.log("Map Factor:", route);
   // console.log("Map route:", route);
 
-  if (!x) {
+  if (typeof x !== "number" || typeof y !== "number") {
     return (
       <View style={{ flex: 1 }}>
         <Text>지도 정보가 없습니다</Text>
