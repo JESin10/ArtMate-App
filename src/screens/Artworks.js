@@ -25,7 +25,7 @@ export default function Artworks() {
   const [loading, setLoading] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
   const [startIndex, setStartIndex] = useState(parseInt(1));
-  const [endIndex, setEndIndex] = useState(parseInt(20));
+  const [endIndex, setEndIndex] = useState(parseInt(60));
   const [showModal, setShowModal] = useState(false);
   const [selectedArtwork, setSelectedArtwork] = useState(null);
   const [detailArtwork, setDetailArtwork] = useState([]);
@@ -108,26 +108,64 @@ export default function Artworks() {
       setDetailArtwork([]);
     }
   };
+  // console.log(artworks);
 
   // parts: ['조각', ...] 형태 (부분일치, 대소문자 무시), start/end는 1-based
-  const applyFilter = ({ start = 1, end = 60, parts = [] }) => {
+  const applyFilter = ({
+    start = 1,
+    end = 60,
+    genres = [],
+    regions = [],
+    realmName = [],
+  }) => {
     setStartIndex(start);
     setEndIndex(end);
+
     let source = artworks || [];
-    // 부분일치: selected parts 중 하나라도 포함하면 통과
-    if (Array.isArray(parts) && parts.length > 0) {
-      const lowered = parts.map((p) => String(p).toLowerCase());
+
+    // 장르 필터
+    if (genres.length > 0) {
+      const lowered = genres.map((g) => g.toLowerCase());
+
       source = source.filter((a) =>
-        lowered.some((p) =>
+        lowered.some((g) =>
           String(a.serviceName || "")
             .toLowerCase()
-            .includes(p),
+            .includes(g),
         ),
       );
     }
-    // start/end 범위 적용 (안정성: 1-based)
+
+    // 지역 필터
+    if (regions.length > 0) {
+      const lowered = regions.map((r) => r.toLowerCase());
+
+      source = source.filter((a) =>
+        lowered.some((r) =>
+          String(a.area || "")
+            .toLowerCase()
+            .includes(r),
+        ),
+      );
+    }
+
+    // 종류 필터
+    if (realmName.length > 0) {
+      const lowered = realmName.map((r) => r.toLowerCase());
+
+      source = source.filter((a) =>
+        lowered.some((r) =>
+          String(a.realmName || "")
+            .toLowerCase()
+            .includes(r),
+        ),
+      );
+    }
+
+    //  범위 적용
     const s = Math.max(1, start);
     const e = Math.min(source.length, end);
+
     setDisplayedArtworks(source.slice(s - 1, e));
   };
 
@@ -140,7 +178,7 @@ export default function Artworks() {
     }
   }, [selectedArtwork]);
 
-  // console.log("Artworks:", detailArtwork);
+  // console.log("Artworks:");
   return (
     <SafeAreaView
       style={{
@@ -237,6 +275,7 @@ export default function Artworks() {
                     <Text style={styles.descStyle}>
                       {artwork.startDate} ~ {artwork.endDate}
                     </Text>
+                    <Text style={styles.descStyle}>{artwork.serviceName}</Text>
                     <Text style={styles.descStyle}>{artwork.place}</Text>
                   </TouchableOpacity>
                 );
@@ -254,8 +293,13 @@ export default function Artworks() {
           applyFilter(filters);
           setShowFilter(false);
         }}
-        parts={[...new Set(artworks.map((a) => a.DP_ART_PART).filter(Boolean))]}
+        genres={[
+          ...new Set(artworks.map((a) => a.serviceName).filter(Boolean)),
+        ]}
+        regions={[...new Set(artworks.map((a) => a.area).filter(Boolean))]}
+        realm={[...new Set(artworks.map((a) => a.realmName).filter(Boolean))]}
       />
+
       <ArtworkInfoModal
         visible={showModal}
         onClose={() => {
