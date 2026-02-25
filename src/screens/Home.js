@@ -30,6 +30,7 @@ import Mainlogo from "../assets/icons/logo-main.svg";
 import { AuthContext } from "../services/context";
 import { XMLParser } from "fast-xml-parser";
 import { type } from "firebase/firestore/pipelines";
+import Search from "./Search";
 
 export default function Home({ navigation }) {
   const { user } = useContext(AuthContext);
@@ -43,10 +44,10 @@ export default function Home({ navigation }) {
   const [endIndex, setEndIndex] = useState(10);
   const [showModal, setShowModal] = useState(false);
   const [selectedArtwork, setSelectedArtwork] = useState(null);
+  const [placeKeyword, setPlaceKeyword] = useState("");
   const CARD_WIDTH = 310;
   const ITEM_SPACING = 12;
   const ITEM_SIZE = CARD_WIDTH + ITEM_SPACING;
-  // const { width } = useWindowDimensions();
   const flatListRef = useRef(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const RECENT_PER_PAGE = 4;
@@ -58,17 +59,17 @@ export default function Home({ navigation }) {
   const parser = new XMLParser({
     ignoreAttributes: false,
   });
-  const htmlToPlain = (html) => {
-    if (!html) return "";
-    const plain = String(html)
-      .replace(/<br\s*\/?>/gi, "\n")
-      .replace(/<\/p>/gi, "\n")
-      .replace(/<p[^>]*>/gi, "")
-      .replace(/&nbsp;/gi, " ")
-      .replace(/<\/?[^>]+(>|$)/g, "") // 남은 모든 태그 제거
-      .trim();
-    return decode(plain);
-  };
+  // const htmlToPlain = (html) => {
+  //   if (!html) return "";
+  //   const plain = String(html)
+  //     .replace(/<br\s*\/?>/gi, "\n")
+  //     .replace(/<\/p>/gi, "\n")
+  //     .replace(/<p[^>]*>/gi, "")
+  //     .replace(/&nbsp;/gi, " ")
+  //     .replace(/<\/?[^>]+(>|$)/g, "") // 남은 모든 태그 제거
+  //     .trim();
+  //   return decode(plain);
+  // };
 
   // console.log("user in home:", user);
 
@@ -81,52 +82,6 @@ export default function Home({ navigation }) {
       getArtwork();
     }
   }, [selectedArtwork]);
-
-  // const fetchAndApply = async () => {
-  //   const start = Math.max(1, parseInt(sIdx || "1", 10));
-  //   const end = Math.max(start, parseInt(eIdx || String(start + 59), 10));
-  //   setLoading(true);
-
-  //   try {
-  //     const res = await fetch(
-  //       `${SERVER_URL}/${API_KEY}/xml/ListExhibitionOfSeoulMOAInfo/${start}/${end}/`,
-  //     );
-
-  //     const xmlText = await res.text();
-
-  //     // 🔥 여기 변경됨
-  //     const parser = new XMLParser({
-  //       ignoreAttributes: false,
-  //     });
-
-  //     const jsonData = parser.parse(xmlText);
-
-  //     setLoading(false);
-
-  //     let items = jsonData?.ListExhibitionOfSeoulMOAInfo?.row || [];
-
-  //     if (!Array.isArray(items)) items = [items];
-
-  //     if (Array.isArray(selectedParts) && selectedParts.length > 0) {
-  //       const lowered = selectedParts.map((dp_artpart) =>
-  //         String(dp_artpart).toLowerCase(),
-  //       );
-
-  //       items = items.filter((parts) =>
-  //         lowered.some((dp_artpart) =>
-  //           String(parts?.DP_ART_PART || "")
-  //             .toLowerCase()
-  //             .includes(dp_artpart),
-  //         ),
-  //       );
-  //     }
-
-  //     onApply({ items, parts: selectedParts, start, end });
-  //   } catch (error) {
-  //     setLoading(false);
-  //     onApply({ items: [], parts: selectedParts, start, end });
-  //   }
-  // };
 
   const getArtwork = async () => {
     setLoading(true);
@@ -362,9 +317,7 @@ export default function Home({ navigation }) {
           <TouchableOpacity>
             <Mainlogo width={150} height={50} />
           </TouchableOpacity>
-          <View style={styles.searchbar}>
-            <TextInput placeholder="search-bar" />
-          </View>
+          <Search />
           <View style={styles.recommandContainer}>
             <View style={styles.subTitle}>
               {user ? (

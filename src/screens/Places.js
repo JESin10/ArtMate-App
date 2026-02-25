@@ -21,8 +21,8 @@ import ReloadIcon from "../assets/icons/reload.svg";
 import MapIcon from "../assets/icons/location.svg";
 import Mainlogo from "../assets/icons/logo-main.svg";
 import { XMLParser } from "fast-xml-parser";
+import Search from "./Search.js";
 
-// const REACT_APP_SERVER_URL = "https://apis.data.go.kr/B553457/cultureinfo";
 const SERVER_URL =
   "https://apis.data.go.kr/B553457/nopenapi/rest/cultureartspaces";
 
@@ -143,9 +143,7 @@ export default function Places({ navigation }) {
           <TouchableOpacity style={{ alignItems: "center" }}>
             <Mainlogo width={150} height={50} />
           </TouchableOpacity>
-          <View style={styles.searchbar}>
-            <TextInput placeholder="search-bar" />
-          </View>
+          <Search />
           <View
             style={{
               width: "100%",

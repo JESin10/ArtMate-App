@@ -18,6 +18,7 @@ import ReloadIcon from "../assets/icons/reload.svg";
 import Mainlogo from "../assets/icons/logo-main.svg";
 import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 import { XMLParser } from "fast-xml-parser";
+import Search from "./Search.js";
 
 export default function Artworks() {
   const [artworks, setArtworks] = useState([]); // 원본 전체
@@ -194,9 +195,7 @@ export default function Artworks() {
           <TouchableOpacity style={{ alignItems: "center" }}>
             <Mainlogo width={150} height={50} />
           </TouchableOpacity>
-          <View style={styles.searchbar}>
-            <TextInput placeholder="search-bar" />
-          </View>
+          <Search />
           <View
             style={{
               width: "100%",
