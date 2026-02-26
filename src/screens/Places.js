@@ -12,17 +12,12 @@ import {
   TouchableOpacity,
 } from "react-native";
 import React, { useEffect, useState } from "react";
-import Constants from "expo-constants";
-import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 import PlacesInfoModal from "../components/modals/PlacesInfoModal.js";
 import ReloadIcon from "../assets/icons/reload.svg";
 import MapIcon from "../assets/icons/location.svg";
 import Mainlogo from "../assets/icons/logo-main.svg";
 import { XMLParser } from "fast-xml-parser";
 import Search from "../components/search/SearchBar.js";
-
-const SERVER_URL =
-  "https://apis.data.go.kr/B553457/nopenapi/rest/cultureartspaces";
 
 export default function Places({ navigation }) {
   const [gallery, setGallery] = useState([]);
@@ -36,61 +31,75 @@ export default function Places({ navigation }) {
     ignoreAttributes: false,
   });
 
-  const getDetailPlace = async (seq) => {
-    try {
-      const response = await fetch(
-        `${SERVER_URL}/detail?serviceKey=${process.env.REACT_APP_API_KEY}&seq=${seq}`,
-      );
+  useEffect(() => {
+    // if (gallery?.length > 0) {
+    //   setLoading(true);
+    //   getPlace();
+    //   // gallery.forEach((item) => {
+    //   //   getDetailPlace(item.seq); // 각 seq에 대해 상세 정보 요청
+    //   // });
+    // } else {
+    //   getPlace();
+    // }
 
-      const xmlText = await response.text();
+    getPlace();
+  }, []);
 
-      const jsonData = parser.parse(xmlText);
-
-      const detail = jsonData?.response?.body?.items?.item;
-
-      setDetails((prev) => ({ ...prev, [seq]: detail }));
-    } catch (error) {
-      console.error("상세 정보 오류:", error);
-    }
-
-    setLoading(false);
-  };
+  // const getDetailPlace = async (seq) => {
+  //   try {
+  //     const response = await fetch(
+  //       `${process.env.REACT_APP_PLACE_SERVER_URL}/detail?serviceKey=${process.env.REACT_APP_API_KEY}&seq=${seq}`,
+  //     );
+  //     const xmlText = await response.text();
+  //     const jsonData = parser.parse(xmlText);
+  //     const detail = jsonData?.response?.body?.items?.item;
+  //     setDetails((prev) => ({ ...prev, [seq]: detail }));
+  //   } catch (error) {
+  //     console.error("상세 정보 오류:", error);
+  //   }
+  //   setLoading(false);
+  // };
 
   const getPlace = async () => {
+    setLoading(true);
+
     try {
       const response = await fetch(
-        `${SERVER_URL}/artgallery?serviceKey=${process.env.REACT_APP_API_KEY}&PageNo=${pageNum}&numOfrows=${listCnt}`,
+        `${process.env.REACT_APP_PLACE_SERVER_URL}/artgallery?serviceKey=${process.env.REACT_APP_API_KEY}&PageNo=${pageNum}&numOfrows=${listCnt}`,
       );
-
       const xmlText = await response.text();
-
       const jsonData = parser.parse(xmlText);
-
       const rawItems = jsonData?.response?.body?.items?.item || [];
       const items = Array.isArray(rawItems) ? rawItems : [rawItems];
 
       setGallery(items);
+
+      // 🔥 상세 한번에 병렬 처리
+      const detailPromises = items.map(async (item) => {
+        const res = await fetch(
+          `${process.env.REACT_APP_PLACE_SERVER_URL}/detail?serviceKey=${process.env.REACT_APP_API_KEY}&seq=${item.seq}`,
+        );
+        const xml = await res.text();
+        const json = parser.parse(xml);
+        return {
+          seq: item.seq,
+          detail: json?.response?.body?.items?.item,
+        };
+      });
+
+      const detailResults = await Promise.all(detailPromises);
+
+      const detailMap = {};
+      detailResults.forEach(({ seq, detail }) => {
+        detailMap[seq] = detail;
+      });
+      setDetails(detailMap);
     } catch (error) {
-      console.error("목록 불러오기 오류:", error);
+      console.error(error);
     }
 
     setLoading(false);
   };
-
-  useEffect(() => {
-    if (gallery?.length > 0) {
-      setLoading(true);
-      getPlace();
-      gallery.forEach((item) => {
-        getDetailPlace(item.seq); // 각 seq에 대해 상세 정보 요청
-      });
-    } else {
-      getPlace();
-    }
-  }, [gallery?.length]);
-
-  console.log("selec:", selectedPlace);
-  // console.log("detail:", details);
 
   const getCoords = (detail, item) => {
     const tryNum = (v) => {
@@ -193,10 +202,11 @@ export default function Places({ navigation }) {
                   }}
                 >
                   <View style={styles.image}>
-                    {detail?.culViewImg1 ? (
+                    {!detail ? (
+                      <ActivityIndicator />
+                    ) : detail?.culViewImg1 ? (
                       <ImageBackground
                         source={{
-                          // uri: detail.thumbnail,
                           uri: detail.culViewImg1.replace("http", "https"),
                         }}
                         style={styles.imageBackground}

@@ -8,6 +8,7 @@ import {
   ScrollView,
   Linking,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 import InfoIcon from "../../assets/icons/info.svg";
 import React, { useEffect, useState } from "react";
@@ -24,6 +25,7 @@ export default function PlacesInfoModal({
 }) {
   const [city, setCity] = useState("");
   const [detail, setDetail] = useState([]);
+  const [loading, setLoading] = useState(false);
   const parser = new XMLParser({
     ignoreAttributes: false,
   });
@@ -60,18 +62,18 @@ export default function PlacesInfoModal({
   }, [seq, visible]);
 
   const getDetailPlace = async (seq) => {
+    setLoading(true);
     try {
       const response = await fetch(
         `${process.env.REACT_APP_PLACE_SERVER_URL}/detail?serviceKey=${process.env.REACT_APP_API_KEY}&seq=${seq}`,
       );
 
       const xmlText = await response.text();
-
       const jsonData = parser.parse(xmlText);
-
       const item = jsonData?.response?.body?.items?.item;
 
       setDetail(item);
+      setLoading(false);
     } catch (error) {
       console.error("상세 정보 오류:", error);
     }
@@ -79,7 +81,6 @@ export default function PlacesInfoModal({
     // setLoading(false);
   };
 
-  console.log("detail:", detail);
   const openLink = async (rawUrl) => {
     if (!rawUrl) {
       Alert.alert("알림", "유효한 링크가 없습니다.");
@@ -121,6 +122,14 @@ export default function PlacesInfoModal({
       animationType="slide"
       onRequestClose={onClose}
     >
+      {loading && (
+        <View style={styles.overlay}>
+          <View style={styles.overlayContent}>
+            <ActivityIndicator size="large" color="#fff" />
+            <Text style={{ color: "#fff", marginTop: 8 }}>로딩중...</Text>
+          </View>
+        </View>
+      )}
       <View style={styles.modalBackdrop}>
         <TouchableOpacity
           style={styles.backdropTouchable}
@@ -219,6 +228,23 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "flex-end",
     backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  overlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 999,
+  },
+  overlayContent: {
+    padding: 20,
+    borderRadius: 8,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    alignItems: "center",
   },
   backdropTouchable: {
     position: "absolute",
