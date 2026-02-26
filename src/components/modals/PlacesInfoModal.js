@@ -14,9 +14,19 @@ import React, { useEffect, useState } from "react";
 import { use } from "react";
 import { decode } from "html-entities";
 import Map from "../../screens/Map";
+import { XMLParser } from "fast-xml-parser";
 
-export default function PlacesInfoModal({ visible, onClose, item, detail }) {
+export default function PlacesInfoModal({
+  visible,
+  onClose,
+  //detail
+  seq,
+}) {
   const [city, setCity] = useState("");
+  const [detail, setDetail] = useState([]);
+  const parser = new XMLParser({
+    ignoreAttributes: false,
+  });
 
   const getProvinceFromAddress = (addr) => {
     if (!addr) return "";
@@ -35,14 +45,41 @@ export default function PlacesInfoModal({ visible, onClose, item, detail }) {
     return first;
   };
 
-  useEffect(() => {
-    if (detail?.culAddr) {
-      const province = getProvinceFromAddress(detail.culAddr);
-      // console.log("province:", province);
-      setCity(province);
-    }
-  }, [detail?.culAddr]);
+  // useEffect(() => {
+  //   if (detail?.culAddr) {
+  //     const province = getProvinceFromAddress(detail.culAddr);
+  //     // console.log("province:", province);
+  //     setCity(province);
+  //   }
+  // }, [detail?.culAddr]);
 
+  useEffect(() => {
+    if (seq && visible) {
+      getDetailPlace(seq);
+    }
+  }, [seq, visible]);
+
+  const getDetailPlace = async (seq) => {
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_PLACE_SERVER_URL}/detail?serviceKey=${process.env.REACT_APP_API_KEY}&seq=${seq}`,
+      );
+
+      const xmlText = await response.text();
+
+      const jsonData = parser.parse(xmlText);
+
+      const item = jsonData?.response?.body?.items?.item;
+
+      setDetail(item);
+    } catch (error) {
+      console.error("상세 정보 오류:", error);
+    }
+
+    // setLoading(false);
+  };
+
+  console.log("detail:", detail);
   const openLink = async (rawUrl) => {
     if (!rawUrl) {
       Alert.alert("알림", "유효한 링크가 없습니다.");

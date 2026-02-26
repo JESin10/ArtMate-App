@@ -12,8 +12,6 @@ import {
   TouchableOpacity,
 } from "react-native";
 import React, { useEffect, useState } from "react";
-// import { XMLParser } from "fast-xml-parser";
-// import Config from "react-native-config";
 import Constants from "expo-constants";
 import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 import PlacesInfoModal from "../components/modals/PlacesInfoModal.js";
@@ -91,7 +89,7 @@ export default function Places({ navigation }) {
     }
   }, [gallery?.length]);
 
-  // console.log("gallery:", gallery);
+  console.log("selec:", selectedPlace);
   // console.log("detail:", details);
 
   const getCoords = (detail, item) => {
@@ -228,10 +226,10 @@ export default function Places({ navigation }) {
         onClose={() => {
           setShowPopup(false);
           setSelectedPlace(null);
-          getDetailPlace();
+          // getDetailPlace();
         }}
-        item={selectedPlace}
-        detail={details[selectedPlace?.seq]}
+        seq={selectedPlace?.seq}
+        // detail={details[selectedPlace?.seq]}
         // detail={selectedPlace ? details[setSelectedPlace.seq] : null}
       />
 
