@@ -103,7 +103,7 @@ export default function SearchResult({ navigation }) {
             setModalVisible(false);
             setSelectedItem(null);
           }}
-          artwork={selectedItem.id}
+          seq={selectedItem.id}
         />
       )}
     </SafeAreaView>

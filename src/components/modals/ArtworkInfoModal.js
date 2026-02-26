@@ -8,6 +8,7 @@ import {
   ImageBackground,
   Linking,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
 import { decode } from "html-entities"; // 추가: HTML 엔티티 디코드
@@ -30,10 +31,22 @@ import {
 import { db } from "../../../firebase";
 import { use } from "react";
 import Map from "../../screens/Map";
+import { XMLParser } from "fast-xml-parser";
 
-export default function ArtworkInfoModal({ visible, onClose, artwork }) {
+export default function ArtworkInfoModal({ visible, onClose, seq }) {
   const [filled, setFilled] = useState(false);
   const { user, setUser } = useContext(AuthContext);
+  const [detailArtwork, setDetailArtwork] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const parser = new XMLParser({
+    ignoreAttributes: false,
+  });
+
+  useEffect(() => {
+    if (seq) {
+      getDetailArtwork(seq);
+    }
+  }, [seq]);
 
   //태그 텍스트 적용
   const htmlToPlain = (html) => {
@@ -64,6 +77,34 @@ export default function ArtworkInfoModal({ visible, onClose, artwork }) {
     return String(dateStr) ?? "";
   };
 
+  const getDetailArtwork = async (seq) => {
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_SERVER_URL}/detail2?serviceKey=${process.env.REACT_APP_API_KEY}&seq=${seq}`,
+      );
+
+      const xmlText = await response.text();
+
+      if (!xmlText || xmlText.trim().length === 0) {
+        setDetailArtwork([]);
+        return;
+      }
+
+      const jsonData = parser.parse(xmlText);
+
+      const detail = jsonData?.response?.body?.items?.item || null;
+
+      setDetailArtwork(detail);
+      setLoading(false);
+    } catch (error) {
+      console.error("getDetailArtwork: API 호출 오류:", error);
+      setDetailArtwork([]);
+    }
+  };
+
+  console.log(detailArtwork);
+
   //링크 열기
   const openLink = async (rawUrl) => {
     if (!rawUrl) {
@@ -93,7 +134,7 @@ export default function ArtworkInfoModal({ visible, onClose, artwork }) {
   // Modal 열릴 때 북마크 여부 가져오기
   useEffect(() => {
     if (!visible) return;
-    if (!user || !artwork?.seq) return;
+    if (!user || seq) return;
 
     const checkBookmark = async () => {
       try {
@@ -102,7 +143,7 @@ export default function ArtworkInfoModal({ visible, onClose, artwork }) {
           "users",
           user.uid,
           "bookmarks",
-          String(artwork.seq),
+          String(detail.seq),
         );
 
         const snap = await getDoc(bookmarkRef);
@@ -113,7 +154,7 @@ export default function ArtworkInfoModal({ visible, onClose, artwork }) {
     };
 
     checkBookmark();
-  }, [visible, user?.uid, artwork?.seq]);
+  }, [visible, user?.uid, seq]);
 
   //북마크 하기
   const BookmarkHandler = async () => {
@@ -122,9 +163,9 @@ export default function ArtworkInfoModal({ visible, onClose, artwork }) {
       return;
     }
 
-    const seq = String(artwork.seq);
+    const seq = String(seq);
     const uid = String(user.uid);
-    const img = (artwork?.imgUrl ?? "").replace("http", "https");
+    const img = (setDetailArtwork?.imgUrl ?? "").replace("http", "https");
 
     const bookmarkRef = doc(db, "users", uid, "bookmarks", seq);
     const artworkRef = doc(db, "artworks", seq);
@@ -177,6 +218,14 @@ export default function ArtworkInfoModal({ visible, onClose, artwork }) {
       animationType="slide"
       onRequestClose={onClose}
     >
+      {loading && (
+        <View style={styles.overlay}>
+          <View style={styles.overlayContent}>
+            <ActivityIndicator size="large" color="#fff" />
+            <Text style={{ color: "#fff", marginTop: 8 }}>로딩중...</Text>
+          </View>
+        </View>
+      )}
       <View style={styles.modalBackdrop}>
         <TouchableOpacity
           style={styles.backdropTouchable}
@@ -189,9 +238,11 @@ export default function ArtworkInfoModal({ visible, onClose, artwork }) {
             showsVerticalScrollIndicator={true}
           >
             <View style={styles.imageContainer}>
-              {artwork?.imgUrl ? (
+              {detailArtwork?.imgUrl ? (
                 <ImageBackground
-                  source={{ uri: artwork.imgUrl.replace("http", "https") }}
+                  source={{
+                    uri: detailArtwork.imgUrl.replace("http", "https"),
+                  }}
                   style={styles.imageBackground}
                   imageStyle={styles.image}
                   resizeMode="contain"
@@ -227,39 +278,38 @@ export default function ArtworkInfoModal({ visible, onClose, artwork }) {
               )}
             </View>
             <View style={styles.titleContainer}>
-              <Text style={styles.titleText1}>{artwork?.title}</Text>
+              <Text style={styles.titleText1}>{detailArtwork?.title}</Text>
             </View>
             {/* <View style={styles.textContainer}>
               <Text style={styles.titleText2}>작가</Text>
               <Text style={styles.subText}>{artwork?.DP_ARTIST}</Text>
             </View> */}
-
             <View style={styles.textContainer}>
               <Text style={styles.titleText2}>전시기간</Text>
               <Text style={styles.subText}>
-                {Dateformat(artwork?.startDate)} ~{" "}
-                {Dateformat(artwork?.endDate)}
+                {Dateformat(detailArtwork?.startDate)} ~{" "}
+                {Dateformat(detailArtwork?.endDate)}
               </Text>
             </View>
             <View style={styles.textContainer}>
               <Text style={styles.titleText2}>전시장소</Text>
-              <Text style={styles.subText}>{artwork?.place}</Text>
+              <Text style={styles.subText}>{detailArtwork?.place}</Text>
             </View>
             <View style={styles.textContainer}>
               <Text style={styles.titleText2}>입장료</Text>
-              {artwork?.price ? (
-                <Text style={styles.subText}> {artwork?.price} </Text>
+              {detailArtwork?.price ? (
+                <Text style={styles.subText}> {detailArtwork?.price} </Text>
               ) : (
                 <Text style={styles.subText}> 정보없음</Text>
               )}
             </View>
             <View style={styles.textContainer}>
               <Text style={styles.titleText2}>주소</Text>
-              <Text style={styles.subText}>{artwork?.placeAddr}</Text>
+              <Text style={styles.subText}>{detailArtwork?.placeAddr}</Text>
             </View>
             <View style={styles.textContainer}>
               <Text style={styles.titleText2}>홈페이지</Text>
-              {artwork?.url ? (
+              {detailArtwork?.url ? (
                 <TouchableOpacity
                   style={styles.linkIcon}
                   onPress={() =>
@@ -270,7 +320,7 @@ export default function ArtworkInfoModal({ visible, onClose, artwork }) {
                         { text: "취소", style: "cancel" },
                         {
                           text: "이동",
-                          onPress: () => openLink(artwork.url),
+                          onPress: () => openLink(detailArtwork.url),
                         },
                       ],
                       { cancelable: true },
@@ -291,9 +341,9 @@ export default function ArtworkInfoModal({ visible, onClose, artwork }) {
             </View>
             <View style={styles.textContainer}>
               <Text style={styles.titleText2}>상세설명</Text>
-              {artwork?.contents1 ? (
+              {detailArtwork?.contents1 ? (
                 <Text style={styles.subText}>
-                  {htmlToPlain(artwork?.contents1)}
+                  {htmlToPlain(detailArtwork?.contents1)}
                 </Text>
               ) : (
                 <Text style={styles.subText}> 정보없음</Text>
@@ -302,7 +352,7 @@ export default function ArtworkInfoModal({ visible, onClose, artwork }) {
             <View style={styles.mapContainer}>
               <Text style={styles.titleText2}>지도</Text>
 
-              <Map x={artwork?.gpsY} y={artwork?.gpsX} />
+              <Map x={detailArtwork?.gpsY} y={detailArtwork?.gpsX} />
             </View>
           </ScrollView>
         </View>
@@ -337,6 +387,23 @@ const styles = StyleSheet.create({
     flexDirection: "column",
   },
   ModalContent: { paddingBottom: 20 },
+  overlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 999,
+  },
+  overlayContent: {
+    padding: 20,
+    borderRadius: 8,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    alignItems: "center",
+  },
   titleText1: {
     fontWeight: "bold",
     fontSize: 16,

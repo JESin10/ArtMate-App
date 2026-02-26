@@ -29,7 +29,7 @@ export default function Artworks() {
   const [endIndex, setEndIndex] = useState(parseInt(60));
   const [showModal, setShowModal] = useState(false);
   const [selectedArtwork, setSelectedArtwork] = useState(null);
-  const [detailArtwork, setDetailArtwork] = useState([]);
+  // const [detailArtwork, setDetailArtwork] = useState([]);
   const parser = new XMLParser({
     ignoreAttributes: false,
   });
@@ -41,7 +41,7 @@ export default function Artworks() {
       const response = await fetch(
         `${process.env.REACT_APP_SERVER_URL}/area2?serviceKey=${
           process.env.REACT_APP_API_KEY
-        }&PageNo=${parseInt(1)}&numOfrows=${parseInt(20)}`,
+        }&PageNo=${parseInt(1)}&numOfrows=${parseInt(40)}`,
       );
       //  const response = await fetch(
       //         `${process.env.REACT_APP_CULTURE_URL}/request?serviceKey=${process.env.REACT_APP_CULTURE_API_KEY}&numOfRows=${parseInt(20)}&pageNo=${parseInt(1)}`,
@@ -86,29 +86,29 @@ export default function Artworks() {
     setLoading(false);
   };
 
-  const getDetailArtwork = async (seq) => {
-    try {
-      const response = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/detail2?serviceKey=${process.env.REACT_APP_API_KEY}&seq=${seq}`,
-      );
+  // const getDetailArtwork = async (seq) => {
+  //   try {
+  //     const response = await fetch(
+  //       `${process.env.REACT_APP_SERVER_URL}/detail2?serviceKey=${process.env.REACT_APP_API_KEY}&seq=${seq}`,
+  //     );
 
-      const xmlText = await response.text();
+  //     const xmlText = await response.text();
 
-      if (!xmlText || xmlText.trim().length === 0) {
-        setDetailArtwork([]);
-        return;
-      }
+  //     if (!xmlText || xmlText.trim().length === 0) {
+  //       setDetailArtwork([]);
+  //       return;
+  //     }
 
-      const jsonData = parser.parse(xmlText);
+  //     const jsonData = parser.parse(xmlText);
 
-      const detail = jsonData?.response?.body?.items?.item || null;
+  //     const detail = jsonData?.response?.body?.items?.item || null;
 
-      setDetailArtwork(detail);
-    } catch (error) {
-      console.error("getDetailArtwork: API 호출 오류:", error);
-      setDetailArtwork([]);
-    }
-  };
+  //     setDetailArtwork(detail);
+  //   } catch (error) {
+  //     console.error("getDetailArtwork: API 호출 오류:", error);
+  //     setDetailArtwork([]);
+  //   }
+  // };
   // console.log(artworks);
 
   // parts: ['조각', ...] 형태 (부분일치, 대소문자 무시), start/end는 1-based
@@ -173,7 +173,7 @@ export default function Artworks() {
   useEffect(() => {
     if (selectedArtwork?.DP_SEQ) {
       getArtwork();
-      getDetailArtwork(selectedArtwork.DP_SEQ);
+      // getDetailArtwork(selectedArtwork.DP_SEQ);
     } else {
       getArtwork();
     }
@@ -251,7 +251,7 @@ export default function Artworks() {
                     onPress={() => {
                       setShowModal(true);
                       setSelectedArtwork(artwork);
-                      getDetailArtwork(artwork.DP_SEQ);
+                      // getDetailArtwork(artwork.DP_SEQ);
                     }}
                   >
                     <ImageBackground
@@ -303,13 +303,13 @@ export default function Artworks() {
         visible={showModal}
         onClose={() => {
           setShowModal(false);
-          setDetailArtwork([]);
-          getDetailArtwork();
+          // setDetailArtwork([]);
+          // getDetailArtwork();
         }}
-        artwork={detailArtwork}
+        // artwork={detailArtwork}
         seq={selectedArtwork?.DP_SEQ}
       />
-
+      {/* 
       {loading && (
         <View style={styles.overlay}>
           <View style={styles.overlayContent}>
@@ -317,7 +317,7 @@ export default function Artworks() {
             <Text style={{ color: "#fff", marginTop: 8 }}>로딩중...</Text>
           </View>
         </View>
-      )}
+      )} */}
     </SafeAreaView>
   );
 }
