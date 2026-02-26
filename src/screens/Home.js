@@ -30,7 +30,7 @@ import Mainlogo from "../assets/icons/logo-main.svg";
 import { AuthContext } from "../services/context";
 import { XMLParser } from "fast-xml-parser";
 import { type } from "firebase/firestore/pipelines";
-import Search from "./Search";
+import SearchBar from "../components/search/SearchBar";
 
 export default function Home({ navigation }) {
   const { user } = useContext(AuthContext);
@@ -306,18 +306,19 @@ export default function Home({ navigation }) {
     <SafeAreaView
       style={{
         width: "95%",
-        height: "100%",
         marginHorizontal: "auto",
         flexDirection: "column",
+        flex: 1,
+        position: "relative", // overlay를 위해 상대 위치 필요
       }}
     >
-      <ScrollView>
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         {/* <TouchableOpacity style={styles.container}> */}
         <View style={styles.container}>
-          <TouchableOpacity>
+          <TouchableOpacity style={{ alignItems: "center" }}>
             <Mainlogo width={150} height={50} />
           </TouchableOpacity>
-          <Search />
+          <SearchBar />
           <View style={styles.recommandContainer}>
             <View style={styles.subTitle}>
               {user ? (
@@ -558,9 +559,7 @@ export default function Home({ navigation }) {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     backgroundColor: "transparent",
-    alignItems: "center",
     justifyContent: "center",
     padding: 10,
   },

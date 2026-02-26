@@ -21,7 +21,7 @@ import ReloadIcon from "../assets/icons/reload.svg";
 import MapIcon from "../assets/icons/location.svg";
 import Mainlogo from "../assets/icons/logo-main.svg";
 import { XMLParser } from "fast-xml-parser";
-import Search from "./Search.js";
+import Search from "../components/search/SearchBar.js";
 
 const SERVER_URL =
   "https://apis.data.go.kr/B553457/nopenapi/rest/cultureartspaces";

@@ -11,14 +11,14 @@ import {
   TouchableOpacity,
 } from "react-native";
 import React, { useState, useEffect, useMemo } from "react";
-import ArtworkFilter from "../components/hooks/ArtworkFilter.js";
+import ArtworkFilter from "../components/filter/ArtworkFilter.js";
 import ArtworkInfoModal from "../components/modals/ArtworkInfoModal";
 import FilterIcon from "../assets/icons/filter.svg";
 import ReloadIcon from "../assets/icons/reload.svg";
 import Mainlogo from "../assets/icons/logo-main.svg";
 import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 import { XMLParser } from "fast-xml-parser";
-import Search from "./Search.js";
+import SearchBar from "../components/search/SearchBar.js";
 
 export default function Artworks() {
   const [artworks, setArtworks] = useState([]); // 원본 전체
@@ -179,7 +179,7 @@ export default function Artworks() {
     }
   }, [selectedArtwork]);
 
-  // console.log("Artworks:");
+  // console.log("Artworks:", artworks);
   return (
     <SafeAreaView
       style={{
@@ -195,7 +195,7 @@ export default function Artworks() {
           <TouchableOpacity style={{ alignItems: "center" }}>
             <Mainlogo width={150} height={50} />
           </TouchableOpacity>
-          <Search />
+          <SearchBar />
           <View
             style={{
               width: "100%",

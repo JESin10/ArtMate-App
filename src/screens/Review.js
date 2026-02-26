@@ -39,7 +39,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../../firebase";
 import CommentModal from "../components/modals/CommentModal";
-import Search from "./Search";
+import SearchBar from "../components/search/SearchBar";
 
 export default function Review() {
   const { user, setUser } = useContext(AuthContext);
@@ -210,7 +210,7 @@ export default function Review() {
           <TouchableOpacity style={{ alignItems: "center" }}>
             <Mainlogo width={150} height={50} />
           </TouchableOpacity>
-          <Search />
+          <SearchBar />
           <View style={styles.topFactorContainer}>
             <Text style={styles.pageTitle}>관람후기</Text>
             <View style={styles.filterContianer}>
