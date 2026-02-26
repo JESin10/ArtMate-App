@@ -86,31 +86,6 @@ export default function Artworks() {
     setLoading(false);
   };
 
-  // const getDetailArtwork = async (seq) => {
-  //   try {
-  //     const response = await fetch(
-  //       `${process.env.REACT_APP_SERVER_URL}/detail2?serviceKey=${process.env.REACT_APP_API_KEY}&seq=${seq}`,
-  //     );
-
-  //     const xmlText = await response.text();
-
-  //     if (!xmlText || xmlText.trim().length === 0) {
-  //       setDetailArtwork([]);
-  //       return;
-  //     }
-
-  //     const jsonData = parser.parse(xmlText);
-
-  //     const detail = jsonData?.response?.body?.items?.item || null;
-
-  //     setDetailArtwork(detail);
-  //   } catch (error) {
-  //     console.error("getDetailArtwork: API 호출 오류:", error);
-  //     setDetailArtwork([]);
-  //   }
-  // };
-  // console.log(artworks);
-
   // parts: ['조각', ...] 형태 (부분일치, 대소문자 무시), start/end는 1-based
   const applyFilter = ({
     start = 1,

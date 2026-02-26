@@ -83,16 +83,28 @@ export default function AllMap({ route, navigation }) {
           <ListIcon width={20} height={20} />
         </TouchableOpacity>
         <MapView ref={mapRef} style={{ flex: 1 }} region={region}>
-          {markers.map((marker) => (
-            <Marker
-              key={marker.seq}
-              coordinate={{
-                latitude: marker.latitude,
-                longitude: marker.longitude,
-              }}
-              title={marker.title}
-            />
-          ))}
+          {markers.map((item) =>
+            item.type === "artwork" ? (
+              <Marker
+                key={item.seq}
+                coordinate={{
+                  latitude: item.latitude,
+                  longitude: item.longitude,
+                }}
+                title={item.title}
+                pinColor="blue"
+              />
+            ) : (
+              <Marker
+                key={item.seq}
+                coordinate={{
+                  latitude: item.latitude,
+                  longitude: item.longitude,
+                }}
+                title={item.title}
+              />
+            ),
+          )}
         </MapView>
       </View>
     </SafeAreaView>

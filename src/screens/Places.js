@@ -27,42 +27,19 @@ export default function Places({ navigation }) {
   const [showPopup, setShowPopup] = useState(false);
   const [loading, setLoading] = useState(false);
   const [selectedPlace, setSelectedPlace] = useState(null);
+  const [artworks, setArtworks] = useState([]);
+
   const parser = new XMLParser({
     ignoreAttributes: false,
   });
 
   useEffect(() => {
-    // if (gallery?.length > 0) {
-    //   setLoading(true);
-    //   getPlace();
-    //   // gallery.forEach((item) => {
-    //   //   getDetailPlace(item.seq); // 각 seq에 대해 상세 정보 요청
-    //   // });
-    // } else {
-    //   getPlace();
-    // }
-
     getPlace();
+    getArtwork();
   }, []);
-
-  // const getDetailPlace = async (seq) => {
-  //   try {
-  //     const response = await fetch(
-  //       `${process.env.REACT_APP_PLACE_SERVER_URL}/detail?serviceKey=${process.env.REACT_APP_API_KEY}&seq=${seq}`,
-  //     );
-  //     const xmlText = await response.text();
-  //     const jsonData = parser.parse(xmlText);
-  //     const detail = jsonData?.response?.body?.items?.item;
-  //     setDetails((prev) => ({ ...prev, [seq]: detail }));
-  //   } catch (error) {
-  //     console.error("상세 정보 오류:", error);
-  //   }
-  //   setLoading(false);
-  // };
 
   const getPlace = async () => {
     setLoading(true);
-
     try {
       const response = await fetch(
         `${process.env.REACT_APP_PLACE_SERVER_URL}/artgallery?serviceKey=${process.env.REACT_APP_API_KEY}&PageNo=${pageNum}&numOfrows=${listCnt}`,
@@ -101,6 +78,30 @@ export default function Places({ navigation }) {
     setLoading(false);
   };
 
+  const getArtwork = async () => {
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_SERVER_URL}/area2?serviceKey=${process.env.REACT_APP_API_KEY}&PageNo=1&numOfrows=40`,
+      );
+
+      const xmlText = await response.text();
+      const jsonData = parser.parse(xmlText);
+      const rawItems = jsonData?.response?.body?.items?.item || [];
+      const list = Array.isArray(rawItems) ? rawItems : [rawItems];
+
+      const normalized = list.map((it) => ({
+        seq: it?.seq,
+        title: it?.title,
+        gpsX: it?.gpsX,
+        gpsY: it?.gpsY,
+      }));
+
+      setArtworks(normalized);
+    } catch (error) {
+      console.error("artwork fetch error", error);
+    }
+  };
+
   const getCoords = (detail, item) => {
     const tryNum = (v) => {
       if (!v) return null;
@@ -116,9 +117,7 @@ export default function Places({ navigation }) {
   };
 
   const openMap = () => {
-    if (!details) return;
-
-    const markers = Object.entries(details)
+    const placeMarkers = Object.entries(details)
       .map(([seq, detail]) => {
         const coords = getCoords(detail);
         if (!coords) return null;
@@ -127,9 +126,27 @@ export default function Places({ navigation }) {
           ...coords,
           title: detail.culName,
           seq,
+          type: "place",
         };
       })
       .filter(Boolean);
+
+    const artworkMarkers = artworks
+      .map((art) => {
+        const coords = getCoords(null, art);
+        if (!coords) return null;
+
+        return {
+          ...coords,
+          title: art.title,
+          seq: art.seq,
+          type: "artwork",
+        };
+      })
+      .filter(Boolean);
+
+    const markers = [...placeMarkers, ...artworkMarkers];
+    console.log("markers:", markers[0]);
 
     navigation.getParent()?.navigate("AllMap", {
       markers,
