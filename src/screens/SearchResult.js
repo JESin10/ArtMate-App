@@ -32,8 +32,12 @@ export default function SearchResult({ navigation }) {
     }, []),
   );
 
-  console.log(selectedItem);
-  if (loading) return <ActivityIndicator style={{ marginTop: 30 }} />;
+  if (loading)
+    return (
+      <ActivityIndicator
+        style={{ marginTop: 30, backgroundColor: "#000, 0.3" }}
+      />
+    );
 
   return (
     <SafeAreaView style={{ flex: 1 }}>

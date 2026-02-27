@@ -15,6 +15,7 @@ export default function useSearch(keyword) {
   }, []);
 
   const fetchAllData = async () => {
+    setLoading(true);
     try {
       const [placeRes, artworkRes] = await Promise.all([
         fetch(
@@ -36,6 +37,7 @@ export default function useSearch(keyword) {
 
       setPlaces(placeItems);
       setArtworks(artworkItems);
+      setLoading(false);
     } catch (err) {
       console.log("search fetch error", err);
     }

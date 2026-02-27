@@ -10,6 +10,7 @@ import {
   Button,
   Touchable,
   TouchableOpacity,
+  FlatList,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import PlacesInfoModal from "../components/modals/PlacesInfoModal.js";
@@ -29,53 +30,93 @@ export default function Places({ navigation }) {
   const [selectedPlace, setSelectedPlace] = useState(null);
   const [artworks, setArtworks] = useState([]);
 
+  const [hasMore, setHasMore] = useState(true);
+  const [isFetchingMore, setIsFetchingMore] = useState(false);
+
   const parser = new XMLParser({
     ignoreAttributes: false,
   });
 
   useEffect(() => {
-    getPlace();
+    getPlace(1);
     getArtwork();
   }, []);
 
-  const getPlace = async () => {
-    setLoading(true);
+  const getPlace = async (nextPage = 1) => {
+    if (!hasMore && nextPage !== 1) return;
+
+    if (nextPage === 1) setLoading(true);
+    else setIsFetchingMore(true);
+
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_PLACE_SERVER_URL}/artgallery?serviceKey=${process.env.REACT_APP_API_KEY}&PageNo=${pageNum}&numOfrows=${listCnt}`,
+        `${process.env.REACT_APP_PLACE_SERVER_URL}/artgallery?serviceKey=${process.env.REACT_APP_API_KEY}&PageNo=${nextPage}&numOfrows=${listCnt}`,
       );
+
       const xmlText = await response.text();
       const jsonData = parser.parse(xmlText);
       const rawItems = jsonData?.response?.body?.items?.item || [];
       const items = Array.isArray(rawItems) ? rawItems : [rawItems];
 
-      setGallery(items);
+      if (items.length < listCnt) {
+        setHasMore(false);
+      }
 
-      // 🔥 상세 한번에 병렬 처리
+      // 🔥 gallery append
+      if (nextPage === 1) {
+        setGallery(items);
+      } else {
+        setGallery((prev) => [...prev, ...items]);
+      }
+
+      // 🔥 상세 병렬 처리
       const detailPromises = items.map(async (item) => {
-        const res = await fetch(
-          `${process.env.REACT_APP_PLACE_SERVER_URL}/detail?serviceKey=${process.env.REACT_APP_API_KEY}&seq=${item.seq}`,
-        );
-        const xml = await res.text();
-        const json = parser.parse(xml);
-        return {
-          seq: item.seq,
-          detail: json?.response?.body?.items?.item,
-        };
+        try {
+          const res = await fetch(
+            `${process.env.REACT_APP_PLACE_SERVER_URL}/detail?serviceKey=${process.env.REACT_APP_API_KEY}&seq=${item.seq}`,
+          );
+
+          const xml = await res.text();
+          const json = parser.parse(xml);
+
+          return {
+            seq: item.seq,
+            detail: json?.response?.body?.items?.item,
+          };
+        } catch (err) {
+          console.error("detail fetch error:", err);
+          return null;
+        }
       });
 
       const detailResults = await Promise.all(detailPromises);
 
-      const detailMap = {};
-      detailResults.forEach(({ seq, detail }) => {
-        detailMap[seq] = detail;
+      // 🔥 기존 details에 merge
+      setDetails((prev) => {
+        const newDetailMap = { ...prev };
+
+        detailResults.forEach((result) => {
+          if (result) {
+            newDetailMap[result.seq] = result.detail;
+          }
+        });
+
+        return newDetailMap;
       });
-      setDetails(detailMap);
+
+      setPageNum(nextPage);
     } catch (error) {
       console.error(error);
     }
 
     setLoading(false);
+    setIsFetchingMore(false);
+  };
+
+  const loadMore = () => {
+    if (!isFetchingMore && hasMore) {
+      getPlace(pageNum + 1);
+    }
   };
 
   const getArtwork = async () => {
@@ -146,11 +187,20 @@ export default function Places({ navigation }) {
       .filter(Boolean);
 
     const markers = [...placeMarkers, ...artworkMarkers];
-    console.log("markers:", markers[0]);
+    // console.log("markers:", markers[0]);
 
     navigation.getParent()?.navigate("AllMap", {
       markers,
     });
+  };
+
+  const onRefresh = () => {
+    if (loading) return;
+    setHasMore(true);
+    setPageNum(1);
+    setGallery([]);
+    setDetails({});
+    getPlace(1);
   };
 
   return (
@@ -162,91 +212,98 @@ export default function Places({ navigation }) {
         flexDirection: "column",
       }}
     >
-      <ScrollView>
-        <View style={{ padding: 10 }}>
-          <TouchableOpacity style={{ alignItems: "center" }}>
-            <Mainlogo width={150} height={50} />
-          </TouchableOpacity>
-          <Search />
-          <View
-            style={{
-              width: "100%",
-              // borderColor: "black",
-              // borderWidth: 1,
-              marginVertical: 10,
-              flexDirection: "row",
-              justifyContent: "space-between",
-            }}
-          >
-            <View style={{ width: "50%" }}>
-              <Text style={styles.pageTitle}>가까운 전시장</Text>
-            </View>
-            <View style={styles.conditions}>
-              <TouchableOpacity onPress={getPlace} disabled={loading}>
-                <ReloadIcon
-                  width={24}
-                  height={24}
-                  style={{
-                    marginBottom: 12,
-                    color: loading ? "#999" : "#333",
-                  }}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity disabled={loading} onPress={openMap}>
-                <MapIcon
-                  width={24}
-                  height={24}
-                  style={{
-                    marginBottom: 12,
-                    marginLeft: 12,
-                  }}
-                />
-              </TouchableOpacity>
-            </View>
+      {/* <ScrollView> */}
+      <View style={{ padding: 10 }}>
+        <TouchableOpacity style={{ alignItems: "center" }}>
+          <Mainlogo width={150} height={50} />
+        </TouchableOpacity>
+        <Search />
+        <View
+          style={{
+            width: "100%",
+            // borderColor: "black",
+            // borderWidth: 1,
+            marginVertical: 10,
+            flexDirection: "row",
+            justifyContent: "space-between",
+          }}
+        >
+          <View style={{ width: "50%" }}>
+            <Text style={styles.pageTitle}>가까운 전시장</Text>
           </View>
-          <View style={{ flexDirection: "column" }}>
-            {gallery?.map((item, index) => {
-              const detail = details[item.seq]; // 매칭된 상세 정보
-              return (
-                <TouchableOpacity
-                  key={index}
-                  activeOpacity={0.8}
-                  style={styles.imageContainer}
-                  onPress={() => {
-                    setSelectedPlace(item);
-                    if (!details[item.seq]) getDetailPlace(item.seq);
-                    setShowPopup(true);
-                  }}
-                >
-                  <View style={styles.image}>
-                    {!detail ? (
-                      <ActivityIndicator />
-                    ) : detail?.culViewImg1 ? (
-                      <ImageBackground
-                        source={{
-                          uri: detail.culViewImg1.replace("http", "https"),
-                        }}
-                        style={styles.imageBackground}
-                        imageStyle={styles.tumbnail}
-                      />
-                    ) : (
-                      <Text>No Image</Text>
-                    )}
-                  </View>
-                  <View style={styles.discriptions}>
-                    <Text style={styles.titleStyle}>{item.culName}</Text>
-                    <Text style={styles.descStyle}>{item.culTel}</Text>
-                    <Text style={styles.descStyle}>{detail?.culAddr}</Text>
-                    <Text>{detail?.culGrpName}</Text>
-                    {/* <Text>distance</Text> */}
-                  </View>
-                </TouchableOpacity>
-                // </View>
-              );
-            })}
+          <View style={styles.conditions}>
+            <TouchableOpacity onPress={onRefresh} disabled={loading}>
+              <ReloadIcon
+                width={24}
+                height={24}
+                style={{
+                  marginBottom: 12,
+                  color: loading ? "#999" : "#333",
+                }}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity disabled={loading} onPress={openMap}>
+              <MapIcon
+                width={24}
+                height={24}
+                style={{
+                  marginBottom: 12,
+                  marginLeft: 12,
+                }}
+              />
+            </TouchableOpacity>
           </View>
         </View>
-      </ScrollView>
+        <FlatList
+          data={gallery}
+          keyExtractor={(item) => item.seq?.toString()}
+          onEndReached={loadMore}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={
+            isFetchingMore ? (
+              <ActivityIndicator style={{ marginVertical: 20 }} />
+            ) : null
+          }
+          renderItem={({ item }) => {
+            const detail = details[item.seq];
+
+            return (
+              <TouchableOpacity
+                activeOpacity={0.8}
+                style={styles.imageContainer}
+                onPress={() => {
+                  setSelectedPlace(item);
+                  setShowPopup(true);
+                }}
+              >
+                <View style={styles.image}>
+                  {!detail ? (
+                    <ActivityIndicator />
+                  ) : detail?.culViewImg1 ? (
+                    <ImageBackground
+                      source={{
+                        uri: detail.culViewImg1.replace("http", "https"),
+                      }}
+                      style={styles.imageBackground}
+                      imageStyle={styles.tumbnail}
+                    />
+                  ) : (
+                    <Text>No Image</Text>
+                  )}
+                </View>
+
+                <View style={styles.discriptions}>
+                  <Text style={styles.titleStyle}>{item.culName}</Text>
+                  <Text style={styles.descStyle}>{item.culTel}</Text>
+                  <Text style={styles.descStyle}>{detail?.culAddr}</Text>
+                  <Text>{detail?.culGrpName}</Text>
+                </View>
+              </TouchableOpacity>
+            );
+          }}
+        />
+      </View>
+      {/* </ScrollView> */}
       {/* 장소 클릭시 modal popup */}
       <PlacesInfoModal
         visible={showPopup}
