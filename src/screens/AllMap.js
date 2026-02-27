@@ -10,13 +10,15 @@ import {
 import MapView, { Marker } from "react-native-maps";
 import Mainlogo from "../assets/icons/logo-main.svg";
 import ListIcon from "../assets/icons/list.svg";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
+import * as Location from "expo-location";
 
 export default function AllMap({ route, navigation }) {
   const markers = route?.params?.markers ?? [];
   const mapRef = useRef(null);
   const [latDelta, setLatDelta] = useState(0.1);
   const [lngDelta, setLngDelta] = useState(0.1);
+  const [region, setRegion] = useState(initialRegion);
 
   const initialRegion =
     markers.length > 0
@@ -33,7 +35,31 @@ export default function AllMap({ route, navigation }) {
           longitudeDelta: lngDelta,
         };
 
-  const [region, setRegion] = useState(initialRegion);
+  useEffect(() => {
+    const getCurrentLocation = async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        console.log("위치 권한 거부됨");
+        return;
+      }
+
+      const location = await Location.getCurrentPositionAsync({});
+      const { latitude, longitude } = location.coords;
+
+      const newRegion = {
+        latitude,
+        longitude,
+        latitudeDelta: 0.05,
+        longitudeDelta: 0.05,
+      };
+
+      setRegion(newRegion);
+
+      mapRef.current?.animateToRegion(newRegion, 1000);
+    };
+
+    getCurrentLocation();
+  }, []);
 
   const zoomIn = () => {
     setRegion((prev) => ({
@@ -82,7 +108,14 @@ export default function AllMap({ route, navigation }) {
         >
           <ListIcon width={20} height={20} />
         </TouchableOpacity>
-        <MapView ref={mapRef} style={{ flex: 1 }} region={region}>
+        <MapView
+          ref={mapRef}
+          style={{ flex: 1 }}
+          region={region}
+          showsUserLocation={true}
+          showsMyLocationButton={true}
+          pinColor="green"
+        >
           {markers.map((item) =>
             item.type === "artwork" ? (
               <Marker

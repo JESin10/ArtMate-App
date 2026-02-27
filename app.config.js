@@ -10,12 +10,13 @@ module.exports = {
     platforms: ["ios", "android"],
     icon: "./assets/icon.png",
     ios: {
-      ios: { icon: "./assets/icon.png" },
       bundleIdentifier: "com.artmate.app",
       config: {
         googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
       },
       infoPlist: {
+        NSLocationWhenInUseUsageDescription:
+          "현재 위치를 지도에 표시하기 위해 필요합니다.",
         NSAppTransportSecurity: {
           NSAllowsArbitraryLoads: false,
           NSExceptionDomains: {
@@ -29,7 +30,7 @@ module.exports = {
     },
     android: {
       usesCleartextTraffic: true,
-
+      permissions: ["ACCESS_FINE_LOCATION"],
       config: {
         googleMaps: {
           apiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,

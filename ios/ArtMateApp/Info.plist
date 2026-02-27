@@ -54,6 +54,8 @@
         </dict>
       </dict>
     </dict>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>현재 위치를 지도에 표시하기 위해 필요합니다.</string>
     <key>UILaunchStoryboardName</key>
     <string>SplashScreen</string>
     <key>UIRequiredDeviceCapabilities</key>
