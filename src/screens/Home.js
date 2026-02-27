@@ -44,7 +44,7 @@ export default function Home({ navigation }) {
   const [endIndex, setEndIndex] = useState(10);
   const [showModal, setShowModal] = useState(false);
   const [selectedArtwork, setSelectedArtwork] = useState(null);
-  const [placeKeyword, setPlaceKeyword] = useState("");
+  const [recommendedArtworks, setRecommendedArtworks] = useState([]);
   const CARD_WIDTH = 310;
   const ITEM_SPACING = 12;
   const ITEM_SIZE = CARD_WIDTH + ITEM_SPACING;
@@ -181,43 +181,58 @@ export default function Home({ navigation }) {
   });
   // 자동 슬라이드 (5초)
   useEffect(() => {
-    if (!data || data.length === 0) return;
+    if (!recommendedArtworks || recommendedArtworks.length === 0) return;
+
     const id = setInterval(() => {
       setCurrentIndex((prev) => {
-        const next = (prev + 1) % data.length; // 마지막이면 0으로
-        if (flatListRef.current) {
+        const next = (prev + 1) % recommendedArtworks.length;
+
+        if (flatListRef.current && recommendedArtworks.length > 0) {
           flatListRef.current.scrollToIndex({
             index: next,
             animated: true,
             viewPosition: 0.5,
           });
         }
+
         return next;
       });
     }, 5000);
 
     return () => clearInterval(id);
-  }, [data]);
+  }, [recommendedArtworks]);
+
   // dot 클릭 시 이동
-  const goToIndex = useCallback(
-    (index) => {
-      if (!flatListRef.current) return;
-      flatListRef.current.scrollToIndex({
-        index,
-        animated: true,
-        viewPosition: 0.5,
-      });
-      setCurrentIndex(index);
-    },
-    [flatListRef],
-  );
+  const goToIndex = (index) => {
+    if (!flatListRef.current || recommendedArtworks.length === 0) return;
+
+    flatListRef.current.scrollToIndex({
+      index,
+      animated: true,
+      viewPosition: 0.5,
+    });
+
+    setCurrentIndex(index);
+  };
 
   // 날짜 문자열을 안전하게 Date로 파싱 (YYYY-MM-DD 같은 형태 예상)
   const parseDateSafe = (dateStr) => {
     if (!dateStr) return null;
-    // 일부 API가 "YYYY.MM.DD" 등으로 줄 경우를 대비
-    const normalized = String(dateStr).trim().replace(/\./g, "-").slice(0, 10);
+
+    const s = String(dateStr).trim();
+
+    // 20281231 같은 숫자형 날짜 처리
+    if (/^\d{8}$/.test(s)) {
+      const year = s.slice(0, 4);
+      const month = s.slice(4, 6);
+      const day = s.slice(6, 8);
+      return new Date(`${year}-${month}-${day}`);
+    }
+
+    // 일반 날짜 처리
+    const normalized = s.replace(/\./g, "-").slice(0, 10);
     const d = new Date(normalized);
+
     return isNaN(d.getTime()) ? null : d;
   };
 
@@ -236,6 +251,39 @@ export default function Home({ navigation }) {
 
     return String(dateStr) ?? "";
   };
+
+  //랜덤 추첨
+  const getRandomItems = (array, count) => {
+    const shuffled = [...array];
+
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+
+    return shuffled.slice(0, count);
+  };
+
+  useEffect(() => {
+    if (!artworks || artworks.length === 0) {
+      setRecommendedArtworks([]);
+      return;
+    }
+
+    const today = new Date();
+    // 종료 안 된 전시만
+    const activeArtworks = artworks?.filter((item) => {
+      const end = parseDateSafe(item.endDate);
+      return end && end >= today;
+    });
+    // 썸네일 있는 전시만
+    const withThumbnail = activeArtworks.filter(
+      (item) => item.thumbnail && item.thumbnail.startsWith("http"),
+    );
+    // 랜덤 5개 추출
+    const randomFive = getRandomItems(withThumbnail, 5);
+    setRecommendedArtworks(randomFive);
+  }, [artworks]);
 
   // artworks 배열을 받아 DP_START 기준으로 현재 날짜와 가까운 순으로 정렬하여 설정
   const computeRecentArtworks = (artworks) => {
@@ -288,8 +336,6 @@ export default function Home({ navigation }) {
     }
   }, [artworks]);
 
-  // console.log("check:", endedArtworks);
-
   // Prepare fixed 16-slot array for recent grid; fill missing slots with null placeholders
   const filledRecent = (() => {
     if (!recentArtworks || recentArtworks.length === 0) {
@@ -301,6 +347,17 @@ export default function Home({ navigation }) {
     while (arr.length < RECENT_TOTAL_ITEMS) arr.push(null);
     return arr;
   })();
+
+  // place로 묶기
+  const groupByPlace = (items) => {
+    return items.reduce((acc, item) => {
+      const key = item.place;
+      if (!acc[key]) acc[key] = [];
+      acc[key].push(item);
+      return acc;
+    }, {});
+  };
+  const placeGroups = groupByPlace(artworks);
 
   return (
     <SafeAreaView
@@ -337,10 +394,10 @@ export default function Home({ navigation }) {
               <View style={styles.recommandFactor}>
                 <FlatList
                   ref={flatListRef}
-                  data={data}
+                  data={recommendedArtworks}
                   horizontal
                   pagingEnabled={false}
-                  showHorizontalScrollIndicator={false}
+                  showsHorizontalScrollIndicator={false}
                   keyExtractor={(item, index) => String(item.DP_SEQ ?? index)}
                   contentContainerStyle={styles.recommandList}
                   renderItem={({ item }) => (
@@ -393,7 +450,7 @@ export default function Home({ navigation }) {
                 />
               </View>
               <View style={styles.dotsContainer}>
-                {data?.map((_, idx) => (
+                {recommendedArtworks?.map((_, idx) => (
                   <TouchableOpacity
                     key={idx}
                     onPress={() => goToIndex(idx)}
@@ -536,22 +593,22 @@ export default function Home({ navigation }) {
           </View>
           <View style={styles.artistContainer}>
             <View style={styles.subTitle}>
-              <Text style={styles.pageTitle}>가까운 전시장</Text>
+              <Text style={styles.pageTitle}>전시장 별 작품</Text>
             </View>
             <View style={styles.artistContents}>
-              {artworks.map((artwork, index) => {
-                return (
-                  <View key={index}>
-                    <Text>{artwork.place}</Text>
+              {Object.entries(placeGroups)
+                .slice(10, 20)
+                .map(([place, items]) => (
+                  <View key={place}>
+                    <Text>[place]{place}</Text>
+                    {items.slice(0, 4).map((item) => (
+                      <Text key={item.seq}>[artwork]{item.title}</Text>
+                    ))}
                   </View>
-                );
-              })}
+                ))}
             </View>
           </View>
-
-          {/* <Text style={styles.title}>Home Screen</Text> */}
         </View>
-        {/* </TouchableOpacity> */}
       </ScrollView>
     </SafeAreaView>
   );
