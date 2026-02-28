@@ -2,34 +2,23 @@ import {
   View,
   Text,
   StyleSheet,
-  TextInput,
   TouchableOpacity,
   SafeAreaView,
   ScrollView,
   ImageBackground,
-  Button,
   FlatList,
-  Dimensions,
-  useWindowDimensions,
 } from "react-native";
 import { decode } from "html-entities"; // 추가: HTML 엔티티 디코드
-import React, {
-  useState,
-  useEffect,
-  useRef,
-  useCallback,
-  useContext,
-  createContext,
-} from "react";
+import { useState, useEffect, useRef, useContext } from "react";
 import ArtworkInfoModal from "../components/modals/ArtworkInfoModal";
-import RenderHTML from "react-native-render-html";
-import useRecentArtworks from "../components/hooks/useRecentArtworks";
 import BackwardIcon from "../assets/icons/backward.svg";
 import ForwardIcon from "../assets/icons/forward.svg";
 import Mainlogo from "../assets/icons/logo-main.svg";
+import PlaceIcon from "../assets/icons/Menubar_gallery.svg";
+import ArtworkIcon from "../assets/icons/Menubar_image.svg";
+
 import { AuthContext } from "../services/context";
 import { XMLParser } from "fast-xml-parser";
-import { type } from "firebase/firestore/pipelines";
 import SearchBar from "../components/search/SearchBar";
 
 export default function Home({ navigation }) {
@@ -358,6 +347,7 @@ export default function Home({ navigation }) {
     }, {});
   };
   const placeGroups = groupByPlace(artworks);
+  // console.log(placeGroups);
 
   return (
     <SafeAreaView
@@ -589,19 +579,80 @@ export default function Home({ navigation }) {
               seq={selectedArtwork?.seq}
             />
           </View>
-          <View style={styles.artistContainer}>
+          <View style={styles.artInPlaceContainer}>
             <View style={styles.subTitle}>
-              <Text style={styles.pageTitle}>전시장 별 작품</Text>
+              <Text style={styles.pageTitle}>전시장별 전시모음</Text>
             </View>
-            <View style={styles.artistContents}>
+            <View style={styles.artInPlaceContents}>
               {Object.entries(placeGroups)
-                .slice(10, 20)
+                .slice(16, 20)
                 .map(([place, items]) => (
-                  <View key={place}>
-                    <Text>[place]{place}</Text>
-                    {items.slice(0, 4).map((item) => (
-                      <Text key={item.seq}>[artwork]{item.title}</Text>
-                    ))}
+                  <View key={place} style={{ flexDirection: "column" }}>
+                    <View
+                      style={{ flexDirection: "row", alignItems: "center" }}
+                    >
+                      <PlaceIcon width={24} height={24} fill="#608D00" />
+                      <Text
+                        style={{
+                          fontWeight: "bold",
+                          fontSize: 14,
+                          marginVertical: 10,
+                          marginHorizontal: 4,
+                        }}
+                      >
+                        {place}
+                      </Text>
+                    </View>
+                    <View
+                      style={{ flexDirection: "row", alignItems: "center" }}
+                    >
+                      <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                      >
+                        {items.slice(0, 10).map((item, index) => (
+                          <TouchableOpacity
+                            key={`${item.seq}-${index}`}
+                            style={{
+                              marginRight: 10,
+                              marginBottom: 22,
+                              marginTop: 8,
+                            }}
+                            onPress={() => {
+                              setSelectedArtwork(item);
+                              handleModalOpen(item?.seq);
+                            }}
+                          >
+                            {/* <ImageBackground
+                              source={{ uri: item.thumbnail }}
+                              style={styles.artInbackgroundImage}
+                              imageStyle={styles.artInimageBackground}
+                              resizeMode="cover"
+                            /> */}
+                            <View
+                              style={{
+                                backgroundColor: "#608D00",
+                                borderWidth: 1,
+                                borderRadius: 12,
+                                borderColor: "#608D00",
+                                paddingHorizontal: 8,
+                                paddingVertical: 4,
+                              }}
+                            >
+                              <Text
+                                style={{
+                                  fontSize: 14,
+                                  marginVertical: 4,
+                                  color: "white",
+                                }}
+                              >
+                                {item.title}
+                              </Text>
+                            </View>
+                          </TouchableOpacity>
+                        ))}
+                      </ScrollView>
+                    </View>
                   </View>
                 ))}
             </View>
@@ -839,16 +890,34 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
 
-  artistContainer: {
+  artInPlaceContainer: {
     width: "100%",
     alignItems: "center",
     flexDirection: "column",
     backgroundColor: "#D9D9D9",
     height: "auto",
-    padding: 20,
   },
-  artistContents: {
-    marginTop: 10,
+  artInPlaceContents: {
     width: "100%",
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+
+    // backgroundColor: "pink",
+  },
+  artInimageBackground: {
+    width: "100%",
+    height: 100,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 10,
+    borderColor: "transparent",
+    borderWidth: 1,
+    borderRadius: 10,
+  },
+  artInbackgroundImage: {
+    borderRadius: 10,
+    width: 100,
+    height: 120,
+    marginVertical: 10,
   },
 });
