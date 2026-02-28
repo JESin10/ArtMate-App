@@ -39,5 +39,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     height: 50,
     justifyContent: "center",
+    width: "95%",
+    margin: "auto",
+    marginVertical: 14,
   },
 });

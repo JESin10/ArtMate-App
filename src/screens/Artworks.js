@@ -9,6 +9,7 @@ import {
   Button,
   ActivityIndicator,
   TouchableOpacity,
+  FlatList,
 } from "react-native";
 import React, { useState, useEffect, useMemo } from "react";
 import ArtworkFilter from "../components/filter/ArtworkFilter.js";
@@ -30,61 +31,72 @@ export default function Artworks() {
   const [showModal, setShowModal] = useState(false);
   const [selectedArtwork, setSelectedArtwork] = useState(null);
   // const [detailArtwork, setDetailArtwork] = useState([]);
+  const [hasMore, setHasMore] = useState(true);
+  const [isFetchingMore, setIsFetchingMore] = useState(false);
+  const [pageNum, setPageNum] = useState(parseInt(1));
+  const [listCnt, setListCnt] = useState(parseInt(20));
   const parser = new XMLParser({
     ignoreAttributes: false,
   });
 
-  const getArtwork = async () => {
-    try {
-      setLoading(true);
+  useEffect(() => {
+    getArtwork(1);
+  }, []);
 
+  const getArtwork = async (nextPage = 1) => {
+    if (!hasMore && nextPage !== 1) return;
+
+    if (nextPage === 1) setLoading(true);
+    else setIsFetchingMore(true);
+
+    try {
       const response = await fetch(
         `${process.env.REACT_APP_SERVER_URL}/area2?serviceKey=${
           process.env.REACT_APP_API_KEY
-        }&PageNo=${parseInt(1)}&numOfrows=${parseInt(40)}`,
+        }&PageNo=${nextPage}&numOfrows=${listCnt}`,
       );
-      //  const response = await fetch(
-      //         `${process.env.REACT_APP_CULTURE_URL}/request?serviceKey=${process.env.REACT_APP_CULTURE_API_KEY}&numOfRows=${parseInt(20)}&pageNo=${parseInt(1)}`,
-      //       );
 
       const xmlText = await response.text();
-
-      if (!xmlText || xmlText.trim().length === 0) {
-        setArtworks([]);
-        setDisplayedArtworks([]);
-        setLoading(false);
-        return;
-      }
-
       const jsonData = parser.parse(xmlText);
       const rawItems = jsonData?.response?.body?.items?.item || [];
       const list = Array.isArray(rawItems) ? rawItems : [rawItems];
 
+      if (list.length < listCnt) {
+        setHasMore(false);
+      }
+
       const normalized = list.map((it) => ({
         ...it,
-        seq: it?.seq,
         DP_SEQ: it?.seq,
-        title: it?.title,
-        DP_NAME: it?.DP_NAME,
-        DP_START: it?.startDate,
-        DP_END: it?.endDate,
-        DP_PLACE: it?.place,
         thumbnail: it?.thumbnail?.startsWith("http:")
           ? it.thumbnail.replace("http:", "https:")
           : it?.thumbnail,
-        gpsX: it?.gpsX,
-        gpsY: it?.gpsY,
       }));
 
-      setArtworks(normalized);
-      setDisplayedArtworks(normalized);
+      if (nextPage === 1) {
+        setArtworks(normalized);
+      } else {
+        setArtworks((prev) => [...prev, ...normalized]);
+      }
+
+      setPageNum(nextPage);
     } catch (error) {
-      setArtworks([]);
-      setDisplayedArtworks([]);
+      console.error(error);
     }
 
     setLoading(false);
+    setIsFetchingMore(false);
   };
+
+  const loadMore = () => {
+    if (!isFetchingMore && hasMore) {
+      getArtwork(pageNum + 1);
+    }
+  };
+
+  const filteredArtworks = useMemo(() => {
+    return artworks; // 지금은 기본값, 나중에 필터 적용 가능
+  }, [artworks]);
 
   // parts: ['조각', ...] 형태 (부분일치, 대소문자 무시), start/end는 1-based
   const applyFilter = ({
@@ -145,16 +157,15 @@ export default function Artworks() {
     setDisplayedArtworks(source.slice(s - 1, e));
   };
 
-  useEffect(() => {
-    if (selectedArtwork?.DP_SEQ) {
-      getArtwork();
-      // getDetailArtwork(selectedArtwork.DP_SEQ);
-    } else {
-      getArtwork();
-    }
-  }, [selectedArtwork]);
+  const onRefresh = () => {
+    if (loading) return;
+    setHasMore(true);
+    setPageNum(1);
+    setArtworks([]);
+    // set({});
+    getArtwork(1);
+  };
 
-  // console.log("Artworks:", artworks);
   return (
     <SafeAreaView
       style={{
@@ -165,47 +176,46 @@ export default function Artworks() {
         position: "relative", // overlay를 위해 상대 위치 필요
       }}
     >
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <View style={{ padding: 10, justifyContent: "center" }}>
-          <TouchableOpacity style={{ alignItems: "center" }}>
-            <Mainlogo width={150} height={50} />
-          </TouchableOpacity>
-          <SearchBar />
-          <View
-            style={{
-              width: "100%",
-              // borderColor: "black",
-              // borderWidth: 1,
-              marginVertical: 10,
-              flexDirection: "row",
-              justifyContent: "space-between",
-            }}
-          >
-            <View style={{ width: "50%" }}>
-              <Text style={styles.pageTitle}>작품 정보</Text>
-            </View>
-            <View style={styles.conditions}>
-              <TouchableOpacity onPress={() => setShowFilter(true)}>
-                <FilterIcon
-                  width={24}
-                  height={24}
-                  style={{ marginBottom: 12, marginHorizontal: 12 }}
-                />
-              </TouchableOpacity>
-
-              <TouchableOpacity onPress={getArtwork} disabled={loading}>
-                <ReloadIcon
-                  width={24}
-                  height={24}
-                  style={{
-                    marginBottom: 12,
-                    color: loading ? "#999" : "#333",
-                  }}
-                />
-              </TouchableOpacity>
-            </View>
+      {/* <ScrollView contentContainerStyle={{ flexGrow: 1 }}> */}
+      <View style={{ padding: 10, justifyContent: "center" }}>
+        <TouchableOpacity style={{ alignItems: "center" }}>
+          <Mainlogo width={150} height={50} />
+        </TouchableOpacity>
+        <SearchBar />
+        <View
+          style={{
+            width: "100%",
+            // borderColor: "black",
+            // borderWidth: 1,
+            paddingVertical: 20,
+            flexDirection: "row",
+            justifyContent: "space-between",
+          }}
+        >
+          <View style={{ width: "50%" }}>
+            <Text style={styles.pageTitle}>작품 정보</Text>
           </View>
-          <View style={styles.ModalContainer}>
+          <View style={styles.conditions}>
+            <TouchableOpacity onPress={() => setShowFilter(true)}>
+              <FilterIcon
+                width={24}
+                height={24}
+                style={{ marginBottom: 12, marginHorizontal: 12 }}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={onRefresh} disabled={loading}>
+              <ReloadIcon
+                width={24}
+                height={24}
+                style={{
+                  marginBottom: 12,
+                  color: loading ? "#999" : "#333",
+                }}
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
+        {/* <View style={styles.ModalContainer}>
             {displayedArtworks.length > 0 &&
               displayedArtworks.map((artwork, index) => {
                 const pos = index % 4;
@@ -254,9 +264,59 @@ export default function Artworks() {
                   </TouchableOpacity>
                 );
               })}
-          </View>
-        </View>
-      </ScrollView>
+          </View> */}
+        <FlatList
+          data={filteredArtworks}
+          keyExtractor={(item) => item.DP_SEQ?.toString()}
+          numColumns={2}
+          onEndReached={loadMore}
+          onEndReachedThreshold={0.5}
+          refreshing={loading}
+          onRefresh={() => {
+            setHasMore(true);
+            setPageNum(1);
+            getArtwork(1);
+          }}
+          ListFooterComponent={
+            isFetchingMore ? (
+              <ActivityIndicator style={{ marginVertical: 20 }} />
+            ) : null
+          }
+          renderItem={({ item, index }) => {
+            const pos = index % 4;
+            const itemStyle =
+              pos === 0
+                ? styles.artworks_S
+                : pos === 1
+                  ? styles.artworks_B
+                  : pos === 2
+                    ? styles.artworks_B
+                    : styles.artworks_S;
+
+            return (
+              <TouchableOpacity
+                activeOpacity={0.8}
+                style={itemStyle}
+                onPress={() => {
+                  setShowModal(true);
+                  setSelectedArtwork(item);
+                }}
+              >
+                <ImageBackground
+                  source={{ uri: item.thumbnail }}
+                  style={styles.imageBackground}
+                  imageStyle={styles.backgroundImage}
+                  resizeMode="cover"
+                />
+                <Text style={{ fontSize: 16, fontWeight: "bold" }}>
+                  {item.title}
+                </Text>
+              </TouchableOpacity>
+            );
+          }}
+        />
+      </View>
+      {/* </ScrollView> */}
 
       <ArtworkFilter
         visible={showFilter}
@@ -313,6 +373,7 @@ const styles = StyleSheet.create({
     fontSize: 22,
     color: "black",
     fontWeight: "bold",
+    paddingLeft: 10,
   },
   artworks_S: {
     width: "40%",

@@ -386,9 +386,7 @@ export default function Home({ navigation }) {
                 </>
               ) : (
                 <>
-                  <Text style={styles.pageTitle}>
-                    당신을 위한 취향저격 전시모음
-                  </Text>
+                  <Text style={styles.pageTitle}>당신을 위한 추천 전시</Text>
                 </>
               )}
               <View style={styles.recommandFactor}>
@@ -624,6 +622,8 @@ const styles = StyleSheet.create({
     fontSize: 22,
     color: "black",
     fontWeight: "bold",
+    paddingLeft: 10,
+    paddingVertical: 10,
   },
   searchbar: {
     borderColor: "black",
@@ -642,6 +642,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     width: "100%",
     paddingVertical: 10,
+    paddingLeft: 10,
   },
 
   DescStyle: {
@@ -675,7 +676,7 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     height: "auto",
-    padding: 20,
+    // padding: 20,
     marginBottom: 10,
     backgroundColor: "transparent",
   },
@@ -732,11 +733,11 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     flex: 1,
     height: "auto",
-    padding: 20,
+    // padding: 20,
     marginBottom: 10,
   },
   recentContents: {
-    width: "100%",
+    width: "95%",
     height: "auto",
     flex: 1,
     flexDirection: "row",
@@ -803,12 +804,13 @@ const styles = StyleSheet.create({
     height: 90,
   },
   endedContentsContainer: {
-    width: "100%",
+    width: "95%",
     alignItems: "center",
     flexDirection: "row",
     height: "auto",
     display: "flex",
     marginVertical: 10,
+    justifyContent: "center",
   },
   endedContents: {
     width: "55%",
@@ -833,7 +835,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "column",
     height: "auto",
-    padding: 20,
+    // padding: 20,
     marginBottom: 10,
   },
 

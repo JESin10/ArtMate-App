@@ -213,7 +213,7 @@ export default function Places({ navigation }) {
       }}
     >
       {/* <ScrollView> */}
-      <View style={{ padding: 10 }}>
+      <View style={{ padding: 10, justifyContent: "center" }}>
         <TouchableOpacity style={{ alignItems: "center" }}>
           <Mainlogo width={150} height={50} />
         </TouchableOpacity>
@@ -223,7 +223,7 @@ export default function Places({ navigation }) {
             width: "100%",
             // borderColor: "black",
             // borderWidth: 1,
-            marginVertical: 10,
+            marginVertical: 20,
             flexDirection: "row",
             justifyContent: "space-between",
           }}
@@ -232,16 +232,6 @@ export default function Places({ navigation }) {
             <Text style={styles.pageTitle}>가까운 전시장</Text>
           </View>
           <View style={styles.conditions}>
-            <TouchableOpacity onPress={onRefresh} disabled={loading}>
-              <ReloadIcon
-                width={24}
-                height={24}
-                style={{
-                  marginBottom: 12,
-                  color: loading ? "#999" : "#333",
-                }}
-              />
-            </TouchableOpacity>
             <TouchableOpacity disabled={loading} onPress={openMap}>
               <MapIcon
                 width={24}
@@ -249,6 +239,17 @@ export default function Places({ navigation }) {
                 style={{
                   marginBottom: 12,
                   marginLeft: 12,
+                  marginHorizontal: 12,
+                }}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={onRefresh} disabled={loading}>
+              <ReloadIcon
+                width={24}
+                height={24}
+                style={{
+                  marginBottom: 12,
+                  color: loading ? "#999" : "#333",
                 }}
               />
             </TouchableOpacity>
@@ -346,6 +347,7 @@ const styles = StyleSheet.create({
     fontSize: 22,
     color: "black",
     fontWeight: "bold",
+    paddingLeft: 10,
   },
   discriptions: {
     width: 160,
