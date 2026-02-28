@@ -432,7 +432,7 @@ const styles = StyleSheet.create({
     fontWeight: "semi-bold",
   },
   reviewsContainer: {
-    width: "100%",
+    width: "95%",
     borderWidth: 1,
     borderRadius: 10,
     borderColor: "#608D00",
@@ -488,13 +488,14 @@ const styles = StyleSheet.create({
     // rowGap: "120px",
   },
   reactionContainer: {
-    width: "100%",
+    width: "95%",
     flexDirection: "row",
     justifyContent: "flex-start",
     padding: 10,
     borderTopColor: "#000",
     borderTopWidth: 1,
     // borderWidth: 1,
+    margin: "auto",
   },
   overlay: {
     position: "absolute",

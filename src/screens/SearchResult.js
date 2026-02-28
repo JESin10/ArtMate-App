@@ -25,6 +25,13 @@ export default function SearchResult({ navigation }) {
   const { results, loading } = useSearch(keyword);
   const [selectedItem, setSelectedItem] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
+  const popularKeywords = [
+    "서울",
+    "식물",
+    "상설전",
+    "국립현대미술관",
+    "서울시립미술관",
+  ];
 
   useFocusEffect(
     React.useCallback(() => {
@@ -40,29 +47,41 @@ export default function SearchResult({ navigation }) {
     );
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView
+      style={{
+        flex: 1,
+        width: "95%",
+        height: "100%",
+        marginHorizontal: "auto",
+        flexDirection: "column",
+      }}
+    >
       <FlatList
         data={results}
         keyExtractor={(item) => item.id.toString()}
         ListHeaderComponent={
           <>
             <View style={{ padding: 10 }}>
-              <TouchableOpacity style={{ alignItems: "center" }}>
+              <TouchableOpacity
+                style={{ alignItems: "center" }}
+                onPress={() =>
+                  navigation.navigate("Bottom", { screen: "Home" })
+                }
+              >
                 <Mainlogo width={150} height={50} />
               </TouchableOpacity>
 
               <SearchBar />
 
-              <TouchableOpacity
-                style={{ margin: 8 }}
-                onPress={() => navigation.goBack()}
-              >
-                <BackwardIcon width={24} height={24} fill="black" />
-              </TouchableOpacity>
+              <View style={{ flexDirection: "row" }}>
+                <TouchableOpacity onPress={() => navigation.goBack()}>
+                  <BackwardIcon width={36} height={36} fill="black" />
+                </TouchableOpacity>
 
-              <Text style={styles.description}>
-                <Text style={styles.keyword}>[{keyword}]</Text> 의 검색결과
-              </Text>
+                <Text style={styles.resultTitle}>
+                  <Text style={styles.keyword}>[{keyword}]</Text> 의 검색결과
+                </Text>
+              </View>
             </View>
           </>
         }
@@ -72,21 +91,73 @@ export default function SearchResult({ navigation }) {
               setSelectedItem(item);
               setModalVisible(true);
             }}
+            style={styles.resultContainer}
           >
-            <Text style={{ padding: 15 }}>
-              [{item.type}] {item.name}
-            </Text>
+            <View style={styles.results}>
+              <View style={styles.resultType}>
+                <Text
+                  style={{ color: "white", fontWeight: "bold", fontSize: 14 }}
+                >
+                  {item.type}
+                </Text>
+              </View>
+              <View style={styles.resultName}>
+                <Text>{item.name}</Text>
+              </View>
+              {/* <Text style={styles.resultName}>{item.name}</Text> */}
+            </View>
           </TouchableOpacity>
         )}
         //FlatList의 빈 데이터 전용 props
         ListEmptyComponent={
           keyword ? (
-            <Text style={{ padding: 20, textAlign: "center" }}>
-              검색 결과가 없습니다
-            </Text>
+            <View
+              style={{
+                height: "100%",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Text
+                style={{
+                  textAlign: "center",
+                }}
+              >
+                검색 결과가 없습니다
+              </Text>
+            </View>
           ) : null
         }
+        ListFooterComponent={
+          <View style={{ padding: 20 }}>
+            <Text
+              style={{ fontSize: 18, fontWeight: "bold", marginBottom: 12 }}
+            >
+              🔥 금주의 인기 검색어
+            </Text>
+            <View
+              style={{
+                flexDirection: "row",
+                flexWrap: "wrap",
+                height: "100%",
+              }}
+            >
+              {popularKeywords.map((word, index) => (
+                <TouchableOpacity
+                  key={`${word}-${index}`}
+                  style={styles.popularKeywordContainer}
+                  onPress={() =>
+                    navigation.push("SearchResult", { keyword: word })
+                  }
+                >
+                  <Text style={{ color: "#608D00" }}>{word}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        }
       />
+
       {/* Place 모달 */}
       {selectedItem?.type === "place" && (
         <PlacesInfoModal
@@ -115,11 +186,52 @@ export default function SearchResult({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  description: {
+  resultTitle: {
     fontSize: 16,
+    width: "90%",
+    margin: "auto",
   },
   keyword: {
     fontSize: 20,
     fontWeight: "bold",
+  },
+  resultContainer: {
+    width: "95%",
+    padding: 10,
+    justifyContent: "center",
+    margin: "auto",
+  },
+  results: {
+    width: "100%",
+    flexDirection: "row",
+    padding: 4,
+  },
+  resultType: {
+    width: "22%",
+    marginRight: 12,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "#608D00",
+    backgroundColor: "#608D00",
+    textAlign: "center",
+    margin: "auto",
+    padding: 4,
+    alignItems: "center",
+  },
+  resultName: {
+    width: "75%",
+    justifyContent: "center",
+    textAlign: "center",
+    paddingVertical: 8,
+  },
+  popularKeywordContainer: {
+    borderWidth: 1,
+    borderColor: "#608D00",
+    borderRadius: 20,
+    backgroundColor: "transparent",
+    margin: 8,
+    textAlign: "center",
+    paddingVertical: 8,
+    paddingHorizontal: 10,
   },
 });

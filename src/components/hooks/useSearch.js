@@ -56,12 +56,33 @@ export default function useSearch(keyword) {
       item?.title?.toLowerCase().includes(lower),
     );
 
-    return [
-      ...placeFiltered.map((p) => ({
+    const artworkPlaceFiltered = artworks.filter((item) =>
+      item?.place?.toLowerCase().includes(lower),
+    );
+
+    // 🔥 중복 제거용 Map
+    const placeMap = new Map();
+
+    placeFiltered.forEach((p) => {
+      placeMap.set(p.culName, {
         type: "place",
         id: p.seq,
         name: p.culName,
-      })),
+      });
+    });
+
+    artworkPlaceFiltered.forEach((a) => {
+      if (!placeMap.has(a.place)) {
+        placeMap.set(a.place, {
+          type: "artwork",
+          id: a.seq,
+          name: a.place,
+        });
+      }
+    });
+
+    return [
+      ...Array.from(placeMap.values()),
       ...artworkFiltered.map((a) => ({
         type: "artwork",
         id: a.seq,

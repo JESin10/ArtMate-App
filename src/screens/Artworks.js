@@ -21,7 +21,7 @@ import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 import { XMLParser } from "fast-xml-parser";
 import SearchBar from "../components/search/SearchBar.js";
 
-export default function Artworks() {
+export default function Artworks({ navigation }) {
   const [artworks, setArtworks] = useState([]); // 원본 전체
   const [displayedArtworks, setDisplayedArtworks] = useState([]); // 필터 적용된 목록
   const [loading, setLoading] = useState(false);
@@ -215,56 +215,6 @@ export default function Artworks() {
             </TouchableOpacity>
           </View>
         </View>
-        {/* <View style={styles.ModalContainer}>
-            {displayedArtworks.length > 0 &&
-              displayedArtworks.map((artwork, index) => {
-                const pos = index % 4;
-                const itemStyle =
-                  pos === 0
-                    ? styles.artworks_S
-                    : pos === 1
-                      ? styles.artworks_B
-                      : pos === 2
-                        ? styles.artworks_B
-                        : styles.artworks_S;
-
-                return (
-                  <TouchableOpacity
-                    key={index}
-                    activeOpacity={0.8}
-                    style={itemStyle}
-                    onPress={() => {
-                      setShowModal(true);
-                      setSelectedArtwork(artwork);
-                      // getDetailArtwork(artwork.DP_SEQ);
-                    }}
-                  >
-                    <ImageBackground
-                      source={{ uri: artwork.thumbnail }}
-                      style={styles.imageBackground}
-                      imageStyle={styles.backgroundImage}
-                      resizeMode="cover"
-                    />
-                    <Text style={{ fontSize: 16, fontWeight: "bold" }}>
-                      {artwork.title}
-                    </Text>
-
-                    <Text
-                      style={styles.ArtistDescStyle}
-                      numberOfLines={1}
-                      ellipsizeMode="tail"
-                    >
-                      {artwork.area} {artwork.sigungu}
-                    </Text>
-                    <Text style={styles.descStyle}>
-                      {artwork.startDate} ~ {artwork.endDate}
-                    </Text>
-                    <Text style={styles.descStyle}>{artwork.serviceName}</Text>
-                    <Text style={styles.descStyle}>{artwork.place}</Text>
-                  </TouchableOpacity>
-                );
-              })}
-          </View> */}
         <FlatList
           data={filteredArtworks}
           keyExtractor={(item) => item.DP_SEQ?.toString()}
