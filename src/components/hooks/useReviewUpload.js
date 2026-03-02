@@ -1,4 +1,3 @@
-// hooks/useReviewForm.js
 import { useState } from "react";
 import {
   collection,
@@ -8,61 +7,49 @@ import {
   doc,
 } from "firebase/firestore";
 import { db, storage } from "../../../firebase";
-import * as FileSystem from "expo-file-system";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 export const useReviewUpload = (userId, artworkId) => {
-  const [isloading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // 이미지 업로드 함수
-  const uploadImages = async (images, userId) => {
-    if (!userId) {
-      console.error("유저 ID가 없습니다.");
-      return [];
-    }
+  const uploadImages = async (images) => {
+    if (!userId) throw new Error("User ID 없음");
 
     const uploadedUrls = [];
 
     for (let i = 0; i < images.length; i++) {
       const asset = images[i];
-      if (!asset?.uri) {
-        console.warn("이미지 URI 없음:", asset);
-        continue;
-      }
+      if (!asset?.uri) continue;
 
       try {
-        // 파일 이름 설정
-        const fileName = asset.fileName || `photo_${Date.now()}_${i}.jpg`;
+        const fileName = `photo_${Date.now()}_${i}.jpg`;
         const storageRef = ref(
           storage,
           `reviews/${userId}/${Date.now()}_${fileName}`,
         );
 
-        // ✅ Expo iOS/Android 호환 fetch + blob
         const response = await fetch(asset.uri);
         const blob = await response.blob();
 
-        // 업로드
         await uploadBytes(storageRef, blob);
 
-        // 다운로드 URL
         const downloadURL = await getDownloadURL(storageRef);
         uploadedUrls.push(downloadURL);
-
-        console.log("✅ 업로드 완료:", downloadURL);
       } catch (error) {
-        console.error("🔥 이미지 업로드 실패:", asset.uri, error);
+        console.log("전체 에러:", JSON.stringify(error, null, 2));
+        console.log("error.code:", error.code);
+        console.log("error.message:", error.message);
       }
     }
 
     return uploadedUrls;
   };
 
-  // 리뷰 작성 함수
   const addReview = async ({ title, content, rating, visitedDate, images }) => {
-    if (!userId || !artworkId)
-      throw new Error("User ID 또는 artworkId가 없습니다.");
+    if (!userId || !artworkId) throw new Error("userId 또는 artworkId 없음");
+
     setIsLoading(true);
+
     try {
       const imageUrls = await uploadImages(images);
 
@@ -91,14 +78,11 @@ export const useReviewUpload = (userId, artworkId) => {
         visitedDate,
       });
 
-      setIsLoading(false);
       return newReviewRef.id;
-    } catch (error) {
+    } finally {
       setIsLoading(false);
-      console.error("리뷰 작성 실패:", error);
-      throw error;
     }
   };
 
-  return { isloading, uploadImages, addReview };
+  return { isLoading, addReview };
 };

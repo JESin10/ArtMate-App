@@ -6,7 +6,6 @@ module.exports = {
     slug: "artmate-app",
     newArchEnabled: false,
     version: "1.0.0",
-    sdkVersion: "52.0.0",
     platforms: ["ios", "android"],
     icon: "./assets/icon.png",
     ios: {

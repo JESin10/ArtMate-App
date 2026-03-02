@@ -58,12 +58,10 @@ export default function ReviewModal({
   const [searchKeyword, setSearchKeyword] = useState("");
   const [selectedArtwork, setSelectedArtwork] = useState(null);
   const { results, loading } = useSearch(searchKeyword);
-  const artworkId = selectedArtwork?.seq;
-  const { isloading, addReview } = useReviewUpload(
-    user?.uid,
-    selectedArtwork?.id,
-  );
+  const artworkId = selectedArtwork?.id;
+  const { isLoading, addReview } = useReviewUpload(user?.uid, artworkId);
 
+  // console.log(selectedArtwork);
   const handleConfirm = (date) => {
     setVisitedDate(date); // 선택한 날짜로 상태 갱신
     setDatePickerVisible(false);
@@ -261,19 +259,18 @@ export default function ReviewModal({
       return;
     }
 
-    try {
-      const imageUrls = await uploadImages(image, user.uid); // 👈 여기서 사용
-      console.log("업로드 완료된 URL:", imageUrls);
+    if (!user?.uid) {
+      alert("로그인이 필요합니다.");
+      return;
+    }
 
-      await addDoc(collection(db, "reviews"), {
-        userId: user.uid,
-        artworkId: selectedArtwork.seq,
+    try {
+      await addReview({
         title,
         content,
         rating,
-        images: imageUrls,
-        createdAt: serverTimestamp(),
         visitedDate: visitedDate.toISOString().split("T")[0],
+        images: image,
       });
 
       alert("리뷰 작성 완료!");
@@ -351,7 +348,7 @@ export default function ReviewModal({
               <View style={{ width: "90%", marginVertical: 10 }}>
                 <ScrollView horizontal>
                   {image.map((img, index) => (
-                    <View key={index} style={{ marginRight: 10 }}>
+                    <View key={img.uri} style={{ marginRight: 10 }}>
                       <Image
                         source={{ uri: img.uri }}
                         style={{ width: 80, height: 80, borderRadius: 8 }}
@@ -411,9 +408,9 @@ export default function ReviewModal({
                 onPress={isEditing ? updateReview : addUserReview}
               /> */}
               <Button
-                title={loading ? "업로드 중..." : "리뷰 작성"}
+                title={isLoading ? "업로드 중..." : "리뷰 작성"}
                 onPress={handleSubmit}
-                disabled={loading}
+                disabled={isLoading}
               />
             </View>
           </ScrollView>
