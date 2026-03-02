@@ -53,6 +53,7 @@ export default function Review() {
   const [reviews, setReviews] = useState([]);
   const [sortType, setSortType] = useState("like");
   const timerRef = useRef(null);
+
   const onRefresh = React.useCallback(() => {
     setLoading(true);
 
@@ -272,21 +273,32 @@ export default function Review() {
                     <Text>{review.displayName || "익명"}</Text>
                   </View>
                   {user && review.userId === user.uid && (
-                    <View style={{ flexDirection: "row" }}>
+                    <View style={{ flexDirection: "row", width: "28%" }}>
                       <TouchableOpacity
                         onPress={() => {
                           setSelectedReview(review);
                           setIsEditing(true);
                           setShowModal(true);
                         }}
+                        style={{
+                          borderwidth: 1,
+                          borderRadius: 10,
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
                       >
-                        <Text>수정</Text>
+                        <Text style={{ color: "#608D00" }}>수정</Text>
                       </TouchableOpacity>
 
                       <TouchableOpacity
                         onPress={() => ReviewDelete(review.id, review.userId)}
+                        style={{
+                          paddingHorizontal: 10,
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
                       >
-                        <Text style={{ color: "red" }}>삭제</Text>
+                        <Text style={{ color: "black" }}>삭제</Text>
                       </TouchableOpacity>
                     </View>
                   )}
@@ -467,7 +479,7 @@ const styles = StyleSheet.create({
     borderRadius: 100,
   },
   profileContainer: {
-    width: "100%",
+    width: "85%",
     height: 50,
     flexDirection: "row",
     alignItems: "center",

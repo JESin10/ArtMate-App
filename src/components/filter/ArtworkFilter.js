@@ -36,7 +36,7 @@ export default function ArtworkFilter({
     if (visible) {
       setSelectedGenres([]);
       setSelectedRegions([]);
-      setSelectedRealm([]);
+      // setSelectedRealm([]);
     }
   }, [visible]);
 
@@ -190,8 +190,8 @@ export default function ArtworkFilter({
                 })}
               </View>
             )}
-            <View style={styles.line} />
-            <TouchableOpacity
+            {/*<View style={styles.line} />
+             <TouchableOpacity
               onPress={() => setOpenGenre((prev) => !prev)}
               style={{ flexDirection: "row", justifyContent: "space-between" }}
             >
@@ -237,7 +237,7 @@ export default function ArtworkFilter({
                   );
                 })}
               </View>
-            )}
+            )} */}
           </ScrollView>
           <View style={styles.buttonRow}>
             <TouchableOpacity onPress={onClose} style={styles.cancelBtn}>

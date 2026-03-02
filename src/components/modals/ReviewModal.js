@@ -8,6 +8,7 @@ import {
   TextInput,
   Alert,
   Button,
+  Image,
 } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
@@ -22,6 +23,20 @@ import {
 } from "firebase/firestore";
 import { db } from "../../../firebase";
 import { AuthContext } from "../../services/context";
+import { useRoute } from "@react-navigation/native";
+import useSearch from "../hooks/useSearch";
+import * as ImagePicker from "expo-image-picker";
+import {
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  uploadString,
+  getStorage,
+} from "firebase/storage";
+import { storage } from "../../../firebase";
+import * as FileSystem from "expo-file-system";
+import { useReviewUpload } from "../hooks/useReviewUpload";
+// import storage from "@react-native-firebase/storage";
 
 export default function ReviewModal({
   visible,
@@ -30,53 +45,90 @@ export default function ReviewModal({
   reviewData,
 }) {
   const { user } = useContext(AuthContext);
-  const artworkId = "319005"; // 실제로는 선택된 작품의 ID를 받아와야 함
+  // const artworkId = "319005"; // 실제로는 선택된 작품의 ID를 받아와야 함
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [rating, setRating] = useState(0);
-  const [LikeCnt, setLikeCnt] = useState(0);
-  const [CommentCnt, setCommentCnt] = useState(0);
+  const [image, setImage] = useState([]);
   const [visitedDate, setVisitedDate] = useState(new Date());
   const [number, onChangeNumber] = useState("");
   const [isDatePickerVisible, setDatePickerVisible] = useState(false);
+  const route = useRoute();
+  // const { keyword } = route.params;
+  const [searchKeyword, setSearchKeyword] = useState("");
+  const [selectedArtwork, setSelectedArtwork] = useState(null);
+  const { results, loading } = useSearch(searchKeyword);
+  const artworkId = selectedArtwork?.seq;
+  const { isloading, addReview } = useReviewUpload(
+    user?.uid,
+    selectedArtwork?.id,
+  );
 
   const handleConfirm = (date) => {
     setVisitedDate(date); // 선택한 날짜로 상태 갱신
     setDatePickerVisible(false);
   };
 
-  const addUserReview = async () => {
-    try {
-      const newReviewRef = await addDoc(collection(db, "reviews"), {
-        userId: user.uid,
-        artworkId,
-        title,
-        content,
-        rating,
-        LikeCnt: 0,
-        CommentCnt: 0,
-        createdAt: serverTimestamp(),
-        visitedDate: visitedDate.toISOString().split("T")[0],
-        //image
-      });
-
-      await setDoc(doc(db, "users", user.uid, "reviews", newReviewRef.id), {
-        artworkId,
-        title,
-        content,
-        rating,
-        LikeCnt: 0,
-        CommentCnt: 0,
-        createdAt: serverTimestamp(),
-        visitedDate: visitedDate.toISOString().split("T")[0],
-      });
-
-      Alert.alert("리뷰 작성 완료!");
-      onClose();
-    } catch (error) {
-      console.error("리뷰 작성 실패:", error);
+  useEffect(() => {
+    if (selectedArtwork) {
+      setTitle(selectedArtwork.name);
     }
-  };
+  }, [selectedArtwork]);
+
+  // useEffect(() => {
+  //   (async () => {
+  //     const { status } =
+  //       await ImagePicker.requestMediaLibraryPermissionsAsync();
+  //     if (status !== "granted") {
+  //       Alert.alert("사진 접근 권한이 필요합니다.");
+  //     }
+  //   })();
+  // }, []);
+
+  // const addUserReview = async () => {
+  //   if (!selectedArtwork) {
+  //     Alert.alert("전시를 먼저 선택해주세요.");
+  //     return;
+  //   }
+
+  //   if (!user) {
+  //     Alert.alert("로그인이 필요합니다.");
+  //     return;
+  //   }
+  //   const imageUrls = await uploadImages(); // 👈 추가
+  //   console.log("imageUrls:", imageUrls);
+  //   try {
+  //     const newReviewRef = await addDoc(collection(db, "reviews"), {
+  //       userId: user.uid,
+  //       artworkId,
+  //       title,
+  //       content,
+  //       rating,
+  //       images: imageUrls, // 👈 저장
+  //       LikeCnt: 0,
+  //       CommentCnt: 0,
+  //       createdAt: serverTimestamp(),
+  //       visitedDate: visitedDate.toISOString().split("T")[0],
+  //     });
+
+  //     await setDoc(doc(db, "users", user.uid, "reviews", newReviewRef.id), {
+  //       artworkId,
+  //       title,
+  //       content,
+  //       rating,
+  //       LikeCnt: 0,
+  //       CommentCnt: 0,
+  //       images: imageUrls, // 👈 저장
+  //       createdAt: serverTimestamp(),
+  //       visitedDate: visitedDate.toISOString().split("T")[0],
+  //     });
+
+  //     Alert.alert("리뷰 작성 완료!");
+  //     onClose();
+  //   } catch (error) {
+  //     console.error("리뷰 작성 실패:", error);
+  //   }
+  // };
 
   const getMyReview = async (userId, reviewId) => {
     try {
@@ -85,6 +137,61 @@ export default function ReviewModal({
       console.error("불러오기 실패: ", err);
     }
   };
+
+  const pickImage = async () => {
+    if (image.length >= 3) {
+      Alert.alert("이미지는 최대 3장까지 가능합니다.");
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: "images",
+      quality: 0.7,
+    });
+    if (!result.canceled) {
+      setImage([...image, result.assets[0]]);
+    }
+  };
+
+  // const uploadImages = async () => {
+  //   try {
+  //     console.log("업로드 시작");
+  //     console.log(selectedArtwork.id);
+  //     if (!user?.uid) return [];
+
+  //     const uploadPromises = image.map(async (asset, index) => {
+  //       if (!asset?.uri) return null;
+
+  //       const fileName = asset.fileName ?? `photo_${Date.now()}_${index}.jpg`;
+
+  //       const storageRef = ref(
+  //         storage,
+  //         `reviews/${user.uid}/${Date.now()}_${fileName}`,
+  //       );
+
+  //       console.log("📂 fetch 시작:", asset.uri);
+
+  //       const response = await fetch(asset.uri);
+  //       const blob = await response.blob(); // ✅ 핵심
+
+  //       console.log("🚀 upload 시작 직전");
+
+  //       await uploadBytes(storageRef, blob); // ✅ uploadString 아님
+
+  //       console.log("✅ upload 완료");
+
+  //       const downloadURL = await getDownloadURL(storageRef);
+
+  //       return downloadURL;
+  //     });
+
+  //     const results = await Promise.all(uploadPromises);
+
+  //     return results.filter(Boolean);
+  //   } catch (error) {
+  //     console.error("🔥 uploadImages 에러:", error);
+  //     return [];
+  //   }
+  // };
 
   const updateReview = async () => {
     try {
@@ -130,6 +237,8 @@ export default function ReviewModal({
     }
   }, [isEditing, reviewData, visible]);
 
+  // console.log("selectedArtwork", selectedArtwork);
+
   const StarRating = () => {
     return (
       <View style={{ flexDirection: "row" }}>
@@ -144,6 +253,35 @@ export default function ReviewModal({
         ))}
       </View>
     );
+  };
+
+  const handleSubmit = async () => {
+    if (!selectedArtwork) {
+      alert("전시를 선택해주세요.");
+      return;
+    }
+
+    try {
+      const imageUrls = await uploadImages(image, user.uid); // 👈 여기서 사용
+      console.log("업로드 완료된 URL:", imageUrls);
+
+      await addDoc(collection(db, "reviews"), {
+        userId: user.uid,
+        artworkId: selectedArtwork.seq,
+        title,
+        content,
+        rating,
+        images: imageUrls,
+        createdAt: serverTimestamp(),
+        visitedDate: visitedDate.toISOString().split("T")[0],
+      });
+
+      alert("리뷰 작성 완료!");
+      onClose();
+    } catch (err) {
+      console.error("리뷰 작성 실패:", err);
+      alert("리뷰 작성 실패");
+    }
   };
 
   return (
@@ -167,14 +305,40 @@ export default function ReviewModal({
             <Text>Review 작성 폼</Text>
             <View style={styles.inputContainer}>
               <TextInput
-                placeholder="전시제목을 입력하세요"
-                editable
-                multiline
-                maxLength={30}
+                placeholder="전시 제목 검색"
+                value={searchKeyword}
+                onChangeText={setSearchKeyword}
                 style={styles.titleInput}
-                value={title}
-                onChangeText={setTitle}
               />
+              {searchKeyword.length > 1 && (
+                <View style={{ width: "90%", maxHeight: 200 }}>
+                  <ScrollView>
+                    {loading ? (
+                      <Text>검색 중...</Text>
+                    ) : (
+                      results.map((item) => (
+                        <TouchableOpacity
+                          key={item.seq}
+                          onPress={() => {
+                            setSelectedArtwork(item);
+                            setTitle(item.name); // 👈 TextInput에 들어갈 값
+                            setSearchKeyword(""); // 검색창 닫기
+                          }}
+                        >
+                          <Text>{item.name}</Text>
+                        </TouchableOpacity>
+                      ))
+                    )}
+                  </ScrollView>
+                </View>
+              )}
+              {selectedArtwork && (
+                <View style={{ alignItems: "center", marginVertical: 10 }}>
+                  <Text style={{ fontWeight: "bold" }}>
+                    선택된 전시: {selectedArtwork.name}
+                  </Text>
+                </View>
+              )}
               <TextInput
                 placeholder="후기내용을 입력하세요"
                 editable
@@ -184,6 +348,38 @@ export default function ReviewModal({
                 value={content}
                 style={styles.contentInput}
               />
+              <View style={{ width: "90%", marginVertical: 10 }}>
+                <ScrollView horizontal>
+                  {image.map((img, index) => (
+                    <View key={index} style={{ marginRight: 10 }}>
+                      <Image
+                        source={{ uri: img.uri }}
+                        style={{ width: 80, height: 80, borderRadius: 8 }}
+                      />
+                      <TouchableOpacity
+                        onPress={() =>
+                          setImage(image.filter((_, i) => i !== index))
+                        }
+                      >
+                        <Text style={{ color: "red" }}>삭제</Text>
+                      </TouchableOpacity>
+                    </View>
+                  ))}
+                </ScrollView>
+
+                <TouchableOpacity
+                  onPress={pickImage}
+                  style={{
+                    marginTop: 10,
+                    padding: 10,
+                    backgroundColor: "#eee",
+                    alignItems: "center",
+                    borderRadius: 8,
+                  }}
+                >
+                  <Text>사진 추가 ({image.length}/3)</Text>
+                </TouchableOpacity>
+              </View>
               <TouchableOpacity onPress={() => setDatePickerVisible(true)}>
                 <Text>
                   방문 날짜: {visitedDate.toISOString().split("T")[0]}
@@ -210,9 +406,14 @@ export default function ReviewModal({
                   </TouchableOpacity>
                 ))}
               </View>
-              <Button
+              {/* <Button
                 title={isEditing ? "리뷰 수정" : "리뷰 작성"}
                 onPress={isEditing ? updateReview : addUserReview}
+              /> */}
+              <Button
+                title={loading ? "업로드 중..." : "리뷰 작성"}
+                onPress={handleSubmit}
+                disabled={loading}
               />
             </View>
           </ScrollView>

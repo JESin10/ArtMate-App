@@ -46,8 +46,9 @@ export default function Artworks({ navigation }) {
   const getArtwork = async (nextPage = 1) => {
     if (!hasMore && nextPage !== 1) return;
 
-    if (nextPage === 1) setLoading(true);
-    else setIsFetchingMore(true);
+    if (nextPage === 1) {
+      setLoading(true);
+    } else setIsFetchingMore(true);
 
     try {
       const response = await fetch(
@@ -74,9 +75,13 @@ export default function Artworks({ navigation }) {
       }));
 
       if (nextPage === 1) {
-        setArtworks(normalized);
+        {
+          setArtworks(normalized);
+          setDisplayedArtworks(normalized); // 🔥 추가
+        }
       } else {
         setArtworks((prev) => [...prev, ...normalized]);
+        setDisplayedArtworks((prev) => [...prev, ...normalized]); // 🔥 추가
       }
 
       setPageNum(nextPage);
@@ -94,9 +99,10 @@ export default function Artworks({ navigation }) {
     }
   };
 
-  const filteredArtworks = useMemo(() => {
-    return artworks; // 지금은 기본값, 나중에 필터 적용 가능
-  }, [artworks]);
+  console.log(displayedArtworks);
+  // const filteredArtworks = useMemo(() => {
+  //   return artworks; // 지금은 기본값, 나중에 필터 적용 가능
+  // }, [artworks]);
 
   // parts: ['조각', ...] 형태 (부분일치, 대소문자 무시), start/end는 1-based
   const applyFilter = ({
@@ -216,7 +222,7 @@ export default function Artworks({ navigation }) {
           </View>
         </View>
         <FlatList
-          data={filteredArtworks}
+          data={displayedArtworks}
           keyExtractor={(item) => item.DP_SEQ?.toString()}
           numColumns={2}
           onEndReached={loadMore}
@@ -281,7 +287,7 @@ export default function Artworks({ navigation }) {
           ...new Set(artworks.map((a) => a.serviceName).filter(Boolean)),
         ]}
         regions={[...new Set(artworks.map((a) => a.area).filter(Boolean))]}
-        realm={[...new Set(artworks.map((a) => a.realmName).filter(Boolean))]}
+        // realm={[...new Set(artworks.map((a) => a.realmName).filter(Boolean))]}
       />
 
       <ArtworkInfoModal
@@ -294,7 +300,7 @@ export default function Artworks({ navigation }) {
         // artwork={detailArtwork}
         seq={selectedArtwork?.DP_SEQ}
       />
-      {/* 
+      {/*       
       {loading && (
         <View style={styles.overlay}>
           <View style={styles.overlayContent}>
