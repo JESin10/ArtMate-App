@@ -40,6 +40,9 @@ import {
 import { db } from "../../firebase";
 import CommentModal from "../components/modals/CommentModal";
 import SearchBar from "../components/search/SearchBar";
+import { Dimensions } from "react-native";
+import ImageSlider from "../components/Slider/ImageSlider";
+import ArtworkInfoModal from "../components/modals/ArtworkInfoModal";
 
 export default function Review() {
   const { user, setUser } = useContext(AuthContext);
@@ -53,6 +56,9 @@ export default function Review() {
   const [reviews, setReviews] = useState([]);
   const [sortType, setSortType] = useState("like");
   const timerRef = useRef(null);
+  const [showArtworkModal, setShowArtworkModal] = useState(false);
+  const flatListRef = useRef(null);
+  const scrollRef = useRef(null);
 
   const onRefresh = React.useCallback(() => {
     setLoading(true);
@@ -147,6 +153,7 @@ export default function Review() {
     fetchLikedReviews();
   }, [user]);
 
+  // console.log("reviews:", reviews[1]);
   //리뷰 삭제
   const ReviewDelete = async (reviewId, userId) => {
     try {
@@ -159,6 +166,8 @@ export default function Review() {
       Alert.alert("리뷰 삭제에 실패했습니다. 다시 시도해주세요.");
     }
   };
+
+  const gotoArtwork = (artworkId) => {};
 
   //토글 좋아요
   const toggleLike = async (reviewId) => {
@@ -196,6 +205,7 @@ export default function Review() {
     }
   };
 
+  console.log("reviews", selectedReview);
   return (
     <SafeAreaView
       style={{
@@ -303,14 +313,17 @@ export default function Review() {
                     </View>
                   )}
                 </View>
-                <ImageBackground
-                  key={idx}
-                  source={require("../../src/assets/images/ex.jpg")}
-                  style={styles.reviewTumblnail}
-                  imageStyle={styles.ReviewImage}
-                  resizeMode="cover"
-                />
-
+                <TouchableOpacity
+                  onPress={() => {
+                    setShowArtworkModal(true);
+                    setSelectedReview(review.artworkId);
+                  }}
+                >
+                  <Text style={{ marginVertical: 14, fontWeight: "bold" }}>
+                    {review.title}
+                  </Text>
+                </TouchableOpacity>
+                <ImageSlider images={review.images} />
                 <View style={styles.reviewTextContainer}>
                   <Text
                     style={styles.reviewDescStyle}
@@ -376,6 +389,14 @@ export default function Review() {
           fill="#fff"
         />
       </View>
+      <ArtworkInfoModal
+        visible={showArtworkModal}
+        onClose={() => {
+          setShowArtworkModal(false);
+          setSelectedReview([]);
+        }}
+        seq={selectedReview}
+      />
       <CommentModal
         visible={showCmtModal}
         onClose={() => setShowCmtModal(false)}
@@ -403,6 +424,7 @@ export default function Review() {
   );
 }
 
+const { width } = Dimensions.get("window");
 const styles = StyleSheet.create({
   searchbar: {
     borderColor: "black",
@@ -460,12 +482,14 @@ const styles = StyleSheet.create({
     flexDirection: "column",
   },
   reviewTumblnail: {
-    width: "100%",
+    // width: "100%",
+    // height: 270,
+    // borderColor: "black",
+    // borderwidth: 1,
+    // padding: 10,
+    // margin: 10,
+    width: width * 0.9,
     height: 270,
-    borderColor: "black",
-    borderwidth: 1,
-    padding: 10,
-    margin: 10,
   },
   ProfileTumbnail: {
     width: 40,
@@ -549,4 +573,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   ReviewBtnText: { margin: "auto", fontSize: 24 },
+  indicatorContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: 8,
+  },
+
+  indicator: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: "#ccc",
+    marginHorizontal: 4,
+  },
+
+  activeIndicator: {
+    backgroundColor: "#000",
+  },
 });

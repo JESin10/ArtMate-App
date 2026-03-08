@@ -20,6 +20,7 @@ import ArtworkIcon from "../assets/icons/Menubar_image.svg";
 import { AuthContext } from "../services/context";
 import { XMLParser } from "fast-xml-parser";
 import SearchBar from "../components/search/SearchBar";
+import ImageSlider from "../components/Slider/ImageSlider";
 
 export default function Home({ navigation }) {
   const { user } = useContext(AuthContext);
@@ -347,7 +348,7 @@ export default function Home({ navigation }) {
     }, {});
   };
   const placeGroups = groupByPlace(artworks);
-  // console.log(placeGroups);
+  console.log(recommendedArtworks);
 
   return (
     <SafeAreaView
@@ -437,6 +438,7 @@ export default function Home({ navigation }) {
                   })}
                 />
               </View>
+
               <View style={styles.dotsContainer}>
                 {recommendedArtworks?.map((_, idx) => (
                   <TouchableOpacity

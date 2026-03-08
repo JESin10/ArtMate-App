@@ -42,6 +42,7 @@ export default function ArtworkInfoModal({ visible, onClose, seq }) {
     ignoreAttributes: false,
   });
 
+  console.log("seq", seq);
   useEffect(() => {
     if (seq) {
       getDetailArtwork(seq);
@@ -103,7 +104,7 @@ export default function ArtworkInfoModal({ visible, onClose, seq }) {
     }
   };
 
-  console.log(detailArtwork);
+  // console.log(detailArtwork);
 
   //링크 열기
   const openLink = async (rawUrl) => {
