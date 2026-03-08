@@ -43,18 +43,35 @@ export default function CommentModal({ visible, onClose, reviewId }) {
       orderBy("createdAt", "desc"),
     );
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
+    const unsubscribe = onSnapshot(q, async (snapshot) => {
       const data = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
-      setCmtList(data);
+
+      // 유저 displayName 한 번만 가져오기
+      const userIds = [...new Set(data.map((r) => r.userId))];
+      const displayNameMap = {};
+
+      for (const uid of userIds) {
+        const userSnap = await getDoc(doc(db, "users", uid));
+        displayNameMap[uid] = userSnap.exists()
+          ? userSnap.data().displayName
+          : null;
+      }
+
+      // 리뷰 + displayName 합쳐서 상태 업데이트 (한 번만)
+      const fetchReview = data.map((r) => ({
+        ...r,
+        displayName: displayNameMap[r.userId] || "익명",
+      }));
+      setCmtList(fetchReview);
     });
 
     return () => unsubscribe();
   }, [user, reviewId]);
 
-  console.log(cmtList);
+  console.log("cmtList:", cmtList);
 
   const formatDate = (timestampObj) => {
     if (!timestampObj) return "";
@@ -65,11 +82,6 @@ export default function CommentModal({ visible, onClose, reviewId }) {
       year: "numeric",
       month: "long",
       day: "numeric",
-      //   hour: "numeric",
-      //   minute: "2-digit",
-      //   second: "2-digit",
-      //   hour12: true,
-      //   timeZone: "Asia/Seoul",
     });
   };
 
@@ -125,13 +137,26 @@ export default function CommentModal({ visible, onClose, reviewId }) {
             contentContainerStyle={styles.ModalContent}
             showsVerticalScrollIndicator={true}
           >
-            <Text>댓글</Text>
+            <Text
+              style={{
+                color: "#608D00",
+                padding: 10,
+                fontSize: 16,
+                fontWeight: "bold",
+              }}
+            >
+              댓글
+            </Text>
             <View style={styles.allcommentContainer}>
               {cmtList.map((item, index) => (
                 <View style={styles.cmtContainer} key={index}>
                   <View style={styles.cmtLineContainer}>
-                    <Text style={styles.cmtUser}>Tester</Text>
-                    <Text style={styles.cmtText}>{item.comment}</Text>
+                    <View style={styles.cmtUser}>
+                      <Text>{item.displayName}</Text>
+                    </View>
+                    <View style={styles.cmtText}>
+                      <Text>{item.comment}</Text>
+                    </View>
                   </View>
                   <Text style={styles.cmtTime}>
                     {formatDate(item.createdAt)}
@@ -139,30 +164,37 @@ export default function CommentModal({ visible, onClose, reviewId }) {
                 </View>
               ))}
             </View>
-            {user ? (
-              <View style={styles.inputContainer}>
-                <TextInput
-                  style={styles.cmtInput}
-                  placeholder="댓글을 남겨보세요"
-                  value={comment}
-                  onChangeText={setComment}
-                  maxLength={100}
-                  multiline
-                />
-                <TouchableOpacity
-                  style={styles.cmtBtn}
-                  onPress={() => addComment(user.uid, reviewId.id, comment)}
-                >
-                  <Text style={{ width: "auto", padding: 10 }}>전송</Text>
-                </TouchableOpacity>
-              </View>
-            ) : (
-              <View style={styles.inputContainer}>
-                <Text style={{ justifyContent: "center", margin: "auto" }}>
-                  로그인 후 이용 가능합니다
-                </Text>
-              </View>
-            )}
+            <View style={styles.inputFactorContainer}>
+              {user ? (
+                <View style={styles.inputContainer}>
+                  <TextInput
+                    style={styles.cmtInput}
+                    placeholder="댓글을 남겨보세요"
+                    value={comment}
+                    onChangeText={setComment}
+                    maxLength={100}
+                  />
+                  <TouchableOpacity
+                    style={styles.cmtBtn}
+                    onPress={() => addComment(user.uid, reviewId.id, comment)}
+                  >
+                    <Text
+                      style={{
+                        color: "white",
+                      }}
+                    >
+                      →
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <View style={styles.inputContainer}>
+                  <Text style={{ justifyContent: "center", margin: "auto" }}>
+                    로그인 후 이용 가능합니다
+                  </Text>
+                </View>
+              )}
+            </View>
           </ScrollView>
         </View>
       </View>
@@ -185,9 +217,7 @@ const styles = StyleSheet.create({
   },
   ModalContainer: {
     backgroundColor: "#fff",
-    padding: 16,
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
+    padding: 32,
     minHeight: 300,
     maxHeight: "80%",
     // height: "80%",
@@ -199,43 +229,51 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     height: "90%",
     top: 20,
-    backgroundColor: "gray",
+    // backgroundColor: "gray",
   },
   allcommentContainer: {
     width: "100%",
     height: "90%",
     backgroundColor: "white",
-    borderColor: "yellow",
-    borderWidth: 1,
     padding: 10,
   },
   inputContainer: {
     width: "100%",
-    height: "11%",
     padding: 10,
-    borderWidth: 1,
-    borderColor: "blue",
     flexDirection: "row",
     alignItems: "center",
   },
+
+  inputFactorContainer: {
+    width: "100%",
+    backgroundColor: "#fff",
+    padding: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
   cmtInput: {
-    width: "80%",
+    width: "85%",
     height: 40,
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "red",
-    marginHorizontal: "auto",
-    padding: "auto",
+    borderColor: "lightgrey",
+    borderRadius: 20,
+    paddingHorizontal: 12,
     backgroundColor: "white",
-    paddingHorizontal: 5,
+    textAlignVertical: "center",
   },
   cmtBtn: {
-    width: "auto",
+    width: 40,
     height: 40,
-    borderColor: "red",
-    borderWidth: 1,
-    backgroundColor: "white",
-    padding: "5",
+    backgroundColor: "#608D00",
+    borderRadius: 20,
+    marginLeft: 5,
+    justifyContent: "center",
+    alignItems: "center",
   },
   cmtContainer: {
     flexDirection: "column",
@@ -246,26 +284,26 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   cmtUser: {
-    width: "15%",
-    height: 40,
-    borderColor: "red",
+    width: 45,
+    height: 45,
     borderWidth: 1,
+    borderRadius: "100%",
     justifyContent: "center",
     textAlignVertical: "center",
   },
   cmtText: {
     width: "85%",
     height: 40,
-    borderColor: "red",
-    borderWidth: 1,
+    paddingHorizontal: 10,
     justifyContent: "center",
     textAlignVertical: "center",
   },
   cmtTime: {
     width: "100%",
     height: 20,
-    borderColor: "grey",
-    borderWidth: 1,
+    fontSize: 10,
+    color: "grey",
     justifyContent: "flex-end",
+    textAlign: "right",
   },
 });

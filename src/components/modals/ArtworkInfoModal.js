@@ -42,7 +42,6 @@ export default function ArtworkInfoModal({ visible, onClose, seq }) {
     ignoreAttributes: false,
   });
 
-  console.log("seq", seq);
   useEffect(() => {
     if (seq) {
       getDetailArtwork(seq);

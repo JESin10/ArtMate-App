@@ -99,7 +99,7 @@ export default function Artworks({ navigation }) {
     }
   };
 
-  console.log(displayedArtworks);
+  // console.log(displayedArtworks);
   // const filteredArtworks = useMemo(() => {
   //   return artworks; // 지금은 기본값, 나중에 필터 적용 가능
   // }, [artworks]);

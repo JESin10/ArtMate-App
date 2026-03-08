@@ -348,7 +348,7 @@ export default function Home({ navigation }) {
     }, {});
   };
   const placeGroups = groupByPlace(artworks);
-  console.log(recommendedArtworks);
+  // console.log(recommendedArtworks);
 
   return (
     <SafeAreaView
