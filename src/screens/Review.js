@@ -113,8 +113,11 @@ export default function Review() {
         try {
           const userSnap = await getDoc(doc(db, "users", uid));
           displayNameMap[uid] = userSnap.exists()
-            ? userSnap.data().displayName || "익명"
-            : "익명";
+            ? {
+                displayName: userSnap.data().displayName,
+                photoURL: userSnap.data().photoURL || null,
+              }
+            : { displayName: userSnap.data().displayName, photoURL: null };
         } catch (err) {
           displayNameMap[uid] = "익명";
         }
@@ -123,7 +126,8 @@ export default function Review() {
       // 리뷰 + displayName 합쳐서 상태 업데이트 (한 번만)
       const fetchReview = data.map((r) => ({
         ...r,
-        displayName: displayNameMap[r.userId] || "익명",
+        displayName: displayNameMap[r.userId]?.displayName,
+        photoURL: displayNameMap[r.userId]?.photoURL || null,
       }));
       setReviews(fetchReview);
     });
@@ -275,7 +279,11 @@ export default function Review() {
                 >
                   <View style={styles.profileContainer}>
                     <ImageBackground
-                      source={require("../../src/assets/images/ex.jpg")}
+                      source={
+                        review.photoURL
+                          ? { uri: review.photoURL }
+                          : require("../../src/assets/images/ex.jpg")
+                      }
                       style={styles.ProfileTumbnail}
                       imageStyle={styles.ProfileImage}
                       resizeMode="cover"

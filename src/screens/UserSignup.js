@@ -7,13 +7,16 @@ import {
   TextInput,
   TouchableOpacity,
   Alert,
+  Image,
 } from "react-native";
 import React, { useState } from "react";
 import Mainlogo from "../assets/icons/logo-main.svg";
 import MainSlogun from "../assets/images/slogan.svg";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth, db } from "../../firebase";
+import { auth, db, storage } from "../../firebase";
 import { doc, setDoc } from "firebase/firestore";
+import * as ImagePicker from "expo-image-picker";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 export default function UserSignup({ navigation }) {
   const [name, setName] = useState("");
@@ -21,9 +24,28 @@ export default function UserSignup({ navigation }) {
   const [password, setPassword] = useState("");
   const [passwordCheck, setPasswordCheck] = useState("");
   const [isUser, setIsUser] = useState(false);
+  const [profileImage, setProfileImage] = useState(null);
+
+  const pickImage = async () => {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      alert("사진 접근 권한이 필요합니다.");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.7,
+    });
+
+    if (!result.canceled) {
+      setProfileImage(result.assets[0].uri);
+    }
+  };
 
   const onSignup = async () => {
-    // 기본 유효성 검사
     if (!email || !password || !passwordCheck) {
       Alert.alert("입력 오류", "이메일과 비밀번호를 모두 입력해주세요.");
       return;
@@ -41,39 +63,31 @@ export default function UserSignup({ navigation }) {
         password,
       );
       const user = userCredential.user;
-      const userRef = doc(db, "users", user.uid);
 
-      // 보안상 비밀번호는 DB에 저장하지 않습니다.
+      let photoURL = null;
+      if (profileImage) {
+        const response = await fetch(profileImage);
+        const blob = await response.blob();
+        const storageRef = ref(storage, `profileImages/${user.uid}`);
+        await uploadBytes(storageRef, blob);
+        photoURL = await getDownloadURL(storageRef);
+      }
+
+      const userRef = doc(db, "users", user.uid);
       await setDoc(userRef, {
         displayName: name,
-        email: email,
+        email,
         uid: user.uid,
         createdAt: new Date().toUTCString(),
         following: 0,
         followers: 0,
+        photoURL, // 프로필 사진 URL 저장
       });
 
       Alert.alert("회원가입 성공", "회원가입이 완료되었습니다.");
       navigation.navigate("Login");
-      setIsUser(true);
     } catch (error) {
-      // Firebase auth 에러 코드별 안내
-      const code = error?.code || "";
-      if (code === "auth/email-already-in-use") {
-        Alert.alert(
-          "회원가입 실패",
-          "이미 사용 중인 이메일입니다. 로그인 해주세요.",
-        );
-      } else if (code === "auth/invalid-email") {
-        Alert.alert("회원가입 실패", "유효하지 않은 이메일 형식입니다.");
-      } else if (code === "auth/weak-password") {
-        Alert.alert(
-          "회원가입 실패",
-          "비밀번호가 너무 약합니다. 6자리 이상으로 설정해주세요.",
-        );
-      } else {
-        Alert.alert("회원가입 실패", error.message || String(error));
-      }
+      Alert.alert("회원가입 실패", error.message || String(error));
     }
   };
 
@@ -98,6 +112,15 @@ export default function UserSignup({ navigation }) {
           </TouchableOpacity>
 
           <View style={styles.inputContainer}>
+            <TouchableOpacity onPress={pickImage} style={styles.profilePicker}>
+              <Image
+                source={{ uri: profileImage }}
+                style={styles.profileImage}
+              />
+              <Text style={{ color: "#608D00", marginTop: 5 }}>
+                프로필 사진 선택
+              </Text>
+            </TouchableOpacity>
             <TextInput
               style={styles.input}
               placeholder="이메일"
@@ -299,5 +322,15 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     alignItems: "center",
     flexDirection: "center",
+  },
+  profilePicker: {
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  profileImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: "#eee",
   },
 });

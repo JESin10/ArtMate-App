@@ -33,8 +33,10 @@ import {
   where,
   collectionGroup,
 } from "firebase/firestore";
-import { db } from "../../firebase";
+import { db, storage } from "../../firebase";
 import Bookmarks from "./Bookmarks";
+import * as ImagePicker from "expo-image-picker";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 export default function Mypage({ navigation }) {
   const { user, setUser } = useContext(AuthContext);
@@ -45,6 +47,7 @@ export default function Mypage({ navigation }) {
   const [myReviews, setMyReviews] = useState([]);
   const [myLikeRV, setMyLikeRV] = useState([]);
   const [myComments, setMyComments] = useState([]);
+  const [profileImage, setProfileImage] = useState(user?.photoURL || null);
 
   //리뷰, 좋아요, 댓글 실시간 구독
   useEffect(() => {
@@ -119,6 +122,7 @@ export default function Mypage({ navigation }) {
     );
   };
 
+  //프로필 수정
   const editProfile = async (editedName) => {
     try {
       setIsEditing(true);
@@ -137,6 +141,7 @@ export default function Mypage({ navigation }) {
     }
   };
 
+  //북마크 가져오기
   const getBookmarks = async (uid) => {
     try {
       const snapshot = await getDocs(collection(db, "users", uid, "bookmarks"));
@@ -149,6 +154,44 @@ export default function Mypage({ navigation }) {
       navigation.navigate("Bookmarks");
     } catch (error) {
       console.error("북마크 불러오기 에러:", error);
+    }
+  };
+  const pickImage = async () => {
+    // 권한 요청
+    const permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permissionResult.granted) {
+      alert("사진 접근 권한이 필요합니다.");
+      return;
+    }
+
+    // 이미지 선택
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.7,
+    });
+
+    if (!result.canceled) {
+      const localUri = result.assets[0].uri;
+      setProfileImage(localUri);
+
+      // Firebase Storage에 업로드
+      const response = await fetch(localUri);
+      const blob = await response.blob();
+      const storageRef = ref(storage, `profileImages/${user.uid}`);
+      await uploadBytes(storageRef, blob);
+
+      // 다운로드 URL 가져오기
+      const downloadURL = await getDownloadURL(storageRef);
+
+      // Firestore에 저장
+      const userRef = doc(db, "users", user.uid);
+      await updateDoc(userRef, { photoURL: downloadURL });
+
+      // Context에도 반영
+      setUser((prev) => ({ ...prev, photoURL: downloadURL }));
     }
   };
 
@@ -180,64 +223,89 @@ export default function Mypage({ navigation }) {
 
           <View style={styles.myInfoContainer}>
             <View style={styles.accContainer}>
-              <View style={styles.imageContainer}>
-                <ImageBackground
-                  // source={ExampleImg}
-                  source={require("../../src/assets/images/ex.jpg")}
-                  style={styles.imageBackground}
-                  imageStyle={styles.tumbnail}
-                />
-              </View>
-              <View style={styles.myAccInfo}>
-                <View style={styles.myFollowInfo}>
-                  {isEditing ? (
-                    <>
-                      <TextInput
-                        autoCapitalize="none"
-                        keyboardType="editedName"
-                        textContentType="editedName"
-                        autoFocus={true}
-                        value={editedName}
-                        onChangeText={setEditedName}
-                        style={{
-                          backgroundColor: "#fff",
-                          borderRadius: 6,
-                          paddingHorizontal: 10,
-                          paddingVertical: 5,
-                          minWidth: 120,
-                        }}
+              <View>
+                {isEditing ? (
+                  <View style={styles.myAccInfo}>
+                    <View style={styles.imageContainer}>
+                      <TouchableOpacity onPress={pickImage}>
+                        <ImageBackground
+                          source={
+                            profileImage
+                              ? { uri: profileImage }
+                              : require("../../src/assets/images/ex.jpg")
+                          }
+                          style={styles.imageBackground}
+                          imageStyle={styles.tumbnail}
+                        />
+                      </TouchableOpacity>
+                    </View>
+                    <TextInput
+                      autoCapitalize="none"
+                      keyboardType="editedName"
+                      textContentType="editedName"
+                      autoFocus={true}
+                      value={editedName}
+                      onChangeText={setEditedName}
+                      style={{
+                        backgroundColor: "#fff",
+                        borderRadius: 6,
+                        paddingHorizontal: 10,
+                        paddingVertical: 5,
+                        minWidth: 120,
+                        fontSize: 20,
+                      }}
+                    />
+                    <TouchableOpacity onPress={() => editProfile(editedName)}>
+                      <Text style={{ color: "#fff", fontWeight: "bold" }}>
+                        저장
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => setIsEditing(false)}
+                      setEditedName={user?.displayName}
+                    >
+                      <Text style={{ color: "#fff", fontWeight: "bold" }}>
+                        취소
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                ) : (
+                  <View style={styles.myAccInfo}>
+                    <View style={styles.imageContainer}>
+                      <ImageBackground
+                        source={
+                          profileImage
+                            ? { uri: profileImage }
+                            : require("../../src/assets/images/ex.jpg")
+                        }
+                        style={styles.imageBackground}
+                        imageStyle={styles.tumbnail}
                       />
-                      <TouchableOpacity onPress={() => editProfile(editedName)}>
-                        <Text style={{ color: "#fff", fontWeight: "bold" }}>
-                          저장
-                        </Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        onPress={() => setIsEditing(false)}
-                        setEditedName={user?.displayName}
-                      >
-                        <Text style={{ color: "#fff", fontWeight: "bold" }}>
-                          취소
-                        </Text>
-                      </TouchableOpacity>
-                    </>
-                  ) : (
-                    <>
+                    </View>
+                    <View
+                      style={{
+                        width: "60%",
+                        flexDirection: "row",
+                        justifyContent: "space-around",
+                      }}
+                    >
                       <Text
                         style={{
                           fontWeight: "bold",
                           color: "#fff",
                           fontSize: 22,
+                          minWidth: 120,
                         }}
                       >
                         {user?.displayName}
                       </Text>
+
                       <TouchableOpacity onPress={() => setIsEditing(true)}>
                         <EditIcon width={20} height={20} fill="#fff" />
                       </TouchableOpacity>
-                    </>
-                  )}
-                </View>
+                    </View>
+                  </View>
+                )}
 
                 <View style={styles.myFollowInfo}>
                   <View style={{ flexDirection: "row" }}>
@@ -446,22 +514,24 @@ const styles = {
     alignItems: "center",
   },
   myAccInfo: {
-    width: "70%",
+    width: "100%",
     height: "auto",
     // borderColor: "orange",
     // borderWidth: 1,
     // borderRadius: 10,
+    marginBottom: 15,
     marginLeft: 5,
     justifyContent: "space-around",
-    flexDirection: "horizontal",
+    flexDirection: "row",
+    alignItems: "center",
   },
 
   myFollowInfo: {
-    width: "90%",
+    width: "100%",
     height: "auto",
     // backgroundColor: "skyblue",
     marginVertical: 10,
-    padding: 3,
+    paddingVertical: 10,
     alignItems: "center",
     justifyContent: "space-around",
     flexDirection: "row",
