@@ -1,7 +1,6 @@
 import {
   View,
   Text,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   TextInput,
@@ -12,6 +11,7 @@ import {
   TouchableOpacity,
   FlatList,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import React, { useEffect, useState } from "react";
 import PlacesInfoModal from "../components/modals/PlacesInfoModal.js";
 import ReloadIcon from "../assets/icons/reload.svg";
@@ -19,6 +19,7 @@ import MapIcon from "../assets/icons/location.svg";
 import Mainlogo from "../assets/icons/logo-main.svg";
 import { XMLParser } from "fast-xml-parser";
 import Search from "../components/search/SearchBar.js";
+import SearchBar from "../components/search/SearchBar.js";
 
 export default function Places({ navigation }) {
   const [gallery, setGallery] = useState([]);
@@ -217,7 +218,7 @@ export default function Places({ navigation }) {
         <TouchableOpacity style={{ alignItems: "center" }}>
           <Mainlogo width={150} height={50} />
         </TouchableOpacity>
-        <Search />
+        <SearchBar />
         <View
           style={{
             width: "100%",

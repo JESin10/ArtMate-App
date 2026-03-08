@@ -16,16 +16,16 @@ export default function ArtworkFilter({
   initEnd,
   genres,
   regions,
-  realm,
 }) {
   const [sIdx, setSIdx] = useState(String(initStart ?? "1"));
   const [eIdx, setEIdx] = useState(String(initEnd ?? "60"));
   const [selectedGenres, setSelectedGenres] = useState([]);
   const [selectedRegions, setSelectedRegions] = useState([]);
-  const [selectedRealm, setSelectedRealm] = useState([]);
   const [openGenre, setOpenGenre] = useState(true);
   const [openRegion, setOpenRegion] = useState(false);
-  const [openRealm, setOpenRealm] = useState(false);
+  const [openRating, setOpenRating] = useState(false);
+  const [minRating, setMinRating] = useState(0);
+  const [selectedRating, setSelectedRating] = useState(0);
 
   useEffect(() => {
     if (initStart !== undefined) setSIdx(String(initStart));
@@ -54,12 +54,6 @@ export default function ArtworkFilter({
     );
   };
 
-  const toggleRealm = (realm) => {
-    setSelectedRealm((prev) =>
-      prev.includes(realm) ? prev.filter((r) => r !== realm) : [...prev, realm],
-    );
-  };
-
   const handleApply = () => {
     const start = Math.max(1, parseInt(sIdx || "1", 10));
     const end = Math.max(start, parseInt(eIdx || String(start + 59), 10));
@@ -68,8 +62,17 @@ export default function ArtworkFilter({
       end,
       genres: selectedGenres,
       regions: selectedRegions,
-      realm: selectedRealm,
+      minRating: selectedRating,
     });
+    setSelectedGenres([]);
+    setSelectedRegions([]);
+    setSelectedRating(0);
+    setMinRating(0);
+    setSIdx("1");
+    setEIdx("60");
+    setOpenGenre(true);
+    setOpenRegion(false);
+    setOpenRating(false);
   };
 
   return (
@@ -190,54 +193,46 @@ export default function ArtworkFilter({
                 })}
               </View>
             )}
-            {/*<View style={styles.line} />
-             <TouchableOpacity
-              onPress={() => setOpenGenre((prev) => !prev)}
-              style={{ flexDirection: "row", justifyContent: "space-between" }}
-            >
-              <Text style={styles.sectionTitle}>종류</Text>
-              <Text style={styles.sectionTitle}>{openRealm ? "▲" : "▼"}</Text>
-            </TouchableOpacity>
-            {openRealm && (
-              <View style={styles.filterContainer}>
-                <TouchableOpacity
-                  style={[
-                    styles.partButton,
-                    selectedRealm.length === 0 && styles.partButtonActive,
-                  ]}
-                  onPress={() => setSelectedRealm([])}
-                >
-                  <Text
-                    style={
-                      selectedRealm.length === 0
-                        ? styles.partTextActive
-                        : styles.partText
-                    }
-                  >
-                    전체
-                  </Text>
-                </TouchableOpacity>
-                {realm.map((part, index) => {
-                  const active = selectedRealm.includes(part);
-                  return (
+            <View style={styles.line} />
+            {/* 평점 필터 */}
+            <View style={{ marginTop: 20 }}>
+              <TouchableOpacity
+                onPress={() => setOpenRating((prev) => !prev)}
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                }}
+              >
+                <Text style={styles.sectionTitle}>평점</Text>
+                <Text style={styles.sectionTitle}>
+                  {openRating ? "▲" : "▼"}
+                </Text>
+              </TouchableOpacity>
+              {openRating && (
+                <View style={styles.filterContainer}>
+                  {[0, 1, 2, 3, 4, 5].map((r) => (
                     <TouchableOpacity
-                      key={index}
+                      key={r}
                       style={[
                         styles.partButton,
-                        active && styles.partButtonActive,
+                        selectedRating === r && styles.partButtonActive,
                       ]}
-                      onPress={() => toggleRealm(part)}
+                      onPress={() => setSelectedRating(r)}
                     >
                       <Text
-                        style={active ? styles.partTextActive : styles.partText}
+                        style={
+                          selectedRating === r
+                            ? styles.partTextActive
+                            : styles.partText
+                        }
                       >
-                        {part}
+                        {r === 0 ? "전체" : `${r}점 이상`}
                       </Text>
                     </TouchableOpacity>
-                  );
-                })}
-              </View>
-            )} */}
+                  ))}
+                </View>
+              )}
+            </View>
           </ScrollView>
           <View style={styles.buttonRow}>
             <TouchableOpacity onPress={onClose} style={styles.cancelBtn}>

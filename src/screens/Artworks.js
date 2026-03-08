@@ -20,6 +20,8 @@ import Mainlogo from "../assets/icons/logo-main.svg";
 import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 import { XMLParser } from "fast-xml-parser";
 import SearchBar from "../components/search/SearchBar.js";
+import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
+import { db } from "../../firebase.js";
 
 export default function Artworks({ navigation }) {
   const [artworks, setArtworks] = useState([]); // 원본 전체
@@ -35,6 +37,11 @@ export default function Artworks({ navigation }) {
   const [isFetchingMore, setIsFetchingMore] = useState(false);
   const [pageNum, setPageNum] = useState(parseInt(1));
   const [listCnt, setListCnt] = useState(parseInt(20));
+  const [reviews, setReviews] = useState([]);
+  const [selectedGenres, setSelectedGenres] = useState([]);
+  const [selectedRegions, setSelectedRegions] = useState([]);
+  const [selectedRating, setSelectedRating] = useState(0);
+
   const parser = new XMLParser({
     ignoreAttributes: false,
   });
@@ -43,12 +50,55 @@ export default function Artworks({ navigation }) {
     getArtwork(1);
   }, []);
 
+  useEffect(() => {
+    const reviewsRef = collection(db, "reviews");
+    let q;
+    //firestore는 orderBy로 정렬
+
+    q = query(reviewsRef, orderBy("createdAt", "desc"));
+
+    const unsubscribe = onSnapshot(q, async (snapshot) => {
+      const data = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      // 유저 displayName 한 번만 가져오기
+      const userIds = [...new Set(data.map((r) => r.userId))];
+      const displayNameMap = {};
+
+      for (const uid of userIds) {
+        try {
+          const userSnap = await getDoc(doc(db, "users", uid));
+          displayNameMap[uid] = userSnap.exists()
+            ? {
+                displayName: userSnap.data().displayName,
+                photoURL: userSnap.data().photoURL || null,
+              }
+            : { displayName: userSnap.data().displayName, photoURL: null };
+        } catch (err) {
+          displayNameMap[uid] = "익명";
+        }
+      }
+
+      // 리뷰 + displayName 합쳐서 상태 업데이트 (한 번만)
+      const fetchReview = data.map((r) => ({
+        ...r,
+        displayName: displayNameMap[r.userId]?.displayName,
+        photoURL: displayNameMap[r.userId]?.photoURL || null,
+      }));
+      setReviews(fetchReview);
+    });
+    return () => unsubscribe();
+  }, [reviews]);
+
+  //작품 가져오기
+  // getArtwork 함수 수정 (무한 스크롤 시 필터 적용)
   const getArtwork = async (nextPage = 1) => {
     if (!hasMore && nextPage !== 1) return;
 
-    if (nextPage === 1) {
-      setLoading(true);
-    } else setIsFetchingMore(true);
+    if (nextPage === 1) setLoading(true);
+    else setIsFetchingMore(true);
 
     try {
       const response = await fetch(
@@ -62,9 +112,7 @@ export default function Artworks({ navigation }) {
       const rawItems = jsonData?.response?.body?.items?.item || [];
       const list = Array.isArray(rawItems) ? rawItems : [rawItems];
 
-      if (list.length < listCnt) {
-        setHasMore(false);
-      }
+      if (list.length < listCnt) setHasMore(false);
 
       const normalized = list.map((it) => ({
         ...it,
@@ -75,13 +123,50 @@ export default function Artworks({ navigation }) {
       }));
 
       if (nextPage === 1) {
-        {
-          setArtworks(normalized);
-          setDisplayedArtworks(normalized); // 🔥 추가
-        }
+        setArtworks(normalized);
+        applyFilter({
+          start: startIndex,
+          end: endIndex,
+          genres: selectedGenres,
+          regions: selectedRegions,
+          minRating: selectedRating,
+        });
       } else {
         setArtworks((prev) => [...prev, ...normalized]);
-        setDisplayedArtworks((prev) => [...prev, ...normalized]); // 🔥 추가
+        // 무한 스크롤 시에도 기존 필터 적용
+        const filteredNewItems = normalized.filter((item) => {
+          let keep = true;
+
+          if (selectedGenres.length > 0) {
+            const lowered = selectedGenres.map((g) => g.toLowerCase());
+            keep =
+              keep &&
+              lowered.some((g) =>
+                String(item.serviceName || "")
+                  .toLowerCase()
+                  .includes(g),
+              );
+          }
+
+          if (selectedRegions.length > 0) {
+            const lowered = selectedRegions.map((r) => r.toLowerCase());
+            keep =
+              keep &&
+              lowered.some((r) =>
+                String(item.area || "")
+                  .toLowerCase()
+                  .includes(r),
+              );
+          }
+          if (selectedRating > 0 && typeof avgRatingMap !== "undefined") {
+            const avg = avgRatingMap[item.DP_SEQ] || 0;
+            keep = keep && avg >= selectedRating;
+          }
+
+          return keep;
+        });
+
+        setDisplayedArtworks((prev) => [...prev, ...filteredNewItems]);
       }
 
       setPageNum(nextPage);
@@ -92,25 +177,40 @@ export default function Artworks({ navigation }) {
     setLoading(false);
     setIsFetchingMore(false);
   };
-
   const loadMore = () => {
     if (!isFetchingMore && hasMore) {
       getArtwork(pageNum + 1);
     }
   };
 
-  // console.log(displayedArtworks);
-  // const filteredArtworks = useMemo(() => {
-  //   return artworks; // 지금은 기본값, 나중에 필터 적용 가능
-  // }, [artworks]);
+  // 작품별 평균 평점 계산
+  const avgRatingMap = useMemo(() => {
+    const map = {};
+    reviews.forEach((r) => {
+      if (!r.rating) return; // 평점 없으면 스킵
+      const id = r.artworkId;
+      if (!map[id]) map[id] = { sum: 0, count: 0 };
+      map[id].sum += r.rating;
+      map[id].count += 1;
+    });
+
+    const result = {};
+    Object.keys(map).forEach((id) => {
+      result[id] = map[id].count > 0 ? map[id].sum / map[id].count : 0;
+    });
+
+    return result;
+  }, [reviews]);
 
   // parts: ['조각', ...] 형태 (부분일치, 대소문자 무시), start/end는 1-based
+  // 기존 applyFilter 함수 수정
   const applyFilter = ({
     start = 1,
     end = 60,
     genres = [],
     regions = [],
     realmName = [],
+    minRating = 0,
   }) => {
     setStartIndex(start);
     setEndIndex(end);
@@ -120,7 +220,6 @@ export default function Artworks({ navigation }) {
     // 장르 필터
     if (genres.length > 0) {
       const lowered = genres.map((g) => g.toLowerCase());
-
       source = source.filter((a) =>
         lowered.some((g) =>
           String(a.serviceName || "")
@@ -133,7 +232,6 @@ export default function Artworks({ navigation }) {
     // 지역 필터
     if (regions.length > 0) {
       const lowered = regions.map((r) => r.toLowerCase());
-
       source = source.filter((a) =>
         lowered.some((r) =>
           String(a.area || "")
@@ -143,33 +241,44 @@ export default function Artworks({ navigation }) {
       );
     }
 
-    // 종류 필터
-    if (realmName.length > 0) {
-      const lowered = realmName.map((r) => r.toLowerCase());
-
-      source = source.filter((a) =>
-        lowered.some((r) =>
-          String(a.realmName || "")
-            .toLowerCase()
-            .includes(r),
-        ),
-      );
+    // 평균 평점 필터
+    if (minRating > 0 && typeof avgRatingMap !== "undefined") {
+      source = source.filter((a) => {
+        const avg = avgRatingMap[a.DP_SEQ] || 0;
+        return avg >= minRating;
+      });
     }
 
-    //  범위 적용
     const s = Math.max(1, start);
     const e = Math.min(source.length, end);
 
     setDisplayedArtworks(source.slice(s - 1, e));
   };
 
-  const onRefresh = () => {
+  const onRefresh = async () => {
     if (loading) return;
+
     setHasMore(true);
     setPageNum(1);
-    setArtworks([]);
-    // set({});
-    getArtwork(1);
+
+    // 🔹 필터 초기화
+    setSelectedGenres([]);
+    setSelectedRegions([]);
+    setSelectedRating(0);
+    setStartIndex(1);
+    setEndIndex(60);
+    setShowFilter(false);
+
+    // 🔹 artworks 초기화 후 데이터 가져오기
+    const newArtworks = await getArtwork(1, true); // true: 새로고침용 플래그
+    // 필터 초기화 상태 적용
+    applyFilter({
+      start: 1,
+      end: 60,
+      genres: [],
+      regions: [],
+      minRating: 0,
+    });
   };
 
   return (
@@ -223,7 +332,7 @@ export default function Artworks({ navigation }) {
         </View>
         <FlatList
           data={displayedArtworks}
-          keyExtractor={(item) => item.DP_SEQ?.toString()}
+          keyExtractor={(item, index) => `${item.DP_SEQ}-${index}`}
           numColumns={2}
           onEndReached={loadMore}
           onEndReachedThreshold={0.5}
@@ -280,14 +389,18 @@ export default function Artworks({ navigation }) {
         initEnd={endIndex}
         onClose={() => setShowFilter(false)}
         onApply={(filters) => {
-          applyFilter(filters);
+          setSelectedGenres(filters.genres);
+          setSelectedRegions(filters.regions);
+          setSelectedRating(filters.minRating);
+
+          applyFilter(filters); // 실제 필터 적용
           setShowFilter(false);
         }}
         genres={[
           ...new Set(artworks.map((a) => a.serviceName).filter(Boolean)),
         ]}
         regions={[...new Set(artworks.map((a) => a.area).filter(Boolean))]}
-        // realm={[...new Set(artworks.map((a) => a.realmName).filter(Boolean))]}
+        // rating={[...new Set(artworks.map((a) => a.rating).filter(Boolean))]}
       />
 
       <ArtworkInfoModal

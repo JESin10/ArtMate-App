@@ -4,12 +4,12 @@ import {
   FlatList,
   ActivityIndicator,
   TouchableOpacity,
-  SafeAreaView,
   ScrollView,
   Keyboard,
   StyleSheet,
   Button,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect, useRoute } from "@react-navigation/native";
 import useSearch from "../../src/components/hooks/useSearch";
 import BackwardIcon from "../assets/icons/backward.svg";

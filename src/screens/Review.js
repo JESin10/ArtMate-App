@@ -3,14 +3,15 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  SafeAreaView,
   ScrollView,
   ImageBackground,
   ActivityIndicator,
   TouchableOpacity,
   Button,
   Alert,
+  FlatList,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import React, { useState, useRef, useEffect, useContext } from "react";
 import ReviewModal from "../components/modals/ReviewModal";
 import Mainlogo from "../assets/icons/logo-main.svg";
@@ -187,8 +188,6 @@ export default function Review() {
     }
   };
 
-  const gotoArtwork = (artworkId) => {};
-
   //토글 좋아요
   const toggleLike = async (reviewId) => {
     if (!user) {
@@ -277,184 +276,190 @@ export default function Review() {
         flexDirection: "column",
         flex: 1,
         position: "relative",
+        paddingBottom: 60,
       }}
     >
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <View style={{ padding: 10 }}>
-          <TouchableOpacity style={{ alignItems: "center" }}>
-            <Mainlogo width={150} height={50} />
-          </TouchableOpacity>
-          <SearchBar />
-          <View style={styles.topFactorContainer}>
-            <Text style={styles.pageTitle}>관람후기</Text>
-            <View style={styles.filterContianer}>
-              <TouchableOpacity onPress={() => setSortType("like")}>
-                <Text
-                  style={[
-                    styles.filterFactor,
-                    sortType === "like" && {
-                      fontWeight: "bold",
-                      color: "#608D00",
-                    },
-                  ]}
-                >
-                  좋아요순
-                </Text>
-              </TouchableOpacity>
+      <View style={{ paddingBottom: 80, padding: 10 }}>
+        <TouchableOpacity style={{ alignItems: "center" }}>
+          <Mainlogo width={150} height={50} />
+        </TouchableOpacity>
+        <SearchBar />
+        <View style={styles.topFactorContainer}>
+          <Text style={styles.pageTitle}>관람후기</Text>
+          <View style={styles.filterContianer}>
+            <TouchableOpacity onPress={() => setSortType("like")}>
+              <Text
+                style={[
+                  styles.filterFactor,
+                  sortType === "like" && {
+                    fontWeight: "bold",
+                    color: "#608D00",
+                  },
+                ]}
+              >
+                좋아요순
+              </Text>
+            </TouchableOpacity>
 
-              <TouchableOpacity onPress={() => setSortType("recent")}>
-                <Text
-                  style={[
-                    styles.filterFactor,
-                    sortType === "recent" && {
-                      fontWeight: "bold",
-                      color: "#608D00",
-                    },
-                  ]}
-                >
-                  최근등록순
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={onRefresh} disabled={loading}>
-                <ReloadIcon
-                  width={24}
-                  height={24}
-                  style={{
-                    color: loading ? "#999" : "#333",
-                  }}
-                />
-              </TouchableOpacity>
-            </View>
-          </View>
-          <View style={styles.reviewsContainer}>
-            {reviews?.map((review, idx) => (
-              <View key={review.id || idx} style={styles.reviewFactor}>
-                <View
-                  style={{
-                    width: "90%",
-                    flexDirection: "row",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <View style={styles.profileContainer}>
-                    <ImageBackground
-                      source={
-                        review.photoURL
-                          ? { uri: review.photoURL }
-                          : require("../../src/assets/images/ex.jpg")
-                      }
-                      style={styles.ProfileTumbnail}
-                      imageStyle={styles.ProfileImage}
-                      resizeMode="cover"
-                    />
-                    <Text>{review.displayName || "익명"}</Text>
-
-                    {user && review.userId !== user.uid && (
-                      <TouchableOpacity
-                        style={
-                          followingMap[review.userId]
-                            ? styles.unfollowBtn
-                            : styles.followBtn
-                        }
-                        onPress={() => toggleFollow(review.userId)}
-                      >
-                        <Text
-                          style={
-                            followingMap[review.userId]
-                              ? styles.unfollowBtnText
-                              : styles.followBtnText
-                          }
-                        >
-                          {followingMap[review.userId] ? "언팔로우" : "팔로우"}
-                        </Text>
-                      </TouchableOpacity>
-                    )}
-                  </View>
-                  {user && review.userId === user.uid && (
-                    <View style={{ flexDirection: "row", width: "28%" }}>
-                      <TouchableOpacity
-                        onPress={() => {
-                          setSelectedReview(review);
-                          setIsEditing(true);
-                          setShowModal(true);
-                        }}
-                        style={{
-                          borderwidth: 1,
-                          borderRadius: 10,
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                      >
-                        <Text style={{ color: "#608D00" }}>수정</Text>
-                      </TouchableOpacity>
-
-                      <TouchableOpacity
-                        onPress={() => ReviewDelete(review.id, review.userId)}
-                        style={{
-                          paddingHorizontal: 10,
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                      >
-                        <Text style={{ color: "black" }}>삭제</Text>
-                      </TouchableOpacity>
-                    </View>
-                  )}
-                </View>
-                <TouchableOpacity
-                  onPress={() => {
-                    setShowArtworkModal(true);
-                    setSelectedReview(review.artworkId);
-                  }}
-                >
-                  <Text style={{ marginVertical: 14, fontWeight: "bold" }}>
-                    {review.title}
-                  </Text>
-                </TouchableOpacity>
-                <ImageSlider images={review.images} />
-                <View style={styles.reviewTextContainer}>
-                  <Text
-                    style={styles.reviewDescStyle}
-                    numberOfLines={3}
-                    ellipsizeMode="tail"
-                  >
-                    {review.content || "리뷰 내용이 없습니다."}
-                  </Text>
-                </View>
-
-                <View style={styles.reactionContainer}>
-                  <View style={{ flexDirection: "row", alignItems: "center" }}>
-                    <TouchableOpacity onPress={() => toggleLike(review.id)}>
-                      {likedMap[review.id] ? (
-                        <FilledLikeIcon width={16} height={16} fill="red" />
-                      ) : (
-                        <LikeIcon width={16} height={16} fill="black" />
-                      )}
-                    </TouchableOpacity>
-                    <Text>{review.LikeCnt}</Text>
-                  </View>
-                  <View style={{ flexDirection: "row", alignItems: "center" }}>
-                    <TouchableOpacity
-                      onPress={() => {
-                        setShowCmtModal(true);
-                        setSelectedReview(review);
-                      }}
-                    >
-                      <CommentIcon
-                        width={16}
-                        height={16}
-                        style={{ marginRight: 5, marginLeft: 30 }}
-                        reviewId={reviews.id}
-                      />
-                    </TouchableOpacity>
-                    <Text>{review.CommentCnt}</Text>
-                  </View>
-                </View>
-              </View>
-            ))}
+            <TouchableOpacity onPress={() => setSortType("recent")}>
+              <Text
+                style={[
+                  styles.filterFactor,
+                  sortType === "recent" && {
+                    fontWeight: "bold",
+                    color: "#608D00",
+                  },
+                ]}
+              >
+                최근등록순
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={onRefresh} disabled={loading}>
+              <ReloadIcon
+                width={24}
+                height={24}
+                style={{
+                  color: loading ? "#999" : "#333",
+                }}
+              />
+            </TouchableOpacity>
           </View>
         </View>
-      </ScrollView>
+        <FlatList
+          data={reviews}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.reviewsContainer}
+          renderItem={({ item: review }) => (
+            <View style={styles.reviewFactor}>
+              <View
+                style={{
+                  width: "90%",
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                }}
+              >
+                <View style={styles.profileContainer}>
+                  <ImageBackground
+                    source={
+                      review.photoURL
+                        ? { uri: review.photoURL }
+                        : require("../../src/assets/images/ex.jpg")
+                    }
+                    style={styles.ProfileTumbnail}
+                    imageStyle={styles.ProfileImage}
+                    resizeMode="cover"
+                  />
+                  <Text>{review.displayName || "익명"}</Text>
+
+                  {user && review.userId !== user.uid && (
+                    <TouchableOpacity
+                      style={
+                        followingMap[review.userId]
+                          ? styles.unfollowBtn
+                          : styles.followBtn
+                      }
+                      onPress={() => toggleFollow(review.userId)}
+                    >
+                      <Text
+                        style={
+                          followingMap[review.userId]
+                            ? styles.unfollowBtnText
+                            : styles.followBtnText
+                        }
+                      >
+                        {followingMap[review.userId] ? "언팔로우" : "팔로우"}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+
+                {user && review.userId === user.uid && (
+                  <View style={{ flexDirection: "row", width: "28%" }}>
+                    <TouchableOpacity
+                      onPress={() => {
+                        setSelectedReview(review);
+                        setIsEditing(true);
+                        setShowModal(true);
+                      }}
+                      style={{
+                        borderwidth: 1,
+                        borderRadius: 10,
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <Text style={{ color: "#608D00" }}>수정</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      onPress={() => ReviewDelete(review.id, review.userId)}
+                      style={{
+                        paddingHorizontal: 10,
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <Text style={{ color: "black" }}>삭제</Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
+              </View>
+
+              <TouchableOpacity
+                onPress={() => {
+                  setShowArtworkModal(true);
+                  setSelectedReview(review.artworkId);
+                }}
+              >
+                <Text style={{ marginVertical: 14, fontWeight: "bold" }}>
+                  {review.title}
+                </Text>
+              </TouchableOpacity>
+
+              <ImageSlider images={review.images} />
+
+              <View style={styles.reviewTextContainer}>
+                <Text
+                  style={styles.reviewDescStyle}
+                  numberOfLines={3}
+                  ellipsizeMode="tail"
+                >
+                  {review.content || "리뷰 내용이 없습니다."}
+                </Text>
+              </View>
+
+              <View style={styles.reactionContainer}>
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  <TouchableOpacity onPress={() => toggleLike(review.id)}>
+                    {likedMap[review.id] ? (
+                      <FilledLikeIcon width={16} height={16} fill="red" />
+                    ) : (
+                      <LikeIcon width={16} height={16} fill="black" />
+                    )}
+                  </TouchableOpacity>
+                  <Text>{review.LikeCnt}</Text>
+                </View>
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  <TouchableOpacity
+                    onPress={() => {
+                      setShowCmtModal(true);
+                      setSelectedReview(review);
+                    }}
+                  >
+                    <CommentIcon
+                      width={16}
+                      height={16}
+                      style={{ marginRight: 5, marginLeft: 30 }}
+                      reviewId={reviews.id}
+                    />
+                  </TouchableOpacity>
+                  <Text>{review.CommentCnt}</Text>
+                </View>
+              </View>
+            </View>
+          )}
+        />
+      </View>
       <View style={styles.ReviewBtn}>
         <TouchableOpacity
           style={styles.ReviewBtnInner}
