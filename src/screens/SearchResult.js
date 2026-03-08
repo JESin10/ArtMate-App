@@ -179,6 +179,7 @@ export default function SearchResult({ navigation }) {
             setSelectedItem(null);
           }}
           seq={selectedItem.id}
+          artwork={selectedItem}
         />
       )}
     </SafeAreaView>

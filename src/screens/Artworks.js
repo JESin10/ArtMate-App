@@ -297,7 +297,7 @@ export default function Artworks({ navigation }) {
           // setDetailArtwork([]);
           // getDetailArtwork();
         }}
-        // artwork={detailArtwork}
+        artwork={selectedArtwork}
         seq={selectedArtwork?.DP_SEQ}
       />
       {/*       

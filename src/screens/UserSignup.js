@@ -79,8 +79,8 @@ export default function UserSignup({ navigation }) {
         email,
         uid: user.uid,
         createdAt: new Date().toUTCString(),
-        following: 0,
-        followers: 0,
+        followingCnt: 0,
+        followerCnt: 0,
         photoURL, // 프로필 사진 URL 저장
       });
 

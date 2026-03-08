@@ -42,8 +42,9 @@ export default function Login({ navigation }) {
           uid,
           email: userData.email,
           displayName: userData.displayName,
-          follower: userData.followers,
-          following: userData.following,
+          followerCnt: userData.followerCnt,
+          followingCnt: userData.followingCnt,
+          photoURL: userData.photoURL,
         });
       }
       // Alert.alert("로그인 성공", "로그인이 완료되었습니다.");

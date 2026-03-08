@@ -59,14 +59,14 @@ export default function Review() {
   const [showArtworkModal, setShowArtworkModal] = useState(false);
   const flatListRef = useRef(null);
   const scrollRef = useRef(null);
+  const [followingMap, setFollowingMap] = useState({});
 
+  // console.log(user);
   const onRefresh = React.useCallback(() => {
     setLoading(true);
-
-    // 🔥 정렬 초기화
+    // 정렬 초기화
     setSortType("like");
-
-    // 🔥 혹시 모를 상태 초기화 (선택)
+    // 혹시 모를 상태 초기화 (선택)
     setSelectedReview(null);
     setShowModal(false);
     setShowCmtModal(false);
@@ -157,7 +157,23 @@ export default function Review() {
     fetchLikedReviews();
   }, [user]);
 
-  // console.log("reviews:", reviews[1]);
+  //팔로우여부 구독
+  useEffect(() => {
+    if (!user) return;
+
+    const followingRef = collection(db, "users", user.uid, "following");
+
+    const unsubscribe = onSnapshot(followingRef, (snapshot) => {
+      const map = {};
+      snapshot.docs.forEach((doc) => {
+        map[doc.id] = true;
+      });
+      setFollowingMap(map);
+    });
+
+    return () => unsubscribe();
+  }, [user]);
+
   //리뷰 삭제
   const ReviewDelete = async (reviewId, userId) => {
     try {
@@ -209,7 +225,50 @@ export default function Review() {
     }
   };
 
-  console.log("reviews", selectedReview);
+  // 팔로우, 언팔로우
+  const toggleFollow = async (targetUserId) => {
+    if (!user) {
+      Alert.alert("로그인이 필요합니다.");
+      return;
+    }
+
+    const followingRef = doc(db, "users", user.uid, "following", targetUserId);
+    const followerRef = doc(db, "users", targetUserId, "followers", user.uid);
+
+    try {
+      if (followingMap[targetUserId]) {
+        // 언팔로우
+        await deleteDoc(followingRef);
+        await deleteDoc(followerRef);
+
+        await updateDoc(doc(db, "users", user.uid), {
+          followingCnt: increment(-1),
+        });
+        await updateDoc(doc(db, "users", targetUserId), {
+          followerCnt: increment(-1),
+        });
+
+        Alert.alert("언팔로우 성공!");
+      } else {
+        // 팔로우
+        await setDoc(followingRef, { createdAt: serverTimestamp() });
+        await setDoc(followerRef, { createdAt: serverTimestamp() });
+
+        await updateDoc(doc(db, "users", user.uid), {
+          followingCnt: increment(1),
+        });
+        await updateDoc(doc(db, "users", targetUserId), {
+          followerCnt: increment(1),
+        });
+
+        Alert.alert("팔로우 성공!");
+      }
+    } catch (error) {
+      console.error("팔로우 토글 실패:", error);
+      Alert.alert("팔로우/언팔로우 실패. 다시 시도해주세요.");
+    }
+  };
+
   return (
     <SafeAreaView
       style={{
@@ -289,6 +348,27 @@ export default function Review() {
                       resizeMode="cover"
                     />
                     <Text>{review.displayName || "익명"}</Text>
+
+                    {user && review.userId !== user.uid && (
+                      <TouchableOpacity
+                        style={
+                          followingMap[review.userId]
+                            ? styles.unfollowBtn
+                            : styles.followBtn
+                        }
+                        onPress={() => toggleFollow(review.userId)}
+                      >
+                        <Text
+                          style={
+                            followingMap[review.userId]
+                              ? styles.unfollowBtnText
+                              : styles.followBtnText
+                          }
+                        >
+                          {followingMap[review.userId] ? "언팔로우" : "팔로우"}
+                        </Text>
+                      </TouchableOpacity>
+                    )}
                   </View>
                   {user && review.userId === user.uid && (
                     <View style={{ flexDirection: "row", width: "28%" }}>
@@ -404,6 +484,7 @@ export default function Review() {
           setSelectedReview([]);
         }}
         seq={selectedReview}
+        artwork={reviews}
       />
       <CommentModal
         visible={showCmtModal}
@@ -597,5 +678,29 @@ const styles = StyleSheet.create({
 
   activeIndicator: {
     backgroundColor: "#000",
+  },
+  followBtn: {
+    marginLeft: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 6,
+    backgroundColor: "#608D00",
+  },
+  unfollowBtn: {
+    marginLeft: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 6,
+    backgroundColor: "white",
+    borderWidth: 1,
+    borderColor: "#608D00",
+  },
+  followBtnText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+  unfollowBtnText: {
+    color: "#608D00",
+    fontWeight: "bold",
   },
 });

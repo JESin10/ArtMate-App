@@ -47,7 +47,36 @@ export default function Mypage({ navigation }) {
   const [myReviews, setMyReviews] = useState([]);
   const [myLikeRV, setMyLikeRV] = useState([]);
   const [myComments, setMyComments] = useState([]);
-  const [profileImage, setProfileImage] = useState(user?.photoURL || null);
+  const [profileImage, setProfileImage] = useState(null);
+  const [followerCount, setFollowerCount] = useState(0);
+  const [followingCount, setFollowingCount] = useState(0);
+
+  //프로필 이미지
+  useEffect(() => {
+    if (user?.photoURL) {
+      setProfileImage(user.photoURL);
+    }
+  }, [user?.photoURL]);
+
+  useEffect(() => {
+    if (!user) return;
+    // 팔로워 구독
+    const followersRef = collection(db, "users", user.uid, "followers");
+    const unsubscribeFollowers = onSnapshot(followersRef, (snapshot) => {
+      // 컬렉션 문서 개수 = 팔로워 수
+      setFollowerCount(snapshot.size);
+    });
+    // 팔로잉 구독
+    const followingRef = collection(db, "users", user.uid, "following");
+    const unsubscribeFollowing = onSnapshot(followingRef, (snapshot) => {
+      setFollowingCount(snapshot.size);
+    });
+    // 언마운트 시 구독 해제
+    return () => {
+      unsubscribeFollowers();
+      unsubscribeFollowing();
+    };
+  }, [user]);
 
   //리뷰, 좋아요, 댓글 실시간 구독
   useEffect(() => {
@@ -123,16 +152,18 @@ export default function Mypage({ navigation }) {
   };
 
   //프로필 수정
-  const editProfile = async (editedName) => {
+  const editProfile = async (editedName, profileImage) => {
     try {
       setIsEditing(true);
       const userRef = doc(db, "users", user?.uid);
       await updateDoc(userRef, {
         displayName: editedName,
+        photoURL: profileImage,
       });
       setUser((prev) => ({
         ...prev,
         displayName: editedName,
+        photoURL: profileImage,
       }));
       Alert.alert("프로필이 수정되었습니다");
       setIsEditing(false);
@@ -255,7 +286,9 @@ export default function Mypage({ navigation }) {
                         fontSize: 20,
                       }}
                     />
-                    <TouchableOpacity onPress={() => editProfile(editedName)}>
+                    <TouchableOpacity
+                      onPress={() => editProfile(editedName, profileImage)}
+                    >
                       <Text style={{ color: "#fff", fontWeight: "bold" }}>
                         저장
                       </Text>
@@ -313,7 +346,7 @@ export default function Mypage({ navigation }) {
                       팔로워
                     </Text>
                     <Text style={{ fontWeight: "bold", color: "#fff" }}>
-                      {user?.following}
+                      {followingCount}
                     </Text>
                   </View>
                   <View style={{ flexDirection: "row" }}>
@@ -321,7 +354,7 @@ export default function Mypage({ navigation }) {
                       팔로잉
                     </Text>
                     <Text style={{ fontWeight: "bold", color: "#fff" }}>
-                      {user?.follower}
+                      {followerCount}
                     </Text>
                   </View>
                 </View>

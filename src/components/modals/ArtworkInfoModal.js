@@ -33,7 +33,7 @@ import { use } from "react";
 import Map from "../../screens/Map";
 import { XMLParser } from "fast-xml-parser";
 
-export default function ArtworkInfoModal({ visible, onClose, seq }) {
+export default function ArtworkInfoModal({ visible, onClose, seq, artwork }) {
   const [filled, setFilled] = useState(false);
   const { user, setUser } = useContext(AuthContext);
   const [detailArtwork, setDetailArtwork] = useState([]);
@@ -133,8 +133,7 @@ export default function ArtworkInfoModal({ visible, onClose, seq }) {
 
   // Modal 열릴 때 북마크 여부 가져오기
   useEffect(() => {
-    if (!visible) return;
-    if (!user || seq) return;
+    if (!visible || !user || !seq) return;
 
     const checkBookmark = async () => {
       try {
@@ -143,13 +142,13 @@ export default function ArtworkInfoModal({ visible, onClose, seq }) {
           "users",
           user.uid,
           "bookmarks",
-          String(detail.seq),
+          String(seq),
         );
-
         const snap = await getDoc(bookmarkRef);
-        setFilled(snap.exists());
-      } catch (error) {
-        console.error("Bookmark check error:", error);
+        setFilled(snap.exists()); // 현재 작품에 대한 북마크 여부만 true/false
+      } catch (err) {
+        console.error("Bookmark check error:", err);
+        setFilled(false);
       }
     };
 
