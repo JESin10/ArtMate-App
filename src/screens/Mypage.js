@@ -5,13 +5,13 @@ import {
   StyleSheet,
   TextInput,
   TouchableOpacity,
-  SafeAreaView,
   ScrollView,
   ImageBackground,
   Button,
   Alert,
   Pressable,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import LikeIcon from "../../src/assets/icons/heart.svg";
 import BookMarkIcon from "../../src/assets/icons/bookmark.svg";
 import ListIcon from "../../src/assets/icons/receipt.svg";
@@ -173,20 +173,37 @@ export default function Mypage({ navigation }) {
   };
 
   //북마크 가져오기
-  const getBookmarks = async (uid) => {
-    try {
-      const snapshot = await getDocs(collection(db, "users", uid, "bookmarks"));
+  // const getBookmarks = async (uid) => {
+  //   try {
+  //     const snapshot = await getDocs(collection(db, "users", uid, "bookmarks"));
 
-      const bookmark = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setBookmarks(bookmark);
-      navigation.navigate("Bookmarks");
-    } catch (error) {
-      console.error("북마크 불러오기 에러:", error);
-    }
-  };
+  //     const bookmark = snapshot.docs.map((doc) => ({
+  //       id: doc.id,
+  //       ...doc.data(),
+  //     }));
+  //     setBookmarks(bookmark);
+  //     navigation.navigate("Bookmarks");
+  //   } catch (error) {
+  //     console.error("북마크 불러오기 에러:", error);
+  //   }
+  // };
+
+  //리뷰 가져오기
+  // const getHistory = async (uid) => {
+  //   try {
+  //     const snapshot = await getDocs(collection(db, "users", uid, "reviews"));
+
+  //     const review = snapshot.docs.map((doc) => ({
+  //       id: doc.id,
+  //       ...doc.data(),
+  //     }));
+  //     setMyReviews(review);
+  //     navigation.navigate("History");
+  //   } catch (error) {
+  //     console.error("북마크 불러오기 에러:", error);
+  //   }
+  // };
+
   const pickImage = async () => {
     // 권한 요청
     const permissionResult =
@@ -361,7 +378,10 @@ export default function Mypage({ navigation }) {
               </View>
             </View>
             <View style={styles.myActivity}>
-              <TouchableOpacity style={{ alignItems: "center" }}>
+              <TouchableOpacity
+                style={{ alignItems: "center" }}
+                onPress={() => navigation.navigate("History")}
+              >
                 <ListIcon width={36} height={36} fill="#fff" />
                 <Text
                   style={{
@@ -379,7 +399,7 @@ export default function Mypage({ navigation }) {
                   alignItems: "center",
                 }}
                 onPress={() => {
-                  getBookmarks(user.uid);
+                  navigation.navigate("Bookmarks");
                 }}
               >
                 <BookMarkIcon width={36} height={36} fill="#fff" />
@@ -394,7 +414,7 @@ export default function Mypage({ navigation }) {
                   스크랩북
                 </Text>
               </TouchableOpacity>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.navigate("Likes")}>
                 <LikeIcon width={36} height={36} fill="#fff" />
                 <Text
                   style={{

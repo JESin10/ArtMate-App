@@ -1,7 +1,6 @@
 import {
   View,
   Text,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   TextInput,
@@ -9,6 +8,7 @@ import {
   Alert,
   Image,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import React, { useState } from "react";
 import Mainlogo from "../assets/icons/logo-main.svg";
 import MainSlogun from "../assets/images/slogan.svg";

@@ -5,10 +5,10 @@ import {
   TouchableOpacity,
   TextInput,
   Button,
-  SafeAreaView,
   ScrollView,
   Alert,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import React, { useState, useContext } from "react";
 import Mainlogo from "../assets/icons/logo-main.svg";
 import MainSlogun from "../assets/images/slogan.svg";

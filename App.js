@@ -11,6 +11,8 @@ import UserSignup from "./src/screens/UserSignup";
 import { AuthContext, AuthProvider } from "./src/services/context";
 import Bookmarks from "./src/screens/Bookmarks";
 import SearchResult from "./src/screens/SearchResult";
+import Likes from "./src/screens/Likes";
+import History from "./src/screens/History";
 
 export default function App() {
   const Stack = createNativeStackNavigator();
@@ -26,6 +28,8 @@ export default function App() {
           {/* <Stack.Screen name="Status" component={Status} /> */}
           <Stack.Screen name="Setting" component={Setting} />
           <Stack.Screen name="Bookmarks" component={Bookmarks} />
+          <Stack.Screen name="Likes" component={Likes} />
+          <Stack.Screen name="History" component={History} />
 
           <Stack.Screen name="Login" component={Login} />
           <Stack.Screen name="Signup" component={UserSignup} />
