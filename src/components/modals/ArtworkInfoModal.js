@@ -45,8 +45,39 @@ export default function ArtworkInfoModal({ visible, onClose, seq, artwork }) {
   useEffect(() => {
     if (seq) {
       getDetailArtwork(seq);
+      // console.log("seq:", seq);
     }
   }, [seq]);
+
+  // useEffect(() => {
+  //   if (artwork) {
+  //     console.log("선택된 작품:", artwork);
+  //   }
+  // }, [artwork]);
+
+  // Modal 열릴 때 북마크 여부 가져오기
+  useEffect(() => {
+    if (!visible || !user || !seq) return;
+
+    const checkBookmark = async () => {
+      try {
+        const bookmarkRef = doc(
+          db,
+          "users",
+          user.uid,
+          "bookmarks",
+          String(seq),
+        );
+        const snap = await getDoc(bookmarkRef);
+        setFilled(snap.exists());
+      } catch (err) {
+        console.error("Bookmark check error:", err);
+        setFilled(false);
+      }
+    };
+
+    checkBookmark();
+  }, [visible, user?.uid, seq]);
 
   //태그 텍스트 적용
   const htmlToPlain = (html) => {
@@ -131,30 +162,6 @@ export default function ArtworkInfoModal({ visible, onClose, seq, artwork }) {
     }
   };
 
-  // Modal 열릴 때 북마크 여부 가져오기
-  useEffect(() => {
-    if (!visible || !user || !seq) return;
-
-    const checkBookmark = async () => {
-      try {
-        const bookmarkRef = doc(
-          db,
-          "users",
-          user.uid,
-          "bookmarks",
-          String(seq),
-        );
-        const snap = await getDoc(bookmarkRef);
-        setFilled(snap.exists()); // 현재 작품에 대한 북마크 여부만 true/false
-      } catch (err) {
-        console.error("Bookmark check error:", err);
-        setFilled(false);
-      }
-    };
-
-    checkBookmark();
-  }, [visible, user?.uid, seq]);
-
   //북마크 하기
   const BookmarkHandler = async () => {
     if (!user) {
@@ -162,24 +169,29 @@ export default function ArtworkInfoModal({ visible, onClose, seq, artwork }) {
       return;
     }
 
-    const seq = String(seq);
-    const uid = String(user.uid);
-    const img = (setDetailArtwork?.imgUrl ?? "").replace("http", "https");
+    if (!artwork?.seq) {
+      console.warn("북마크할 작품 ID가 없습니다");
+      return;
+    }
 
-    const bookmarkRef = doc(db, "users", uid, "bookmarks", seq);
-    const artworkRef = doc(db, "artworks", seq);
+    const uid = String(user.uid);
+    const seqId = String(artwork.seq); // 여기서 안전하게 id 가져오기
+    const img = (detailArtwork?.imgUrl ?? "").replace("http", "https");
+
+    const bookmarkRef = doc(db, "users", uid, "bookmarks", seqId);
+    const artworkRef = doc(db, "artworks", seqId);
 
     try {
       if (!filled) {
-        // 1️⃣ 유저 북마크 저장
+        // 북마크 추가
         await setDoc(bookmarkRef, {
-          artworkSeq: seq,
+          seq: seqId,
           artworkTitle: artwork.title ?? "",
           artworkImgUrl: img,
           createdAt: serverTimestamp(),
         });
 
-        // 2️⃣ 작품 컬렉션에 count 증가 (문서 없으면 자동 생성)
+        // 작품 컬렉션 count 증가 (merge: true → 문서 없으면 생성)
         await setDoc(
           artworkRef,
           {
@@ -193,10 +205,8 @@ export default function ArtworkInfoModal({ visible, onClose, seq, artwork }) {
         setFilled(true);
         Alert.alert("북마크", "북마크에 추가되었습니다.");
       } else {
-        // 1️⃣ 유저 북마크 삭제
+        // 북마크 삭제
         await deleteDoc(bookmarkRef);
-
-        // 2️⃣ 작품 count 감소
         await updateDoc(artworkRef, {
           bookmarkCount: increment(-1),
         });

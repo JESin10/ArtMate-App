@@ -42,10 +42,10 @@ export default function History({ navigation }) {
           </TouchableOpacity>
         </View>
         <View>
-          {myhistory?.map((item) => (
+          {myhistory?.map((item, index) => (
             <>
-              <Text key={item.id}>{item.artworkId}</Text>
-              <Text key={item.id}>{item.title}</Text>
+              <Text key={item.artworkId}>{item.artworkId}</Text>
+              <Text key={item.index}>{item.title}</Text>
             </>
           ))}
         </View>

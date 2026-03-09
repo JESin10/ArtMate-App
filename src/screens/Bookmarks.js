@@ -3,36 +3,50 @@ import React, { useContext, useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import BackwardIcon from "../assets/icons/backward.svg";
 import { AuthContext } from "../services/context";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
 import { db } from "../../firebase";
+import ArtworkInfoModal from "../components/modals/ArtworkInfoModal";
 
 export default function Bookmarks({ navigation }) {
-  const [myBookmarks, setMyBookmarks] = useState([]);
   const { user } = useContext(AuthContext);
-  const [loading, setLoading] = useState(true);
+  const [myBookmarks, setMyBookmarks] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedArtwork, setSelectedArtwork] = useState(null);
 
   useEffect(() => {
-    getBookmarks(user.uid);
-  }, []);
+    if (!user?.uid) return;
 
-  const getBookmarks = async (uid) => {
-    try {
-      const snapshot = await getDocs(collection(db, "users", uid, "bookmarks"));
+    // Firestore 컬렉션 실시간 구독
+    const bookmarksRef = collection(db, "users", user.uid, "bookmarks");
+    const q = query(bookmarksRef, orderBy("createdAt", "desc")); // 최신순 정렬
 
-      const bookmark = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setMyBookmarks(bookmark);
-    } catch (error) {
-      console.error("북마크 불러오기 에러:", error);
-    }
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const bookmarkData = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setMyBookmarks(bookmarkData);
+      },
+      (error) => {
+        console.error("실시간 구독 에러:", error);
+      },
+    );
+
+    // 컴포넌트 언마운트 시 구독 해제
+    return () => unsubscribe();
+  }, [user?.uid]);
+
+  console.log(selectedArtwork);
+
+  const handleModalOpen = (item) => {
+    setSelectedArtwork(item);
+    setShowModal(true);
   };
 
-  // console.log("Bookmarks:", myBookmarks);
-
   return (
-    <SafeAreaView>
+    <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.settingFactorContainer}>
         <View style={styles.userSetting}>
           <TouchableOpacity
@@ -44,10 +58,25 @@ export default function Bookmarks({ navigation }) {
         </View>
         <View>
           {myBookmarks.map((item) => (
-            <Text key={item.id}>{item.artworkTitle}</Text>
+            <TouchableOpacity
+              key={item.seq}
+              onPress={() => handleModalOpen(item)}
+            >
+              <Text>{item.artworkTitle}</Text>
+            </TouchableOpacity>
           ))}
         </View>
       </View>
+
+      <ArtworkInfoModal
+        visible={showModal}
+        onClose={() => {
+          setShowModal(false);
+          setSelectedArtwork(null);
+        }}
+        artwork={selectedArtwork}
+        seq={selectedArtwork?.seq}
+      />
     </SafeAreaView>
   );
 }
