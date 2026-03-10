@@ -11,11 +11,24 @@ import {
   ActivityIndicator,
 } from "react-native";
 import InfoIcon from "../../assets/icons/info.svg";
-import React, { useEffect, useState } from "react";
-import { use } from "react";
+import React, { useContext, useEffect, useState } from "react";
+import BookmarkIcon from "../../assets/icons/bookmark.svg";
+import FilledBookmarkIcon from "../../assets/icons/bookmark-filled.svg";
+import ShareIcon from "../../assets/icons/share.svg";
 import { decode } from "html-entities";
 import Map from "../../screens/Map";
 import { XMLParser } from "fast-xml-parser";
+import { AuthContext } from "../../services/context";
+import {
+  doc,
+  setDoc,
+  deleteDoc,
+  updateDoc,
+  increment,
+  serverTimestamp,
+  getDoc,
+} from "firebase/firestore";
+import { db } from "../../../firebase";
 
 export default function PlacesInfoModal({
   visible,
@@ -29,7 +42,8 @@ export default function PlacesInfoModal({
   const parser = new XMLParser({
     ignoreAttributes: false,
   });
-
+  const { user, setUser } = useContext(AuthContext);
+  const [filled, setFilled] = useState(false);
   const getProvinceFromAddress = (addr) => {
     if (!addr) return "";
     const first = String(addr).trim().split(/\s+/)[0];
@@ -47,19 +61,29 @@ export default function PlacesInfoModal({
     return first;
   };
 
-  // useEffect(() => {
-  //   if (detail?.culAddr) {
-  //     const province = getProvinceFromAddress(detail.culAddr);
-  //     // console.log("province:", province);
-  //     setCity(province);
-  //   }
-  // }, [detail?.culAddr]);
-
   useEffect(() => {
     if (seq && visible) {
       getDetailPlace(seq);
     }
   }, [seq, visible]);
+
+  // Modal 열릴 때 북마크 여부 가져오기
+  useEffect(() => {
+    if (!visible || !user || !seq) return;
+
+    const checkBookmark = async () => {
+      try {
+        const bookmarkRef = doc(db, "users", user.uid, "pins", String(seq));
+        const snap = await getDoc(bookmarkRef);
+        setFilled(snap.exists());
+      } catch (err) {
+        console.error("Bookmark check error:", err);
+        setFilled(false);
+      }
+    };
+
+    checkBookmark();
+  }, [visible, user?.uid, seq]);
 
   const getDetailPlace = async (seq) => {
     setLoading(true);
@@ -115,6 +139,72 @@ export default function PlacesInfoModal({
     return decode(plain);
   };
 
+  // console.log(detail);
+  //장소 북마크
+  const BookmarkHandler = async () => {
+    if (!user) {
+      Alert.alert("알림", "로그인 후 이용가능합니다.");
+      return;
+    }
+
+    if (!detail?.seq) {
+      console.warn("북마크할 작품 ID가 없습니다");
+      return;
+    }
+
+    const uid = String(user.uid);
+    const seqId = String(detail.seq); // 여기서 안전하게 id 가져오기
+    const imgUrl = (detail?.culViewImg1 ?? "").replace("http", "https");
+    const geoCode = {
+      lat: Number(detail.gpsY),
+      lng: Number(detail.gpsX),
+    };
+    const add = String(detail.culAddr);
+
+    const bookmarkRef = doc(db, "users", uid, "pins", seqId);
+    const placeRef = doc(db, "places", seqId);
+
+    try {
+      if (!filled) {
+        // 북마크 추가
+        await setDoc(bookmarkRef, {
+          seq: seqId,
+          placeName: detail.culName,
+          placeImgUrl: imgUrl,
+          createdAt: serverTimestamp(),
+          geoCode,
+          placeAdd: add,
+        });
+
+        // 작품 컬렉션 count 증가 (merge: true → 문서 없으면 생성)
+        await setDoc(
+          placeRef,
+          {
+            placeName: detail.culName,
+            placeImgUrl: imgUrl,
+            bookmarkCount: increment(1),
+          },
+          { merge: true },
+        );
+
+        setFilled(true);
+        Alert.alert("북마크", "북마크에 추가되었습니다.");
+      } else {
+        // 북마크 삭제
+        await deleteDoc(bookmarkRef);
+        await updateDoc(placeRef, {
+          bookmarkCount: increment(-1),
+        });
+
+        setFilled(false);
+        Alert.alert("북마크", "북마크에서 제거되었습니다.");
+      }
+    } catch (error) {
+      console.error("BookmarkHandler error", error);
+      Alert.alert("오류", "북마크 처리 중 오류가 발생했습니다.");
+    }
+  };
+
   return (
     <Modal
       visible={visible}
@@ -154,8 +244,37 @@ export default function PlacesInfoModal({
             </View>
             <View style={styles.titleContainer}>
               <Text style={styles.titleText1}>
-                {detail?.culName} / {city}
+                {detail?.culName} / {detail?.culGrpName}
               </Text>
+              <View style={styles.IconContainer}>
+                <TouchableOpacity
+                  style={{ marginHorizontal: 12 }}
+                  onPress={() =>
+                    Alert.alert(
+                      "공유하기",
+                      "공유하기 기능은 곧 업데이트됩니다.",
+                    )
+                  }
+                >
+                  <ShareIcon width={24} height={24} />
+                </TouchableOpacity>
+                {filled ? (
+                  <TouchableOpacity onPress={() => BookmarkHandler()}>
+                    <FilledBookmarkIcon width={24} height={24} fill="#608D00" />
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity onPress={() => BookmarkHandler()}>
+                    <BookmarkIcon
+                      width={24}
+                      height={24}
+                      style={{
+                        color: "black",
+                      }}
+                      fill="#000"
+                    />
+                  </TouchableOpacity>
+                )}
+              </View>
             </View>
             <View style={styles.textContainer}>
               <Text style={styles.titleText2}>주소</Text>
@@ -271,14 +390,31 @@ const styles = StyleSheet.create({
     fontSize: 16,
     paddingVertical: 20,
     paddingHorizontal: 10,
+    width: "80%",
   },
-
+  IconContainer: {
+    marginBottom: 2,
+    width: "20%",
+    height: "100%",
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    alignItems: "center",
+  },
+  linkIcon: {
+    marginBottom: 2,
+    flexDirection: "row",
+    textAlign: "center",
+    alignItems: "center",
+    justifyContent: "center",
+  },
   titleContainer: {
     width: "100%",
     borderColor: "transparent",
     borderBottomColor: "#C6C6C6",
     borderBottomWidth: 1,
     marginBottom: 20,
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   titleText2: {
     width: "20%",

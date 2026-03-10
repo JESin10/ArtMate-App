@@ -6,12 +6,41 @@ import { AuthContext } from "../services/context";
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
 import { db } from "../../firebase";
 import ArtworkInfoModal from "../components/modals/ArtworkInfoModal";
+import PlacesInfoModal from "../components/modals/PlacesInfoModal";
 
 export default function Bookmarks({ navigation }) {
   const { user } = useContext(AuthContext);
   const [myBookmarks, setMyBookmarks] = useState([]);
-  const [showModal, setShowModal] = useState(false);
+  const [showArtworkModal, setShowArtworkModal] = useState(false);
   const [selectedArtwork, setSelectedArtwork] = useState(null);
+  const [myPins, setMyPins] = useState([]);
+  const [selectedPlace, setSelectedPlace] = useState(null);
+  const [showPlaceModal, setShowPlaceModal] = useState(false);
+
+  useEffect(() => {
+    if (!user?.uid) return;
+
+    // Firestore 컬렉션 실시간 구독
+    const pinsRef = collection(db, "users", user.uid, "pins");
+    const b = query(pinsRef, orderBy("createdAt", "desc")); // 최신순 정렬
+
+    const unsubscribe = onSnapshot(
+      b,
+      (snapshot) => {
+        const pinData = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setMyPins(pinData);
+      },
+      (error) => {
+        console.error("실시간 구독 에러:", error);
+      },
+    );
+
+    // 컴포넌트 언마운트 시 구독 해제
+    return () => unsubscribe();
+  }, [user?.uid]);
 
   useEffect(() => {
     if (!user?.uid) return;
@@ -38,11 +67,16 @@ export default function Bookmarks({ navigation }) {
     return () => unsubscribe();
   }, [user?.uid]);
 
-  console.log(selectedArtwork);
+  // console.log(selectedArtwork);
 
-  const handleModalOpen = (item) => {
+  const handleArtworkModalOpen = (item) => {
     setSelectedArtwork(item);
-    setShowModal(true);
+    setShowArtworkModal(true);
+  };
+
+  const handlePlaceModalOpen = (item) => {
+    setSelectedPlace(item);
+    setShowPlaceModal(true);
   };
 
   return (
@@ -57,25 +91,50 @@ export default function Bookmarks({ navigation }) {
           </TouchableOpacity>
         </View>
         <View>
+          <Text> 작품</Text>
+        </View>
+        <View>
           {myBookmarks.map((item) => (
             <TouchableOpacity
               key={item.seq}
-              onPress={() => handleModalOpen(item)}
+              onPress={() => handleArtworkModalOpen(item)}
             >
               <Text>{item.artworkTitle}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+        <View>
+          <Text> 장소</Text>
+        </View>
+        <View>
+          {myPins.map((item) => (
+            <TouchableOpacity
+              key={item.seq}
+              onPress={() => handlePlaceModalOpen(item)}
+            >
+              <Text>{item.placeName}</Text>
             </TouchableOpacity>
           ))}
         </View>
       </View>
 
       <ArtworkInfoModal
-        visible={showModal}
+        visible={showArtworkModal}
         onClose={() => {
-          setShowModal(false);
+          setShowArtworkModal(false);
           setSelectedArtwork(null);
         }}
         artwork={selectedArtwork}
         seq={selectedArtwork?.seq}
+      />
+
+      <PlacesInfoModal
+        visible={showPlaceModal}
+        onClose={() => {
+          setShowPlaceModal(false);
+          setSelectedPlace(null);
+        }}
+        seq={selectedPlace?.seq}
       />
     </SafeAreaView>
   );

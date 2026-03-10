@@ -90,7 +90,7 @@ export default function Artworks({ navigation }) {
       setReviews(fetchReview);
     });
     return () => unsubscribe();
-  }, [reviews]);
+  }, []);
 
   //작품 가져오기
   // getArtwork 함수 수정 (무한 스크롤 시 필터 적용)
@@ -109,6 +109,7 @@ export default function Artworks({ navigation }) {
 
       const xmlText = await response.text();
       const jsonData = parser.parse(xmlText);
+
       const rawItems = jsonData?.response?.body?.items?.item || [];
       const list = Array.isArray(rawItems) ? rawItems : [rawItems];
 
@@ -124,16 +125,19 @@ export default function Artworks({ navigation }) {
 
       if (nextPage === 1) {
         setArtworks(normalized);
+
+        // 🔥 여기 핵심
         applyFilter({
           start: startIndex,
           end: endIndex,
           genres: selectedGenres,
           regions: selectedRegions,
           minRating: selectedRating,
+          sourceData: normalized,
         });
       } else {
         setArtworks((prev) => [...prev, ...normalized]);
-        // 무한 스크롤 시에도 기존 필터 적용
+
         const filteredNewItems = normalized.filter((item) => {
           let keep = true;
 
@@ -158,7 +162,8 @@ export default function Artworks({ navigation }) {
                   .includes(r),
               );
           }
-          if (selectedRating > 0 && typeof avgRatingMap !== "undefined") {
+
+          if (selectedRating > 0) {
             const avg = avgRatingMap[item.DP_SEQ] || 0;
             keep = keep && avg >= selectedRating;
           }
@@ -171,12 +176,13 @@ export default function Artworks({ navigation }) {
 
       setPageNum(nextPage);
     } catch (error) {
-      console.error(error);
+      console.error("작품 불러오기 실패:", error);
     }
 
     setLoading(false);
     setIsFetchingMore(false);
   };
+
   const loadMore = () => {
     if (!isFetchingMore && hasMore) {
       getArtwork(pageNum + 1);
@@ -209,13 +215,13 @@ export default function Artworks({ navigation }) {
     end = 60,
     genres = [],
     regions = [],
-    realmName = [],
     minRating = 0,
+    sourceData = artworks, // 🔥 핵심
   }) => {
     setStartIndex(start);
     setEndIndex(end);
 
-    let source = artworks || [];
+    let source = sourceData || [];
 
     // 장르 필터
     if (genres.length > 0) {
@@ -241,8 +247,8 @@ export default function Artworks({ navigation }) {
       );
     }
 
-    // 평균 평점 필터
-    if (minRating > 0 && typeof avgRatingMap !== "undefined") {
+    // 평점 필터
+    if (minRating > 0) {
       source = source.filter((a) => {
         const avg = avgRatingMap[a.DP_SEQ] || 0;
         return avg >= minRating;
@@ -254,7 +260,6 @@ export default function Artworks({ navigation }) {
 
     setDisplayedArtworks(source.slice(s - 1, e));
   };
-
   const onRefresh = async () => {
     if (loading) return;
 
