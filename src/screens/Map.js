@@ -6,7 +6,7 @@ import {
   Platform,
   TouchableOpacity,
 } from "react-native";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import MapView, { Marker } from "react-native-maps";
 
 export default function Map({ x, y }) {
@@ -16,9 +16,6 @@ export default function Map({ x, y }) {
     latitudeDelta: 0.01,
     longitudeDelta: 0.01,
   };
-  // const geo = route?.params?.region ?? defaultRegion;
-  // console.log("Map Factor:", route);
-  // console.log("Map route:", route);
 
   if (typeof x !== "number" || typeof y !== "number") {
     return (

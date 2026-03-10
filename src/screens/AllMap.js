@@ -4,14 +4,17 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  SafeAreaView,
   TextInput,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import MapView, { Marker } from "react-native-maps";
 import Mainlogo from "../assets/icons/logo-main.svg";
 import ListIcon from "../assets/icons/list.svg";
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useContext } from "react";
 import * as Location from "expo-location";
+import { AuthContext } from "../services/context";
+import { collection, doc, getDoc, getDocs } from "firebase/firestore";
+import { db } from "../../firebase";
 
 export default function AllMap({ route, navigation }) {
   const markers = route?.params?.markers ?? [];
@@ -19,6 +22,8 @@ export default function AllMap({ route, navigation }) {
   const [latDelta, setLatDelta] = useState(0.1);
   const [lngDelta, setLngDelta] = useState(0.1);
   const [region, setRegion] = useState(initialRegion);
+  const [myPins, setMyPins] = useState([]);
+  const { user } = useContext(AuthContext);
 
   const initialRegion =
     markers.length > 0
@@ -60,6 +65,32 @@ export default function AllMap({ route, navigation }) {
 
     getCurrentLocation();
   }, []);
+
+  //pin가져오기
+  useEffect(() => {
+    if (!user) return;
+
+    const checkBookmark = async () => {
+      try {
+        const pinsRef = collection(db, "users", user.uid, "pins");
+        const snapshot = await getDocs(pinsRef);
+
+        const data = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+
+        setMyPins(data);
+      } catch (err) {
+        console.error("Bookmark check error:", err);
+        setMyPins([]);
+      }
+    };
+
+    checkBookmark();
+  }, [user?.uid]);
+
+  console.log("myPins:", myPins);
 
   const zoomIn = () => {
     setRegion((prev) => ({
@@ -113,9 +144,8 @@ export default function AllMap({ route, navigation }) {
           style={{ flex: 1 }}
           region={region}
           showsUserLocation={true}
-          showsMyLocationButton={true}
-          pinColor="green"
         >
+          {/* API artworks */}
           {markers.map((item) =>
             item.type === "artwork" ? (
               <Marker
@@ -125,7 +155,7 @@ export default function AllMap({ route, navigation }) {
                   longitude: item.longitude,
                 }}
                 title={item.title}
-                pinColor="blue"
+                pinColor="green"
               />
             ) : (
               <Marker
@@ -135,9 +165,23 @@ export default function AllMap({ route, navigation }) {
                   longitude: item.longitude,
                 }}
                 title={item.title}
+                pinColor="blue"
               />
             ),
           )}
+
+          {/* 사용자 pins */}
+          {myPins.map((pin) => (
+            <Marker
+              key={pin.seq}
+              coordinate={{
+                latitude: pin.geoCode.lat,
+                longitude: pin.geoCode.lng,
+              }}
+              title={pin.placeName}
+              pinColor="red"
+            />
+          ))}
         </MapView>
       </View>
     </SafeAreaView>
