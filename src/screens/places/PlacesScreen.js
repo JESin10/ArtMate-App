@@ -17,8 +17,8 @@ import SearchBar from "../../components/search/SearchBar";
 import usePlaces from "../../components/hooks/usePlaces";
 
 export default function PlacesScreen({ navigation }) {
-  const { gallery, details, loading, isFetchingMore, loadMore } = usePlaces();
-
+  const { gallery, artworks, details, loading, isFetchingMore, loadMore } =
+    usePlaces();
   const [showPopup, setShowPopup] = useState(false);
   const [selectedPlace, setSelectedPlace] = useState(null);
 
@@ -39,6 +39,57 @@ export default function PlacesScreen({ navigation }) {
     },
     [details],
   );
+
+  const getCoords = (detail, item) => {
+    const tryNum = (v) => {
+      if (!v) return null;
+      const n = parseFloat(v);
+      return Number.isFinite(n) ? n : null;
+    };
+
+    const lat = tryNum(detail?.gpsY || item?.gpsY);
+    const lng = tryNum(detail?.gpsX || item?.gpsX);
+
+    if (lat && lng) return { latitude: lat, longitude: lng };
+    return null;
+  };
+
+  const openMap = () => {
+    const placeMarkers = Object.entries(details)
+      .map(([seq, detail]) => {
+        const coords = getCoords(detail);
+        if (!coords) return null;
+
+        return {
+          ...coords,
+          title: detail.culName,
+          seq,
+          type: "place",
+        };
+      })
+      .filter(Boolean);
+
+    const artworkMarkers = artworks
+      .map((art) => {
+        const coords = getCoords(null, art);
+        if (!coords) return null;
+
+        return {
+          ...coords,
+          title: art.title,
+          seq: art.seq,
+          type: "artwork",
+        };
+      })
+      .filter(Boolean);
+
+    const markers = [...placeMarkers, ...artworkMarkers];
+    // console.log("markers:", markers[0]);
+
+    navigation.getParent()?.navigate("AllMap", {
+      markers,
+    });
+  };
 
   return (
     <SafeAreaView
@@ -68,8 +119,16 @@ export default function PlacesScreen({ navigation }) {
           </Text>
 
           <View style={{ flexDirection: "row" }}>
-            <TouchableOpacity>
-              <MapIcon width={24} height={24} />
+            <TouchableOpacity disabled={loading} onPress={openMap}>
+              <MapIcon
+                width={24}
+                height={24}
+                style={{
+                  marginBottom: 12,
+                  marginLeft: 12,
+                  marginHorizontal: 12,
+                }}
+              />
             </TouchableOpacity>
 
             <TouchableOpacity>
