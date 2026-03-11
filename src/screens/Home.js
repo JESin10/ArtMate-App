@@ -3,11 +3,12 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  SafeAreaView,
   ScrollView,
   ImageBackground,
   FlatList,
+  Image,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { decode } from "html-entities"; // 추가: HTML 엔티티 디코드
 import { useState, useEffect, useRef, useContext } from "react";
 import ArtworkInfoModal from "../components/modals/ArtworkInfoModal";
@@ -16,11 +17,12 @@ import ForwardIcon from "../assets/icons/forward.svg";
 import Mainlogo from "../assets/icons/logo-main.svg";
 import PlaceIcon from "../assets/icons/Menubar_gallery.svg";
 import ArtworkIcon from "../assets/icons/Menubar_image.svg";
-
 import { AuthContext } from "../services/context";
 import { XMLParser } from "fast-xml-parser";
 import SearchBar from "../components/search/SearchBar";
 import ImageSlider from "../components/Slider/ImageSlider";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../../firebase";
 
 export default function Home({ navigation }) {
   const { user } = useContext(AuthContext);
@@ -30,11 +32,10 @@ export default function Home({ navigation }) {
   const [endedArtworks, setEndedArtworks] = useState([]); // 종료예정 작품
   const [detailArtwork, setDetailArtwork] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [startIndex, setStartIndex] = useState(1);
-  const [endIndex, setEndIndex] = useState(10);
   const [showModal, setShowModal] = useState(false);
   const [selectedArtwork, setSelectedArtwork] = useState(null);
   const [recommendedArtworks, setRecommendedArtworks] = useState([]);
+  const [recommendedUsers, setRecommendedUsers] = useState([]);
   const CARD_WIDTH = 310;
   const ITEM_SPACING = 12;
   const ITEM_SIZE = CARD_WIDTH + ITEM_SPACING;
@@ -159,6 +160,10 @@ export default function Home({ navigation }) {
     if (recentPage >= recentTotalPages) setRecentPage(0);
   }, [recentArtworks, recentTotalPages]);
 
+  useEffect(() => {
+    getRecommendedUsers();
+  }, []);
+
   const data = artworks?.slice(0, 4); // 슬라이드에 사용할 데이터
 
   // ViewableItems 변경시 인덱스 동기화
@@ -242,7 +247,7 @@ export default function Home({ navigation }) {
     return String(dateStr) ?? "";
   };
 
-  //랜덤 추첨
+  //랜덤 추천
   const getRandomItems = (array, count) => {
     const shuffled = [...array];
 
@@ -348,7 +353,54 @@ export default function Home({ navigation }) {
     }, {});
   };
   const placeGroups = groupByPlace(artworks);
-  // console.log(recommendedArtworks);
+
+  const getMyFollowing = async () => {
+    const snapshot = await getDocs(
+      collection(db, "users", user.uid, "following"),
+    );
+
+    const followingIds = [];
+
+    snapshot.forEach((doc) => {
+      followingIds.push(doc.id);
+    });
+
+    return followingIds;
+  };
+
+  //유저 랜덤 추천
+  const getRecommendedUsers = async () => {
+    try {
+      const myFollowing = await getMyFollowing();
+      const querySnapshot = await getDocs(collection(db, "users"));
+      const users = [];
+
+      querySnapshot.forEach((doc) => {
+        users.push({
+          id: doc.id,
+          ...doc.data(),
+        });
+      });
+
+      // 현재 로그인 유저 제외
+      const filtered = users.filter((u) => u.id !== user?.uid);
+
+      // 랜덤 섞기
+      const shuffled = filtered.sort(() => 0.5 - Math.random());
+
+      // 5명 추천
+      const randomUsers = shuffled.slice(0, 5);
+
+      //팔로우 여부
+      const usersWithFollowState = randomUsers.map((u) => ({
+        ...u,
+        isFollowing: myFollowing.includes(u.id),
+      }));
+      setRecommendedUsers(usersWithFollowState);
+    } catch (error) {
+      console.error("추천 유저 불러오기 오류:", error);
+    }
+  };
 
   return (
     <SafeAreaView
@@ -531,6 +583,51 @@ export default function Home({ navigation }) {
                 <ForwardIcon width={24} height={24} fill="#000" />
               </TouchableOpacity>
             </View>
+          </View>
+          <View style={styles.userRecommendContainer}>
+            <View style={styles.subTitle}>
+              <Text style={styles.pageTitle}>추천 계정</Text>
+            </View>
+
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              {recommendedUsers.map((u) => (
+                <View key={u.id} style={styles.userCard}>
+                  <View style={styles.userAvatar}>
+                    {u.photoURL && (
+                      <Image
+                        source={{ uri: u.photoURL }}
+                        style={{ width: 60, height: 60, borderRadius: 30 }}
+                      />
+                    )}
+                  </View>
+
+                  <Text style={styles.userName}>{u.displayName}</Text>
+
+                  {u.bio && (
+                    <Text numberOfLines={1} style={styles.userDesc}>
+                      {u.bio}
+                    </Text>
+                  )}
+                  {!user ? (
+                    <TouchableOpacity style={styles.followButton}>
+                      <Text style={{ color: "white", fontSize: 12 }}>
+                        팔로우
+                      </Text>
+                    </TouchableOpacity>
+                  ) : u.isFollowing ? (
+                    <TouchableOpacity>
+                      <Text>팔로워 {u.followerCnt}명</Text>
+                    </TouchableOpacity>
+                  ) : (
+                    <TouchableOpacity style={styles.followButton}>
+                      <Text style={{ color: "white", fontSize: 12 }}>
+                        팔로우
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              ))}
+            </ScrollView>
           </View>
           <View style={styles.endedContainer}>
             <View style={styles.subTitle}>
@@ -921,5 +1018,48 @@ const styles = StyleSheet.create({
     width: 100,
     height: 120,
     marginVertical: 10,
+  },
+  userRecommendContainer: {
+    width: "100%",
+    marginBottom: 20,
+  },
+
+  userCard: {
+    width: 110,
+    marginRight: 12,
+    alignItems: "center",
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 10,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+  },
+
+  userAvatar: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: "#ddd",
+    marginBottom: 6,
+    overflow: "hidden",
+  },
+
+  userName: {
+    fontWeight: "bold",
+    fontSize: 12,
+  },
+
+  userDesc: {
+    fontSize: 10,
+    color: "gray",
+    marginBottom: 6,
+  },
+
+  followButton: {
+    backgroundColor: "#608D00",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 6,
   },
 });

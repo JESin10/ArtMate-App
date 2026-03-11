@@ -1,7 +1,6 @@
 import {
   View,
   Text,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   TextInput,
@@ -11,6 +10,7 @@ import {
   TouchableOpacity,
   FlatList,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import ArtworkFilter from "../components/filter/ArtworkFilter.js";
 import ArtworkInfoModal from "../components/modals/ArtworkInfoModal";

@@ -2,7 +2,6 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useContext } from "react";
 
 import Artworks from "./Artworks";
-import Places from "./Places";
 import Home from "./Home";
 import Review from "./Review";
 import Mypage from "./Mypage";
