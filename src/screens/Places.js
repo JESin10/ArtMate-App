@@ -12,7 +12,7 @@ import {
   FlatList,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import PlacesInfoModal from "../components/modals/PlacesInfoModal.js";
 import ReloadIcon from "../assets/icons/reload.svg";
 import MapIcon from "../assets/icons/location.svg";
@@ -30,7 +30,6 @@ export default function Places({ navigation }) {
   const [loading, setLoading] = useState(false);
   const [selectedPlace, setSelectedPlace] = useState(null);
   const [artworks, setArtworks] = useState([]);
-
   const [hasMore, setHasMore] = useState(true);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
 
@@ -261,6 +260,7 @@ export default function Places({ navigation }) {
           </View>
         </View>
         <FlatList
+          ref={flatListRef}
           data={gallery}
           keyExtractor={(item) => item.seq?.toString()}
           onEndReached={loadMore}

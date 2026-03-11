@@ -72,6 +72,11 @@ export default function Review({ navigation }) {
     setShowModal(false);
     setShowCmtModal(false);
 
+    flatListRef.current?.scrollToOffset({
+      offset: 0,
+      animated: true,
+    });
+
     timerRef.current = setTimeout(() => {
       setLoading(false);
       timerRef.current = null;
@@ -330,6 +335,7 @@ export default function Review({ navigation }) {
           </View>
         </View>
         <FlatList
+          ref={flatListRef}
           data={reviews}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.reviewsContainer}

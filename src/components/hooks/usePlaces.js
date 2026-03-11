@@ -24,9 +24,10 @@ export default function usePlaces() {
 
   const getPlace = async (nextPage = 1) => {
     if (!hasMore && nextPage !== 1) return;
-
-    if (nextPage === 1) setLoading(true);
-    else setIsFetchingMore(true);
+    if (nextPage === 1) {
+      setHasMore(true);
+      setLoading(true);
+    } else setIsFetchingMore(true);
 
     try {
       const response = await fetch(
@@ -113,12 +114,17 @@ export default function usePlaces() {
     }
   };
 
+  const fetchPlaces = async () => {
+    await getPlace(1);
+  };
+
   return {
     gallery,
-    details,
     artworks,
+    details,
     loading,
     isFetchingMore,
     loadMore,
+    fetchPlaces,
   };
 }

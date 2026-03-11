@@ -11,7 +11,7 @@ import {
   TouchableOpacity,
   FlatList,
 } from "react-native";
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import ArtworkFilter from "../components/filter/ArtworkFilter.js";
 import ArtworkInfoModal from "../components/modals/ArtworkInfoModal";
 import FilterIcon from "../assets/icons/filter.svg";
@@ -41,6 +41,7 @@ export default function Artworks({ navigation }) {
   const [selectedGenres, setSelectedGenres] = useState([]);
   const [selectedRegions, setSelectedRegions] = useState([]);
   const [selectedRating, setSelectedRating] = useState(0);
+  const flatListRef = useRef(null);
 
   const parser = new XMLParser({
     ignoreAttributes: false,
@@ -274,6 +275,11 @@ export default function Artworks({ navigation }) {
     setEndIndex(60);
     setShowFilter(false);
 
+    flatListRef.current?.scrollToOffset({
+      offset: 0,
+      animated: true,
+    });
+
     // 🔹 artworks 초기화 후 데이터 가져오기
     const newArtworks = await getArtwork(1, true); // true: 새로고침용 플래그
     // 필터 초기화 상태 적용
@@ -340,6 +346,7 @@ export default function Artworks({ navigation }) {
           </View>
         </View>
         <FlatList
+          ref={flatListRef}
           data={displayedArtworks}
           keyExtractor={(item, index) => `${item.DP_SEQ}-${index}`}
           numColumns={2}

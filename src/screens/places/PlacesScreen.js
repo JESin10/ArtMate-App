@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -17,10 +17,18 @@ import SearchBar from "../../components/search/SearchBar";
 import usePlaces from "../../components/hooks/usePlaces";
 
 export default function PlacesScreen({ navigation }) {
-  const { gallery, artworks, details, loading, isFetchingMore, loadMore } =
-    usePlaces();
+  const {
+    gallery,
+    artworks,
+    details,
+    loading,
+    isFetchingMore,
+    loadMore,
+    fetchPlaces,
+  } = usePlaces();
   const [showPopup, setShowPopup] = useState(false);
   const [selectedPlace, setSelectedPlace] = useState(null);
+  const flatListRef = useRef(null);
 
   const renderItem = useCallback(
     ({ item }) => {
@@ -91,6 +99,16 @@ export default function PlacesScreen({ navigation }) {
     });
   };
 
+  const onRefresh = async () => {
+    if (loading) return;
+
+    await fetchPlaces(); // 🔥 데이터 다시 가져오기
+
+    flatListRef.current?.scrollToOffset({
+      offset: 0,
+      animated: true,
+    });
+  };
   return (
     <SafeAreaView
       style={{ width: "95%", height: "100%", marginHorizontal: "auto" }}
@@ -131,13 +149,14 @@ export default function PlacesScreen({ navigation }) {
               />
             </TouchableOpacity>
 
-            <TouchableOpacity>
+            <TouchableOpacity onPress={onRefresh}>
               <ReloadIcon width={24} height={24} />
             </TouchableOpacity>
           </View>
         </View>
 
         <FlatList
+          ref={flatListRef}
           data={gallery}
           renderItem={renderItem}
           keyExtractor={(item) => item.seq?.toString()}
