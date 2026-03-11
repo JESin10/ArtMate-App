@@ -19,6 +19,7 @@ import ReviewLineIcon from "../assets/icons/Menubar_bookmark.svg";
 import MypageIcon from "../assets/icons/Menubar_user-filled.svg";
 import MypageLineIcon from "../assets/icons/Menubar_user.svg";
 import { AuthContext } from "../services/context";
+import PlacesScreen from "./places/PlacesScreen";
 
 export default function BottomTopScreen() {
   const Tab = createBottomTabNavigator();
@@ -113,7 +114,7 @@ export default function BottomTopScreen() {
     >
       {/* <Tab.Screen name="Search" component={Search} /> */}
       <Tab.Screen name="Artworks" component={Artworks} />
-      <Tab.Screen name="Places" component={Places} />
+      <Tab.Screen name="Places" component={PlacesScreen} />
       <Tab.Screen name="Home" component={Home} />
       <Tab.Screen name="Review" component={Review} />
       {!user ? (

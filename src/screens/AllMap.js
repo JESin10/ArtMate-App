@@ -5,6 +5,7 @@ import {
   StyleSheet,
   ScrollView,
   TextInput,
+  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import MapView, { Marker } from "react-native-maps";
@@ -15,6 +16,7 @@ import * as Location from "expo-location";
 import { AuthContext } from "../services/context";
 import { collection, doc, getDoc, getDocs } from "firebase/firestore";
 import { db } from "../../firebase";
+import SearchBar from "../components/search/SearchBar";
 
 export default function AllMap({ route, navigation }) {
   const markers = route?.params?.markers ?? [];
@@ -24,6 +26,12 @@ export default function AllMap({ route, navigation }) {
   const [region, setRegion] = useState(initialRegion);
   const [myPins, setMyPins] = useState([]);
   const { user } = useContext(AuthContext);
+  const [filter, setFilter] = useState("all"); // all | artwork | place | my
+  const filteredMarkers = markers.filter((item) => {
+    if (filter === "artwork") return item.type === "artwork";
+    if (filter === "place") return item.type !== "artwork";
+    return true;
+  });
 
   const initialRegion =
     markers.length > 0
@@ -90,7 +98,7 @@ export default function AllMap({ route, navigation }) {
     checkBookmark();
   }, [user?.uid]);
 
-  console.log("myPins:", myPins);
+  // console.log("myPins:", myPins);
 
   const zoomIn = () => {
     setRegion((prev) => ({
@@ -115,13 +123,56 @@ export default function AllMap({ route, navigation }) {
         height: "100%",
         marginHorizontal: "auto",
         flexDirection: "column",
+        padding: 10,
+        justifyContent: "center",
       }}
     >
       <TouchableOpacity style={{ alignItems: "center" }}>
-        <Mainlogo width={150} height={50} />
+        <Mainlogo
+          width={150}
+          height={50}
+          onPress={() => navigation.navigate("Bottom", { screen: "Home" })}
+        />
       </TouchableOpacity>
-      <View style={styles.searchbar}>
-        <TextInput placeholder="search-bar" />
+      <SearchBar />
+      <View style={styles.filterContainer}>
+        <TouchableOpacity
+          onPress={() => setFilter("artwork")}
+          style={styles.filterBtn}
+        >
+          <Text>작품</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => setFilter("place")}
+          style={styles.filterBtn}
+        >
+          <Text>장소</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => {
+            if (!user) {
+              Alert.alert(
+                "로그인 필요",
+                "내 장소 기능은 로그인 후 사용할 수 있습니다.",
+                [{ text: "확인" }],
+              );
+              return;
+            }
+
+            setFilter("my");
+          }}
+          style={styles.filterBtn}
+        >
+          <Text>내 장소</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => setFilter("all")}
+          style={styles.filterBtn}
+        >
+          <Text>전체</Text>
+        </TouchableOpacity>
       </View>
       <View style={styles.container}>
         <View style={{ position: "absolute", top: 10, left: 10, zIndex: 10 }}>
@@ -139,49 +190,53 @@ export default function AllMap({ route, navigation }) {
         >
           <ListIcon width={20} height={20} />
         </TouchableOpacity>
+
         <MapView
           ref={mapRef}
           style={{ flex: 1 }}
           region={region}
           showsUserLocation={true}
         >
-          {/* API artworks */}
-          {markers.map((item) =>
-            item.type === "artwork" ? (
-              <Marker
-                key={item.seq}
-                coordinate={{
-                  latitude: item.latitude,
-                  longitude: item.longitude,
-                }}
-                title={item.title}
-                pinColor="green"
-              />
-            ) : (
-              <Marker
-                key={item.seq}
-                coordinate={{
-                  latitude: item.latitude,
-                  longitude: item.longitude,
-                }}
-                title={item.title}
-                pinColor="blue"
-              />
-            ),
-          )}
-
+          {filter !== "my" &&
+            filteredMarkers.map((item) =>
+              //API artworks
+              item.type === "artwork" ? (
+                <Marker
+                  key={item.seq}
+                  coordinate={{
+                    latitude: item.latitude,
+                    longitude: item.longitude,
+                  }}
+                  title={item.title}
+                  pinColor="green"
+                />
+              ) : (
+                //API place
+                <Marker
+                  key={item.seq}
+                  coordinate={{
+                    latitude: item.latitude,
+                    longitude: item.longitude,
+                  }}
+                  title={item.title}
+                  pinColor="blue"
+                />
+              ),
+            )}
           {/* 사용자 pins */}
-          {myPins.map((pin) => (
-            <Marker
-              key={pin.seq}
-              coordinate={{
-                latitude: pin.geoCode.lat,
-                longitude: pin.geoCode.lng,
-              }}
-              title={pin.placeName}
-              pinColor="red"
-            />
-          ))}
+
+          {(filter === "my" || filter === "all") &&
+            myPins.map((pin) => (
+              <Marker
+                key={pin.seq}
+                coordinate={{
+                  latitude: pin.geoCode.lat,
+                  longitude: pin.geoCode.lng,
+                }}
+                title={pin.placeName}
+                pinColor="red"
+              />
+            ))}
         </MapView>
       </View>
     </SafeAreaView>
@@ -269,4 +324,16 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   closeText: { color: "#000", fontWeight: "bold" },
+  filterContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginBottom: 10,
+  },
+
+  filterBtn: {
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    backgroundColor: "#eee",
+    borderRadius: 20,
+  },
 });

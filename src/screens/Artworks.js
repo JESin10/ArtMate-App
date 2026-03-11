@@ -299,7 +299,11 @@ export default function Artworks({ navigation }) {
       {/* <ScrollView contentContainerStyle={{ flexGrow: 1 }}> */}
       <View style={{ padding: 10, justifyContent: "center" }}>
         <TouchableOpacity style={{ alignItems: "center" }}>
-          <Mainlogo width={150} height={50} />
+          <Mainlogo
+            width={150}
+            height={50}
+            onPress={() => navigation.navigate("Bottom", { screen: "Home" })}
+          />
         </TouchableOpacity>
         <SearchBar />
         <View

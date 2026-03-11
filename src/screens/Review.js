@@ -45,7 +45,7 @@ import { Dimensions } from "react-native";
 import ImageSlider from "../components/Slider/ImageSlider";
 import ArtworkInfoModal from "../components/modals/ArtworkInfoModal";
 
-export default function Review() {
+export default function Review({ navigation }) {
   const { user, setUser } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -281,7 +281,11 @@ export default function Review() {
     >
       <View style={{ paddingBottom: 80, padding: 10 }}>
         <TouchableOpacity style={{ alignItems: "center" }}>
-          <Mainlogo width={150} height={50} />
+          <Mainlogo
+            width={150}
+            height={50}
+            onPress={() => navigation.navigate("Bottom", { screen: "Home" })}
+          />
         </TouchableOpacity>
         <SearchBar />
         <View style={styles.topFactorContainer}>

@@ -216,7 +216,11 @@ export default function Places({ navigation }) {
       {/* <ScrollView> */}
       <View style={{ padding: 10, justifyContent: "center" }}>
         <TouchableOpacity style={{ alignItems: "center" }}>
-          <Mainlogo width={150} height={50} />
+          <Mainlogo
+            width={150}
+            height={50}
+            onPress={() => navigation.navigate("Bottom", { screen: "Home" })}
+          />
         </TouchableOpacity>
         <SearchBar />
         <View
