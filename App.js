@@ -14,6 +14,7 @@ import SearchResult from "./src/screens/SearchResult";
 import Likes from "./src/screens/Likes";
 import History from "./src/screens/History";
 import AccFind from "./src/screens/AccFind";
+import FollowList from "./src/screens/FollowList";
 
 export default function App() {
   const Stack = createNativeStackNavigator();
@@ -31,6 +32,7 @@ export default function App() {
           <Stack.Screen name="Bookmarks" component={Bookmarks} />
           <Stack.Screen name="Likes" component={Likes} />
           <Stack.Screen name="History" component={History} />
+          <Stack.Screen name="FollowList" component={FollowList} />
 
           <Stack.Screen name="Login" component={Login} />
           <Stack.Screen name="Signup" component={UserSignup} />

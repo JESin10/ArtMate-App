@@ -231,11 +231,13 @@ export default function Review({ navigation }) {
   };
 
   // 팔로우, 언팔로우
-  const FollowUser = async (targetUserId) => {
+  const FollowUser = async (targetUser) => {
     if (!user) {
       Alert.alert("로그인이 필요합니다.");
       return;
     }
+
+    const targetUserId = targetUser.uid;
 
     const followingRef = doc(db, "users", user.uid, "following", targetUserId);
     const followerRef = doc(db, "users", targetUserId, "followers", user.uid);
@@ -249,24 +251,31 @@ export default function Review({ navigation }) {
         await updateDoc(doc(db, "users", user.uid), {
           followingCnt: increment(-1),
         });
+
         await updateDoc(doc(db, "users", targetUserId), {
           followerCnt: increment(-1),
         });
-
-        // Alert.alert("언팔로우 성공!");
       } else {
         // 팔로우
-        await setDoc(followingRef, { createdAt: serverTimestamp() });
-        await setDoc(followerRef, { createdAt: serverTimestamp() });
+        await setDoc(followingRef, {
+          displayName: targetUser.displayName,
+          photoURL: targetUser.photoURL || null,
+          createdAt: serverTimestamp(),
+        });
+
+        await setDoc(followerRef, {
+          displayName: user.displayName,
+          photoURL: user.photoURL || null,
+          createdAt: serverTimestamp(),
+        });
 
         await updateDoc(doc(db, "users", user.uid), {
           followingCnt: increment(1),
         });
+
         await updateDoc(doc(db, "users", targetUserId), {
           followerCnt: increment(1),
         });
-
-        // Alert.alert("팔로우 성공!");
       }
     } catch (error) {
       console.error("팔로우 토글 실패:", error);
@@ -369,7 +378,13 @@ export default function Review({ navigation }) {
                           ? styles.unfollowBtn
                           : styles.followBtn
                       }
-                      onPress={() => FollowUser(review.userId)}
+                      onPress={() =>
+                        FollowUser({
+                          uid: review.userId,
+                          displayName: review.displayName,
+                          photoURL: review.photoURL,
+                        })
+                      }
                     >
                       <Text
                         style={

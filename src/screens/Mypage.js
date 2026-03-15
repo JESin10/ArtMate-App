@@ -185,22 +185,6 @@ export default function Mypage({ navigation }) {
     }
   };
 
-  //북마크 가져오기
-  // const getBookmarks = async (uid) => {
-  //   try {
-  //     const snapshot = await getDocs(collection(db, "users", uid, "bookmarks"));
-
-  //     const bookmark = snapshot.docs.map((doc) => ({
-  //       id: doc.id,
-  //       ...doc.data(),
-  //     }));
-  //     setBookmarks(bookmark);
-  //     navigation.navigate("Bookmarks");
-  //   } catch (error) {
-  //     console.error("북마크 불러오기 에러:", error);
-  //   }
-  // };
-
   //로그아웃
   const userLogout = async () => {
     const auth = getAuth();
@@ -368,22 +352,28 @@ export default function Mypage({ navigation }) {
                 )}
 
                 <View style={styles.myFollowInfo}>
-                  <View style={{ flexDirection: "row" }}>
+                  <TouchableOpacity
+                    style={{ flexDirection: "row" }}
+                    onPress={() => navigation.navigate("FollowList")}
+                  >
                     <Text style={{ marginRight: 10, color: "#fff" }}>
                       팔로워
                     </Text>
                     <Text style={{ fontWeight: "bold", color: "#fff" }}>
                       {followerCnt}
                     </Text>
-                  </View>
-                  <View style={{ flexDirection: "row" }}>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => navigation.navigate("FollowList")}
+                    style={{ flexDirection: "row" }}
+                  >
                     <Text style={{ marginRight: 10, color: "#fff" }}>
                       팔로잉
                     </Text>
                     <Text style={{ fontWeight: "bold", color: "#fff" }}>
                       {followingCnt}
                     </Text>
-                  </View>
+                  </TouchableOpacity>
                 </View>
               </View>
             </View>
