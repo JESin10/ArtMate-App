@@ -21,7 +21,7 @@ import { AuthContext } from "../services/context";
 import { XMLParser } from "fast-xml-parser";
 import SearchBar from "../components/search/SearchBar";
 import ImageSlider from "../components/Slider/ImageSlider";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, onSnapshot } from "firebase/firestore";
 import { db } from "../../firebase";
 
 export default function Home({ navigation }) {
@@ -36,6 +36,7 @@ export default function Home({ navigation }) {
   const [selectedArtwork, setSelectedArtwork] = useState(null);
   const [recommendedArtworks, setRecommendedArtworks] = useState([]);
   const [recommendedUsers, setRecommendedUsers] = useState([]);
+  const [followingMap, setFollowingMap] = useState({});
   const CARD_WIDTH = 310;
   const ITEM_SPACING = 12;
   const ITEM_SIZE = CARD_WIDTH + ITEM_SPACING;
@@ -50,19 +51,6 @@ export default function Home({ navigation }) {
   const parser = new XMLParser({
     ignoreAttributes: false,
   });
-  // const htmlToPlain = (html) => {
-  //   if (!html) return "";
-  //   const plain = String(html)
-  //     .replace(/<br\s*\/?>/gi, "\n")
-  //     .replace(/<\/p>/gi, "\n")
-  //     .replace(/<p[^>]*>/gi, "")
-  //     .replace(/&nbsp;/gi, " ")
-  //     .replace(/<\/?[^>]+(>|$)/g, "") // 남은 모든 태그 제거
-  //     .trim();
-  //   return decode(plain);
-  // };
-
-  // console.log("user in home:", user);
 
   // useEffect 수정
   useEffect(() => {
@@ -73,6 +61,91 @@ export default function Home({ navigation }) {
       getArtwork();
     }
   }, [selectedArtwork]);
+
+  //팔로우여부 구독
+  useEffect(() => {
+    if (!user) return;
+
+    const followingRef = collection(db, "users", user.uid, "following");
+
+    const unsubscribe = onSnapshot(followingRef, (snapshot) => {
+      const map = {};
+      snapshot.docs.forEach((doc) => {
+        map[doc.id] = true;
+      });
+      setFollowingMap(map);
+    });
+
+    return () => unsubscribe();
+  }, [user]);
+
+  // 자동 슬라이드 (5초)
+  useEffect(() => {
+    if (!recommendedArtworks || recommendedArtworks.length === 0) return;
+
+    const id = setInterval(() => {
+      setCurrentIndex((prev) => {
+        const next = (prev + 1) % recommendedArtworks.length;
+
+        if (flatListRef.current && recommendedArtworks.length > 0) {
+          flatListRef.current.scrollToIndex({
+            index: next,
+            animated: true,
+            viewPosition: 0.5,
+          });
+        }
+
+        return next;
+      });
+    }, 5000);
+
+    return () => clearInterval(id);
+  }, [recommendedArtworks]);
+
+  //최근전시불러오기
+  useEffect(() => {
+    if (recentPage >= recentTotalPages) setRecentPage(0);
+  }, [recentArtworks, recentTotalPages]);
+
+  //추천게정불러오기
+  useEffect(() => {
+    getRecommendedUsers();
+  }, []);
+
+  //작품 랜덤 추천
+  useEffect(() => {
+    if (!artworks || artworks.length === 0) {
+      setRecommendedArtworks([]);
+      return;
+    }
+
+    const today = new Date();
+    // 종료 안 된 전시만
+    const activeArtworks = artworks?.filter((item) => {
+      const end = parseDateSafe(item.endDate);
+      return end && end >= today;
+    });
+    // 썸네일 있는 전시만
+    const withThumbnail = activeArtworks.filter(
+      (item) => item.thumbnail && item.thumbnail.startsWith("http"),
+    );
+    // 랜덤 5개 추출
+    const randomFive = getRandomItems(withThumbnail, 5);
+    setRecommendedArtworks(randomFive);
+  }, [artworks]);
+
+  // artworks가 바뀔 때마다 recent/ended 계산
+  useEffect(() => {
+    if (!artworks || artworks.length === 0) {
+      setRecentArtworks([]);
+      setEndedArtworks([]);
+      return;
+    } else {
+      setRecentArtworks(computeRecentArtworks(artworks));
+      // computeRecentArtworks(artworks);
+      setEndedArtworks(computeEndedArtworks(artworks));
+    }
+  }, [artworks]);
 
   const getArtwork = async () => {
     setLoading(true);
@@ -156,14 +229,6 @@ export default function Home({ navigation }) {
     setShowModal(true);
   };
 
-  useEffect(() => {
-    if (recentPage >= recentTotalPages) setRecentPage(0);
-  }, [recentArtworks, recentTotalPages]);
-
-  useEffect(() => {
-    getRecommendedUsers();
-  }, []);
-
   const data = artworks?.slice(0, 4); // 슬라이드에 사용할 데이터
 
   // ViewableItems 변경시 인덱스 동기화
@@ -174,28 +239,6 @@ export default function Home({ navigation }) {
       setCurrentIndex(idx);
     }
   });
-  // 자동 슬라이드 (5초)
-  useEffect(() => {
-    if (!recommendedArtworks || recommendedArtworks.length === 0) return;
-
-    const id = setInterval(() => {
-      setCurrentIndex((prev) => {
-        const next = (prev + 1) % recommendedArtworks.length;
-
-        if (flatListRef.current && recommendedArtworks.length > 0) {
-          flatListRef.current.scrollToIndex({
-            index: next,
-            animated: true,
-            viewPosition: 0.5,
-          });
-        }
-
-        return next;
-      });
-    }, 5000);
-
-    return () => clearInterval(id);
-  }, [recommendedArtworks]);
 
   // dot 클릭 시 이동
   const goToIndex = (index) => {
@@ -259,27 +302,6 @@ export default function Home({ navigation }) {
     return shuffled.slice(0, count);
   };
 
-  useEffect(() => {
-    if (!artworks || artworks.length === 0) {
-      setRecommendedArtworks([]);
-      return;
-    }
-
-    const today = new Date();
-    // 종료 안 된 전시만
-    const activeArtworks = artworks?.filter((item) => {
-      const end = parseDateSafe(item.endDate);
-      return end && end >= today;
-    });
-    // 썸네일 있는 전시만
-    const withThumbnail = activeArtworks.filter(
-      (item) => item.thumbnail && item.thumbnail.startsWith("http"),
-    );
-    // 랜덤 5개 추출
-    const randomFive = getRandomItems(withThumbnail, 5);
-    setRecommendedArtworks(randomFive);
-  }, [artworks]);
-
   // artworks 배열을 받아 DP_START 기준으로 현재 날짜와 가까운 순으로 정렬하여 설정
   const computeRecentArtworks = (artworks) => {
     const today = new Date(); // 현재 날짜
@@ -318,20 +340,6 @@ export default function Home({ navigation }) {
     return mapped.map((m) => m.raw);
   };
 
-  // artworks가 바뀔 때마다 recent/ended 계산
-  useEffect(() => {
-    if (!artworks || artworks.length === 0) {
-      setRecentArtworks([]);
-      setEndedArtworks([]);
-      return;
-    } else {
-      setRecentArtworks(computeRecentArtworks(artworks));
-      // computeRecentArtworks(artworks);
-      setEndedArtworks(computeEndedArtworks(artworks));
-    }
-  }, [artworks]);
-
-  // Prepare fixed 16-slot array for recent grid; fill missing slots with null placeholders
   const filledRecent = (() => {
     if (!recentArtworks || recentArtworks.length === 0) {
       console.warn("recentArtworks가 비어 있습니다. 기본값을 채웁니다.");
@@ -355,8 +363,10 @@ export default function Home({ navigation }) {
   const placeGroups = groupByPlace(artworks);
 
   const getMyFollowing = async () => {
+    if (!user?.uid) return []; // 안전 체크
+
     const snapshot = await getDocs(
-      collection(db, "users", user.uid, "following"),
+      collection(db, "users", user?.uid, "following"),
     );
 
     const followingIds = [];
@@ -371,7 +381,7 @@ export default function Home({ navigation }) {
   //유저 랜덤 추천
   const getRecommendedUsers = async () => {
     try {
-      const myFollowing = await getMyFollowing();
+      const myFollowing = (await getMyFollowing()) || [];
       const querySnapshot = await getDocs(collection(db, "users"));
       const users = [];
 
@@ -399,6 +409,50 @@ export default function Home({ navigation }) {
       setRecommendedUsers(usersWithFollowState);
     } catch (error) {
       console.error("추천 유저 불러오기 오류:", error);
+    }
+  };
+
+  // 팔로우, 언팔로우
+  const FollowUser = async (targetUserId) => {
+    if (!user) {
+      Alert.alert("로그인이 필요합니다.");
+      return;
+    }
+
+    const followingRef = doc(db, "users", user.uid, "following", targetUserId);
+    const followerRef = doc(db, "users", targetUserId, "followers", user.uid);
+
+    try {
+      if (followingMap[targetUserId]) {
+        // 언팔로우
+        await deleteDoc(followingRef);
+        await deleteDoc(followerRef);
+
+        await updateDoc(doc(db, "users", user.uid), {
+          followingCnt: increment(-1),
+        });
+        await updateDoc(doc(db, "users", targetUserId), {
+          followerCnt: increment(-1),
+        });
+
+        Alert.alert("언팔로우 성공!");
+      } else {
+        // 팔로우
+        await setDoc(followingRef, { createdAt: serverTimestamp() });
+        await setDoc(followerRef, { createdAt: serverTimestamp() });
+
+        await updateDoc(doc(db, "users", user.uid), {
+          followingCnt: increment(1),
+        });
+        await updateDoc(doc(db, "users", targetUserId), {
+          followerCnt: increment(1),
+        });
+
+        Alert.alert("팔로우 성공!");
+      }
+    } catch (error) {
+      console.error("팔로우 토글 실패:", error);
+      Alert.alert("팔로우/언팔로우 실패. 다시 시도해주세요.");
     }
   };
 
@@ -590,7 +644,7 @@ export default function Home({ navigation }) {
             </View>
 
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              {recommendedUsers.map((u) => (
+              {recommendedUsers.map((u, index) => (
                 <View key={u.id} style={styles.userCard}>
                   <View style={styles.userAvatar}>
                     {u.photoURL && (
@@ -609,17 +663,20 @@ export default function Home({ navigation }) {
                     </Text>
                   )}
                   {!user ? (
-                    <TouchableOpacity style={styles.followButton}>
-                      <Text style={{ color: "white", fontSize: 12 }}>
-                        팔로우
-                      </Text>
-                    </TouchableOpacity>
+                    <Text
+                      style={{ color: "black", fontSize: 12, marginTop: 10 }}
+                    >
+                      <Text>팔로워 {u.followerCnt}명</Text>
+                    </Text>
                   ) : u.isFollowing ? (
                     <TouchableOpacity>
                       <Text>팔로워 {u.followerCnt}명</Text>
                     </TouchableOpacity>
                   ) : (
-                    <TouchableOpacity style={styles.followButton}>
+                    <TouchableOpacity
+                      style={styles.followButton}
+                      onPress={() => FollowUser(user.uid)}
+                    >
                       <Text style={{ color: "white", fontSize: 12 }}>
                         팔로우
                       </Text>
@@ -1061,5 +1118,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 6,
+    marginTop: 10,
   },
 });
