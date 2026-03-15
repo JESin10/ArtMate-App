@@ -79,9 +79,6 @@ export default function FollowList({ navigation }) {
     return () => unsubscribe();
   }, [user]);
 
-  console.log("follwerList:", followerList);
-  console.log("followingList:", followingList);
-
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.settingFactorContainer}>
