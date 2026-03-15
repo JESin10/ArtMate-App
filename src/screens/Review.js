@@ -626,6 +626,7 @@ const styles = StyleSheet.create({
     color: "#333",
     marginVertical: 3,
     // rowGap: "120px",
+    lineHeight: 20,
   },
   reactionContainer: {
     width: "95%",

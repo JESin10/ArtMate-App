@@ -73,61 +73,6 @@ export default function ReviewModal({
     }
   }, [selectedArtwork]);
 
-  // useEffect(() => {
-  //   (async () => {
-  //     const { status } =
-  //       await ImagePicker.requestMediaLibraryPermissionsAsync();
-  //     if (status !== "granted") {
-  //       Alert.alert("사진 접근 권한이 필요합니다.");
-  //     }
-  //   })();
-  // }, []);
-
-  // const addUserReview = async () => {
-  //   if (!selectedArtwork) {
-  //     Alert.alert("전시를 먼저 선택해주세요.");
-  //     return;
-  //   }
-
-  //   if (!user) {
-  //     Alert.alert("로그인이 필요합니다.");
-  //     return;
-  //   }
-  //   const imageUrls = await uploadImages(); // 👈 추가
-  //   console.log("imageUrls:", imageUrls);
-  //   try {
-  //     const newReviewRef = await addDoc(collection(db, "reviews"), {
-  //       userId: user.uid,
-  //       artworkId,
-  //       title,
-  //       content,
-  //       rating,
-  //       images: imageUrls, // 👈 저장
-  //       LikeCnt: 0,
-  //       CommentCnt: 0,
-  //       createdAt: serverTimestamp(),
-  //       visitedDate: visitedDate.toISOString().split("T")[0],
-  //     });
-
-  //     await setDoc(doc(db, "users", user.uid, "reviews", newReviewRef.id), {
-  //       artworkId,
-  //       title,
-  //       content,
-  //       rating,
-  //       LikeCnt: 0,
-  //       CommentCnt: 0,
-  //       images: imageUrls, // 👈 저장
-  //       createdAt: serverTimestamp(),
-  //       visitedDate: visitedDate.toISOString().split("T")[0],
-  //     });
-
-  //     Alert.alert("리뷰 작성 완료!");
-  //     onClose();
-  //   } catch (error) {
-  //     console.error("리뷰 작성 실패:", error);
-  //   }
-  // };
-
   const getMyReview = async (userId, reviewId) => {
     try {
       await getDoc(collection(db, "users", userId, "reviews", reviewId));
@@ -299,7 +244,17 @@ export default function ReviewModal({
             contentContainerStyle={styles.ModalContent}
             showsVerticalScrollIndicator={true}
           >
-            <Text>Review 작성 폼</Text>
+            <Text
+              style={{
+                fontSize: 22,
+                marginVertical: 20,
+                justifyContent: "center",
+                textAlign: "center",
+                fontWeight: "bold",
+              }}
+            >
+              전시회 리뷰
+            </Text>
             <View style={styles.inputContainer}>
               <TextInput
                 placeholder="전시 제목 검색"
@@ -308,7 +263,7 @@ export default function ReviewModal({
                 style={styles.titleInput}
               />
               {searchKeyword.length > 1 && (
-                <View style={{ width: "90%", maxHeight: 200 }}>
+                <View style={styles.searchPage}>
                   <ScrollView>
                     {loading ? (
                       <Text>검색 중...</Text>
@@ -322,7 +277,9 @@ export default function ReviewModal({
                             setSearchKeyword(""); // 검색창 닫기
                           }}
                         >
-                          <Text>{item.name}</Text>
+                          <Text style={{ color: "white", marginBottom: 10 }}>
+                            {item.name}
+                          </Text>
                         </TouchableOpacity>
                       ))
                     )}
@@ -330,9 +287,31 @@ export default function ReviewModal({
                 </View>
               )}
               {selectedArtwork && (
-                <View style={{ alignItems: "center", marginVertical: 10 }}>
-                  <Text style={{ fontWeight: "bold" }}>
-                    선택된 전시: {selectedArtwork.name}
+                <View
+                  style={{
+                    alignItems: "center",
+                    marginVertical: 10,
+                    width: "90%",
+                    justifyContent: "colunm",
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontWeight: "bold",
+                      justifyContent: "center",
+                      textAlign: "center",
+                    }}
+                  >
+                    선택된 전시
+                  </Text>
+                  <Text
+                    style={{
+                      padding: 10,
+                      justifyContent: "center",
+                      textAlign: "center",
+                    }}
+                  >
+                    {selectedArtwork.name}
                   </Text>
                 </View>
               )}
@@ -358,29 +337,41 @@ export default function ReviewModal({
                           setImage(image.filter((_, i) => i !== index))
                         }
                       >
-                        <Text style={{ color: "red" }}>삭제</Text>
+                        <Text style={{ color: "#b50000", marginVertical: 10 }}>
+                          삭제
+                        </Text>
                       </TouchableOpacity>
                     </View>
                   ))}
                 </ScrollView>
 
-                <TouchableOpacity
-                  onPress={pickImage}
+                <View style={styles.imagePick}>
+                  <Text style={{ fontSize: 14, fontWeight: "bold" }}>
+                    사진 업로드
+                  </Text>
+                  <Text style={{ fontSize: 14, color: "#608D00" }}>
+                    ({image.length}/3)
+                  </Text>
+                </View>
+              </View>
+              <TouchableOpacity
+                onPress={() => setDatePickerVisible(true)}
+                style={styles.datePick}
+              >
+                <View
                   style={{
-                    marginTop: 10,
-                    padding: 10,
-                    backgroundColor: "#eee",
-                    alignItems: "center",
-                    borderRadius: 8,
+                    justifyContent: "space-between",
+                    flexDirection: "row",
+                    width: "100%",
                   }}
                 >
-                  <Text>사진 추가 ({image.length}/3)</Text>
-                </TouchableOpacity>
-              </View>
-              <TouchableOpacity onPress={() => setDatePickerVisible(true)}>
-                <Text>
-                  방문 날짜: {visitedDate.toISOString().split("T")[0]}
-                </Text>
+                  <Text style={{ fontSize: 14, fontWeight: "bold" }}>
+                    방문 날짜
+                  </Text>
+                  <Text style={{ fontSize: 14, color: "#608D00" }}>
+                    {visitedDate.toISOString().split("T")[0]}
+                  </Text>
+                </View>
               </TouchableOpacity>
               <DateTimePickerModal
                 isVisible={isDatePickerVisible}
@@ -388,30 +379,39 @@ export default function ReviewModal({
                 onConfirm={handleConfirm}
                 onCancel={() => setDatePickerVisible(false)}
               />
-              <Text>평점 선택</Text>
-              <View style={{ flexDirection: "row", marginVertical: 10 }}>
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <TouchableOpacity key={i} onPress={() => setRating(i)}>
-                    <Text
-                      style={{
-                        fontSize: 30,
-                        color: i <= rating ? "gold" : "gray",
-                      }}
-                    >
-                      ★
-                    </Text>
-                  </TouchableOpacity>
-                ))}
+
+              <View style={styles.ratingPick}>
+                <Text style={{ fontSize: 14, fontWeight: "bold" }}>
+                  평점 선택
+                </Text>
+                <View style={{ flexDirection: "row", marginVertical: 10 }}>
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <TouchableOpacity key={i} onPress={() => setRating(i)}>
+                      <Text
+                        style={{
+                          fontSize: 20,
+                          color: i <= rating ? "#608D00" : "gray",
+                        }}
+                      >
+                        ★
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
               </View>
-              {/* <Button
-                title={isEditing ? "리뷰 수정" : "리뷰 작성"}
-                onPress={isEditing ? updateReview : addUserReview}
-              /> */}
-              <Button
-                title={isLoading ? "업로드 중..." : "리뷰 작성"}
-                onPress={handleSubmit}
-                disabled={isLoading}
-              />
+              {isLoading ? (
+                <View style={styles.reviewSubBtn}>
+                  <TouchableOpacity onPress={handleSubmit} disabled={isLoading}>
+                    <Text style={styles.reviewSubBtnText}>업로드 중</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <View style={styles.reviewSubBtn}>
+                  <TouchableOpacity onPress={handleSubmit} disabled={isLoading}>
+                    <Text style={styles.reviewSubBtnText}>리뷰 작성</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
             </View>
           </ScrollView>
         </View>
@@ -435,7 +435,7 @@ const styles = StyleSheet.create({
   },
   ModalContainer: {
     backgroundColor: "#fff",
-    padding: 16,
+    padding: 30,
     borderTopLeftRadius: 12,
     borderTopRightRadius: 12,
     minHeight: 300,
@@ -450,24 +450,82 @@ const styles = StyleSheet.create({
     width: "100%",
     padding: 10,
     borderWidth: 1,
-    borderColor: "black",
     flexDirection: "column",
     alignItems: "center",
+    backgroundColor: "#608D00",
+    borderRadius: 20,
+    borderColor: "transparent",
+  },
+  searchPage: {
+    width: "90%",
+    maxHeight: 200,
+    marginBottom: 10,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    padding: 10,
   },
   titleInput: {
     width: "90%",
-    borderWidth: 1,
-    borderColor: "blue",
+    borderWidth: 2,
+    backgroundColor: "white",
+    borderColor: "transparent",
+    borderRadius: 10,
     margin: 10,
     padding: 10,
   },
   contentInput: {
     width: "90%",
     height: 300,
-
-    borderWidth: 1,
-    borderColor: "red",
+    borderWidth: 2,
+    backgroundColor: "white",
+    borderColor: "transparent",
+    borderRadius: 10,
     margin: 10,
+    padding: 20,
+    lineHeight: 24,
+    fontSize: 16,
+  },
+  imagePick: {
+    width: "100%",
+    marginTop: 10,
     padding: 10,
+    backgroundColor: "#eee",
+    alignItems: "center",
+    borderRadius: 10,
+    justifyContent: "space-between",
+    flexDirection: "row",
+  },
+  datePick: {
+    width: "90%",
+    marginVertical: 10,
+    padding: 10,
+    backgroundColor: "#eee",
+    alignItems: "center",
+    borderRadius: 10,
+  },
+  ratingPick: {
+    width: "90%",
+    marginVertical: 10,
+    padding: 10,
+    backgroundColor: "#eee",
+    alignItems: "center",
+    borderRadius: 10,
+    justifyContent: "space-between",
+    flexDirection: "row",
+  },
+  reviewSubBtn: {
+    borderColor: "white",
+    borderWidth: 2,
+    borderRadius: 10,
+    backgroundColor: "#608D00",
+    width: "90%",
+    padding: 10,
+    marginVertical: 22,
+  },
+  reviewSubBtnText: {
+    fontWeight: "bold",
+    fontSize: 20,
+    color: "white",
+    textAlign: "center",
+    justifyContent: "center",
   },
 });

@@ -8,6 +8,7 @@ import {
   TextInput,
   Alert,
   Button,
+  ImageBackground,
 } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
@@ -26,6 +27,7 @@ import {
   query,
   where,
   orderBy,
+  deleteDoc,
 } from "firebase/firestore";
 import { db } from "../../../firebase";
 import { AuthContext } from "../../services/context";
@@ -54,24 +56,30 @@ export default function CommentModal({ visible, onClose, reviewId }) {
       const displayNameMap = {};
 
       for (const uid of userIds) {
-        const userSnap = await getDoc(doc(db, "users", uid));
-        displayNameMap[uid] = userSnap.exists()
-          ? userSnap.data().displayName
-          : null;
+        try {
+          const userSnap = await getDoc(doc(db, "users", uid));
+          displayNameMap[uid] = userSnap.exists()
+            ? {
+                displayName: userSnap.data().displayName,
+                photoURL: userSnap.data().photoURL || null,
+              }
+            : { displayName: userSnap.data().displayName, photoURL: null };
+        } catch (err) {
+          displayNameMap[uid] = "익명";
+        }
       }
 
       // 리뷰 + displayName 합쳐서 상태 업데이트 (한 번만)
       const fetchReview = data.map((r) => ({
         ...r,
-        displayName: displayNameMap[r.userId] || "익명",
+        displayName: displayNameMap[r.userId]?.displayName,
+        photoURL: displayNameMap[r.userId]?.photoURL || null,
       }));
       setCmtList(fetchReview);
     });
 
     return () => unsubscribe();
   }, [user, reviewId]);
-
-  console.log("cmtList:", cmtList);
 
   const formatDate = (timestampObj) => {
     if (!timestampObj) return "";
@@ -85,6 +93,7 @@ export default function CommentModal({ visible, onClose, reviewId }) {
     });
   };
 
+  //댓글작성
   const addComment = async (userId, reviewId, comment) => {
     if (!comment.trim()) return;
     try {
@@ -116,6 +125,17 @@ export default function CommentModal({ visible, onClose, reviewId }) {
       console.log("댓글 작성 완료");
     } catch (error) {
       console.error("댓글 작성 실패:", error);
+    }
+  };
+
+  //댓글 삭제
+  const cmtDelete = async (reviewId, userId, cmtId) => {
+    try {
+      await deleteDoc(doc(db, "reviews", reviewId, "comments", cmtId));
+      await deleteDoc(doc(db, "users", userId, "comments", cmtId));
+    } catch (error) {
+      console.error("댓글 삭제 에러:", error);
+      Alert.alert("댓글 삭제에 실패했습니다. 다시 시도해주세요.");
     }
   };
 
@@ -151,16 +171,54 @@ export default function CommentModal({ visible, onClose, reviewId }) {
               {cmtList.map((item, index) => (
                 <View style={styles.cmtContainer} key={index}>
                   <View style={styles.cmtLineContainer}>
-                    <View style={styles.cmtUser}>
-                      <Text>{item.displayName}</Text>
-                    </View>
+                    <ImageBackground
+                      source={{ uri: item.photoURL }}
+                      style={styles.cmtUser}
+                      imageStyle={styles.ProfileTumbnail}
+                      resizeMode="cover"
+                    />
                     <View style={styles.cmtText}>
                       <Text>{item.comment}</Text>
                     </View>
                   </View>
-                  <Text style={styles.cmtTime}>
-                    {formatDate(item.createdAt)}
-                  </Text>
+
+                  {user && item.userId === user.uid ? (
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                        width: "100%",
+                      }}
+                    >
+                      <Text style={styles.cmtTime}>
+                        {formatDate(item.createdAt)}
+                      </Text>
+                      <TouchableOpacity
+                        style={{
+                          width: "50%",
+                          marginTop: 10,
+                        }}
+                        onPress={() =>
+                          cmtDelete(reviewId.id, user.uid, item.id)
+                        }
+                      >
+                        <Text style={{ textAlign: "right" }}>삭제</Text>
+                      </TouchableOpacity>
+                    </View>
+                  ) : (
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                        width: "100%",
+                        textAlign: "right",
+                      }}
+                    >
+                      <Text style={styles.cmtTime}>
+                        {formatDate(item.createdAt)}
+                      </Text>
+                    </View>
+                  )}
                 </View>
               ))}
             </View>
@@ -258,13 +316,11 @@ const styles = StyleSheet.create({
   cmtInput: {
     width: "85%",
     height: 40,
-    alignItems: "center",
     borderWidth: 1,
     borderColor: "lightgrey",
     borderRadius: 20,
     paddingHorizontal: 12,
     backgroundColor: "white",
-    textAlignVertical: "center",
   },
   cmtBtn: {
     width: 40,
@@ -291,6 +347,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     textAlignVertical: "center",
   },
+  ProfileTumbnail: {
+    width: "100%",
+    height: "100%",
+    borderRadius: "100%",
+    justifyContent: "center",
+    textAlignVertical: "center",
+  },
   cmtText: {
     width: "85%",
     height: 40,
@@ -299,11 +362,12 @@ const styles = StyleSheet.create({
     textAlignVertical: "center",
   },
   cmtTime: {
-    width: "100%",
+    width: "50%",
     height: 20,
     fontSize: 10,
     color: "grey",
-    justifyContent: "flex-end",
-    textAlign: "right",
+    marginTop: 10,
+    // justifyContent: "flex-end",
+    // textAlign: "right",
   },
 });
