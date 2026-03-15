@@ -74,8 +74,6 @@ export default function AccFind({ navigation }) {
         <View style={styles.container}>
           <View
             style={{
-              // borderColor: "red",
-              // borderWidth: 1,
               width: "100%",
               alignItems: "center",
               flexDirection: "column",
@@ -89,21 +87,19 @@ export default function AccFind({ navigation }) {
               <MainSlogun width={220} height={30} />
             </TouchableOpacity>
           </View>
-          {/* <TouchableOpacity> */}
           <View>
-            <View>
-              <View style={styles.inputContainer}>
-                <TextInput
-                  style={styles.input}
-                  placeholder="아이디"
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  textContentType="id"
-                  value={userId}
-                  onChangeText={(text) => setUserId(text)}
-                  keyboardType="email-address"
-                />
-                {/* <TextInput
+            <View style={styles.inputContainer}>
+              <TextInput
+                style={styles.input}
+                placeholder="아이디"
+                autoCapitalize="none"
+                autoCorrect={false}
+                textContentType="id"
+                value={userId}
+                onChangeText={(text) => setUserId(text)}
+                keyboardType="email-address"
+              />
+              {/* <TextInput
                   style={styles.input}
                   placeholder="비밀번호"
                   autoCapitalize="none"
@@ -113,89 +109,86 @@ export default function AccFind({ navigation }) {
                   value={userPw}
                   onChangeText={(text) => setUserPw(text)}
                 /> */}
-                <TouchableOpacity style={styles.button} onPress={findPassword}>
-                  <Text style={{ color: "#fff" }}>PW찾기</Text>
-                </TouchableOpacity>
-              </View>
+              <TouchableOpacity style={styles.button} onPress={findPassword}>
+                <Text style={{ color: "#fff" }}>비밀번호 찾기</Text>
+              </TouchableOpacity>
             </View>
             <View style={styles.findContainer}>
               <TouchableOpacity onPress={() => navigation.navigate("Login")}>
                 <Text style={styles.findFactor}>로그인</Text>
               </TouchableOpacity>
-              {/* <TouchableOpacity>
-              <Text style={styles.findFactor}>PW 찾기</Text>
-            </TouchableOpacity> */}
               <TouchableOpacity onPress={() => navigation.navigate("Signup")}>
                 <Text style={styles.findFactor}>회원가입</Text>
               </TouchableOpacity>
             </View>
           </View>
-          {/* <View>
-          <View style={styles.decoLine}>
-            <Text
+          <View style={{ width: "95%" }}>
+            <View style={styles.decoLine}>
+              <Text
+                style={{
+                  paddingHorizontal: 15,
+                  backgroundColor: "white",
+                  zIndex: 20,
+                  top: 10,
+                  color: "#A8A8A8",
+                  fontSize: 12,
+                }}
+              >
+                소셜로 시작하기
+              </Text>
+            </View>
+            <View
               style={{
-                paddingHorizontal: 15,
-                backgroundColor: "white",
-                zIndex: 20,
-                top: 10,
-                color: "#A8A8A8",
-                fontSize: 12,
-              }}
-            >
-              소셜로 시작하기
-            </Text>
-          </View>
-          <View
-            style={{
-              marginHorizontal: "auto",
-              width: "100%",
-              alignItems: "center",
-              flexDirection: "column",
-            }}
-          >
-            <TouchableOpacity
-              style={{
-                backgroundColor: "#F4DF4A",
-                borderRadius: 30,
-                width: "80%",
-                height: 45,
-                marginBottom: 10,
+                marginHorizontal: "auto",
+                width: "100%",
                 alignItems: "center",
+                flexDirection: "column",
               }}
-              onPress={login}
             >
-              <Text style={styles.socialBtn}>카카오로 시작하기</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={{
-                backgroundColor: "#5EC439",
-                borderRadius: 30,
-                width: "80%",
-                height: 45,
-                marginBottom: 10,
-                alignItems: "center",
-              }}
-              onPress={login}
-            >
-              <Text style={styles.socialBtn}>네이버로 시작하기</Text>
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  backgroundColor: "#F4DF4A",
+                  borderRadius: 30,
+                  width: "80%",
+                  height: 45,
+                  marginBottom: 10,
+                  alignItems: "center",
+                }}
+                // onPress={login}
+              >
+                <Text style={styles.socialBtn}>카카오로 시작하기</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  backgroundColor: "#5EC439",
+                  borderRadius: 30,
+                  width: "80%",
+                  height: 45,
+                  marginBottom: 10,
+                  alignItems: "center",
+                }}
+                // onPress={login}
+              >
+                <Text style={styles.socialBtn}>네이버로 시작하기</Text>
+              </TouchableOpacity>
 
-            <TouchableOpacity
-              style={{
-                backgroundColor: "white",
-                borderColor: "black",
-                borderWidth: 1,
-                borderRadius: 30,
-                width: "80%",
-                height: 45,
-                marginBottom: 10,
-                alignItems: "center",
-              }}
-              onPress={login}
-            >
-              <Text style={styles.socialBtn}>구글로 시작하기</Text>
-            </TouchableOpacity>
-          </View>*/}
+              <TouchableOpacity
+                style={{
+                  backgroundColor: "white",
+                  borderColor: "black",
+                  borderWidth: 1,
+                  borderRadius: 30,
+                  width: "80%",
+                  height: 45,
+                  marginBottom: 10,
+                  alignItems: "center",
+                }}
+                // onPress={login}
+              >
+                <Text style={styles.socialBtn}>구글로 시작하기</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>

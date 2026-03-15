@@ -1,41 +1,141 @@
 import {
   View,
   Text,
-  SafeAreaView,
   Button,
   BackHandler,
   TouchableOpacity,
   Alert,
   StyleSheet,
 } from "react-native";
-import React from "react";
+import { SafeAreaView } from "react-native-safe-area-context";
 import BackwardIcon from "../assets/icons/backward.svg";
+import { useContext } from "react";
+import { AuthContext } from "../services/context";
+import { deleteUser, getAuth, signOut } from "firebase/auth";
+import { collection, deleteDoc, doc, getDocs } from "firebase/firestore";
+import { db } from "../../firebase";
+import { getFunctions, httpsCallable } from "firebase/functions";
 
 export default function Setting({ navigation }) {
+  const { user, setUser } = useContext(AuthContext);
+  const auth = getAuth();
+
+  const userInfoCheck = async () => {
+    // 문자열을 Date 객체로 변환
+    const dateObj = new Date(user.createdAt);
+
+    // 연도, 월, 일 추출
+    const year = dateObj.getFullYear();
+    const month = dateObj.getMonth() + 1; // JS는 0~11월이라 +1 필요
+    const day = dateObj.getDate();
+
+    //  원하는 형식으로 문자열 만들기
+    const formatted = `${year}년 ${month}월 ${day}일 가입`;
+    alert(formatted);
+  };
+
+  //로그아웃
+  const userLogout = async () => {
+    try {
+      await signOut(auth);
+      setUser(null);
+      // console.log("로그아웃 성공");
+      navigation.goBack();
+    } catch (error) {
+      // console.error("로그아웃 실패:", error);
+    }
+  };
+
+  //탈퇴
+  const deleteAccount = async () => {
+    try {
+      // Auth 계정 삭제
+      await deleteUser(user);
+      await deleteUserData(user.uid);
+
+      console.log("계정이 삭제되었습니다.");
+    } catch (error) {
+      console.error("계정 삭제 실패:", error);
+      if (error.code === "auth/requires-recent-login") {
+        alert("보안을 위해 최근 로그인 후 다시 시도해주세요.");
+      }
+    }
+
+    //firesotre 삭제
+    const deleteUserData = async (uid) => {
+      try {
+        // 유저 기본 문서 삭제
+        await deleteDoc(doc(db, "users", uid));
+
+        // 팔로워/팔로잉 등 하위 컬렉션 삭제
+        const subCollections = [
+          "followers",
+          "following",
+          "comments",
+          "likedReview",
+          "bookmarks",
+        ];
+        for (const col of subCollections) {
+          const snap = await getDocs(collection(db, "users", uid, col));
+          for (const docSnap of snap.docs) {
+            await deleteDoc(doc(db, "users", uid, col, docSnap.id));
+          }
+        }
+        console.log("DB의 유저 데이터가 삭제되었습니다.");
+      } catch (error) {
+        console.error("Firestore 삭제 실패:", error);
+      }
+    };
+  };
+
   return (
     <SafeAreaView>
       <View style={styles.settingFactorContainer}>
         <View style={styles.userSetting}>
           <TouchableOpacity
-            style={{ margin: 8 }}
+            style={{
+              margin: 8,
+            }}
             onPress={() => navigation.goBack()}
           >
             <BackwardIcon width={24} height={24} fill="#fff" />
           </TouchableOpacity>
-          <Text style={styles.userSettingFactor}>가입정보 확인</Text>
+          <TouchableOpacity onPress={userInfoCheck}>
+            <Text
+              style={{
+                backgroundColor: "#fff",
+                padding: 10,
+                borderBottomWidth: 1,
+                borderTopWidth: 1,
+                borderBottomColor: "black",
+              }}
+            >
+              가입정보 확인
+            </Text>
+          </TouchableOpacity>
           <Text style={styles.userSettingFactor}>비밀번호 변경</Text>
           <Text style={styles.userSettingFactor}>소셜 로그인 연동</Text>
           <Text style={styles.userSettingFactor}>최근 본 콘텐츠</Text>
           <Text style={styles.userSettingFactor}>이벤트 참여 현황</Text>
         </View>
         <View style={styles.QASetting}>
-          <Text style={styles.QAFactor}>공지사항</Text>
+          <Text
+            style={{
+              backgroundColor: "#fff",
+              padding: 10,
+              borderBottomWidth: 1,
+              borderTopWidth: 1,
+              borderBottomColor: "black",
+            }}
+          >
+            공지사항
+          </Text>
           <Text style={styles.QAFactor}>FAQ</Text>
           <TouchableOpacity
             onPress={() => {
               Alert.alert(
                 "서비스이용약관",
-                "제1조(목적) 이 약관은 OO 회사(전자상거래 사업자)가 운영하는 OO 사이버 몰(이하 “몰”이라 한다)에서 제공하는 인터넷 관련 서비스(이하 “서비스”라 한다)를 이용함에 있어 사이버 몰과 이용자의 권리․의무 및 책임사항을 규정함을 목적으로 합니다.※「PC통신, 무선 등을 이용하는 전자상거래에 대해서도 그 성질에 반하지 않는 한 이 약관을 준용합니다.」"
+                "제1조(목적) 이 약관은 OO 회사(전자상거래 사업자)가 운영하는 OO 사이버 몰(이하 “몰”이라 한다)에서 제공하는 인터넷 관련 서비스(이하 “서비스”라 한다)를 이용함에 있어 사이버 몰과 이용자의 권리․의무 및 책임사항을 규정함을 목적으로 합니다.※「PC통신, 무선 등을 이용하는 전자상거래에 대해서도 그 성질에 반하지 않는 한 이 약관을 준용합니다.」",
               );
             }}
           >
@@ -45,7 +145,7 @@ export default function Setting({ navigation }) {
             onPress={() => {
               Alert.alert(
                 "개인정보처리방침",
-                "제1조(목적) 이 지침은 「개인정보 보호법」 제12조제1항에 따른 개인정보의 처리에 관한 기준, 개인정보 침해의 유형 및 예방조치 등에 관한 세부적인 사항을 규정함을 목적으로 한다."
+                "제1조(목적) 이 지침은 「개인정보 보호법」 제12조제1항에 따른 개인정보의 처리에 관한 기준, 개인정보 침해의 유형 및 예방조치 등에 관한 세부적인 사항을 규정함을 목적으로 한다.",
               );
             }}
           >
@@ -54,15 +154,28 @@ export default function Setting({ navigation }) {
           <Text style={styles.QAFactor}>의견보내기</Text>
           <TouchableOpacity
             onPress={() => {
-              Alert.alert("Version", "Ver0.0.1");
+              Alert.alert("Version", "Ver1.0.2");
             }}
           >
             <Text style={styles.QAFactor}>버전정보</Text>
           </TouchableOpacity>
         </View>
         <View style={styles.QASetting}>
-          <Text style={styles.QAFactor}>로그아웃</Text>
-          <Text style={styles.QAFactor}>서비스 탈퇴</Text>
+          <TouchableOpacity
+            onPress={userLogout}
+            style={{
+              backgroundColor: "#fff",
+              padding: 10,
+              borderBottomWidth: 1,
+              borderTopWidth: 1,
+              borderBottomColor: "black",
+            }}
+          >
+            <Text>로그아웃</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={deleteAccount}>
+            <Text style={styles.QAFactor}>서비스 탈퇴</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </SafeAreaView>
@@ -74,8 +187,8 @@ const styles = StyleSheet.create({
     flexDirection: "horizontal",
     width: "100%",
     height: "100%",
-    borderWidth: 3,
-    borderColor: "blue",
+    // borderWidth: 1,
+    // borderColor: "blue",
   },
   BackBtn: {
     alignItems: "flex-start",
@@ -91,31 +204,28 @@ const styles = StyleSheet.create({
     // paddingTop: 40,
     paddingBottom: 0,
     backgroundColor: "#608D00",
-    borderWidth: 2,
-    borderColor: "red",
   },
   userSettingFactor: {
     backgroundColor: "#fff",
     padding: 10,
-    borderWidth: 1,
-    borderColor: "black",
+    borderBottomWidth: 1,
+    borderBottomColor: "black",
   },
   QASetting: {
     width: "100%",
-    // height: "40%",
     flexDirection: "horizontal",
     justyfyContent: "center",
     verticalAlign: "center",
     paddingTop: 40,
     paddingBottom: 0,
     backgroundColor: "#608D00",
-    borderWidth: 2,
-    borderColor: "yellow",
+    // borderWidth: 2,
+    // borderColor: "yellow",
   },
   QAFactor: {
-    backgroundColor: "#E3E3E3",
+    backgroundColor: "#fff",
     padding: 10,
-    borderWidth: 1,
-    borderColor: "black",
+    borderBottomWidth: 1,
+    borderBottomColor: "black",
   },
 });

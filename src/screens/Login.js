@@ -45,6 +45,7 @@ export default function Login({ navigation }) {
           followerCnt: userData.followerCnt,
           followingCnt: userData.followingCnt,
           photoURL: userData.photoURL,
+          createdAt: userData.createdAt,
         });
       }
       // Alert.alert("로그인 성공", "로그인이 완료되었습니다.");
@@ -106,11 +107,9 @@ export default function Login({ navigation }) {
                 value={userPw}
                 onChangeText={(text) => setUserPw(text)}
               />
-
               <TouchableOpacity style={styles.button} onPress={login}>
                 <Text style={{ color: "#fff" }}>로그인</Text>
               </TouchableOpacity>
-              {/* <Button title="Sign Up" color={"gray"} onPress={signup} /> */}
             </View>
           </View>
           <View style={styles.findContainer}>
