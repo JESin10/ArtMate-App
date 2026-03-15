@@ -7,6 +7,7 @@ import {
   ImageBackground,
   FlatList,
   Image,
+  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { decode } from "html-entities"; // 추가: HTML 엔티티 디코드
@@ -21,7 +22,17 @@ import { AuthContext } from "../services/context";
 import { XMLParser } from "fast-xml-parser";
 import SearchBar from "../components/search/SearchBar";
 import ImageSlider from "../components/Slider/ImageSlider";
-import { collection, getDocs, onSnapshot } from "firebase/firestore";
+import {
+  doc,
+  setDoc,
+  collection,
+  getDocs,
+  onSnapshot,
+  deleteDoc,
+  updateDoc,
+  increment,
+  serverTimestamp,
+} from "firebase/firestore";
 import { db } from "../../firebase";
 
 export default function Home({ navigation }) {
@@ -37,6 +48,7 @@ export default function Home({ navigation }) {
   const [recommendedArtworks, setRecommendedArtworks] = useState([]);
   const [recommendedUsers, setRecommendedUsers] = useState([]);
   const [followingMap, setFollowingMap] = useState({});
+  const followingCnt = Object.keys(followingMap).length;
   const CARD_WIDTH = 310;
   const ITEM_SPACING = 12;
   const ITEM_SIZE = CARD_WIDTH + ITEM_SPACING;
@@ -62,7 +74,7 @@ export default function Home({ navigation }) {
     }
   }, [selectedArtwork]);
 
-  //팔로우여부 구독
+  // 팔로우 여부 실시간 구독
   useEffect(() => {
     if (!user) return;
 
@@ -71,7 +83,7 @@ export default function Home({ navigation }) {
     const unsubscribe = onSnapshot(followingRef, (snapshot) => {
       const map = {};
       snapshot.docs.forEach((doc) => {
-        map[doc.id] = true;
+        map[doc.id] = true; // 팔로우 상태
       });
       setFollowingMap(map);
     });
@@ -147,6 +159,7 @@ export default function Home({ navigation }) {
     }
   }, [artworks]);
 
+  //간단 작품 정보
   const getArtwork = async () => {
     setLoading(true);
 
@@ -186,6 +199,7 @@ export default function Home({ navigation }) {
     setLoading(false);
   };
 
+  //상세 작품정보
   const getDetailArtwork = async (seq) => {
     try {
       const response = await fetch(
@@ -448,7 +462,7 @@ export default function Home({ navigation }) {
           followerCnt: increment(1),
         });
 
-        Alert.alert("팔로우 성공!");
+        // Alert.alert("팔로우 성공!");
       }
     } catch (error) {
       console.error("팔로우 토글 실패:", error);
@@ -662,20 +676,36 @@ export default function Home({ navigation }) {
                       {u.bio}
                     </Text>
                   )}
+
                   {!user ? (
-                    <Text
-                      style={{ color: "black", fontSize: 12, marginTop: 10 }}
-                    >
-                      <Text>팔로워 {u.followerCnt}명</Text>
-                    </Text>
-                  ) : u.isFollowing ? (
-                    <TouchableOpacity>
-                      <Text>팔로워 {u.followerCnt}명</Text>
-                    </TouchableOpacity>
+                    <View style={{ height: 20, marginTop: 10 }}>
+                      <Text style={{ color: "black", fontSize: 12 }}>
+                        팔로워 {followingCnt}명
+                      </Text>
+                    </View>
+                  ) : followingMap[u.id] ? (
+                    <View style={{ height: 20, marginTop: 10 }}>
+                      <Text style={{ color: "black", fontSize: 12 }}>
+                        팔로워 {followingCnt + 1}명 {/* 실시간 반영용 */}
+                      </Text>
+                    </View>
                   ) : (
                     <TouchableOpacity
-                      style={styles.followButton}
-                      onPress={() => FollowUser(user.uid)}
+                      style={styles.followBtn}
+                      onPress={async () => {
+                        await FollowUser(u.id);
+                        // 선택적으로 로컬 UI 반영
+                        setRecommendedUsers((prev) =>
+                          prev.map((userItem) =>
+                            userItem.id === u.id
+                              ? {
+                                  ...userItem,
+                                  followerCnt: userItem.followerCnt + 1,
+                                }
+                              : userItem,
+                          ),
+                        );
+                      }}
                     >
                       <Text style={{ color: "white", fontSize: 12 }}>
                         팔로우
@@ -1112,12 +1142,12 @@ const styles = StyleSheet.create({
     color: "gray",
     marginBottom: 6,
   },
-
-  followButton: {
+  followBtn: {
     backgroundColor: "#608D00",
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 6,
     marginTop: 10,
+    height: 20,
   },
 });

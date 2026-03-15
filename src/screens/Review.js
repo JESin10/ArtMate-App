@@ -230,7 +230,7 @@ export default function Review({ navigation }) {
   };
 
   // 팔로우, 언팔로우
-  const toggleFollow = async (targetUserId) => {
+  const FollowUser = async (targetUserId) => {
     if (!user) {
       Alert.alert("로그인이 필요합니다.");
       return;
@@ -252,7 +252,7 @@ export default function Review({ navigation }) {
           followerCnt: increment(-1),
         });
 
-        Alert.alert("언팔로우 성공!");
+        // Alert.alert("언팔로우 성공!");
       } else {
         // 팔로우
         await setDoc(followingRef, { createdAt: serverTimestamp() });
@@ -265,7 +265,7 @@ export default function Review({ navigation }) {
           followerCnt: increment(1),
         });
 
-        Alert.alert("팔로우 성공!");
+        // Alert.alert("팔로우 성공!");
       }
     } catch (error) {
       console.error("팔로우 토글 실패:", error);
@@ -368,7 +368,7 @@ export default function Review({ navigation }) {
                           ? styles.unfollowBtn
                           : styles.followBtn
                       }
-                      onPress={() => toggleFollow(review.userId)}
+                      onPress={() => FollowUser(review.userId)}
                     >
                       <Text
                         style={

@@ -37,6 +37,7 @@ import { db, storage } from "../../firebase";
 import Bookmarks from "./Bookmarks";
 import * as ImagePicker from "expo-image-picker";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { getAuth, signOut } from "firebase/auth";
 
 export default function Mypage({ navigation }) {
   const { user, setUser } = useContext(AuthContext);
@@ -48,8 +49,10 @@ export default function Mypage({ navigation }) {
   const [myLikeRV, setMyLikeRV] = useState([]);
   const [myComments, setMyComments] = useState([]);
   const [profileImage, setProfileImage] = useState(null);
-  const [followerCount, setFollowerCount] = useState(0);
-  const [followingCount, setFollowingCount] = useState(0);
+  const [followingMap, setFollowingMap] = useState({});
+  const [followerMap, setFollowerMap] = useState({});
+  const followerCnt = Object.keys(followerMap).length;
+  const followingCnt = Object.keys(followingMap).length;
 
   //프로필 이미지
   useEffect(() => {
@@ -58,19 +61,31 @@ export default function Mypage({ navigation }) {
     }
   }, [user?.photoURL]);
 
+  //팔로잉 팔로워 구독
   useEffect(() => {
     if (!user) return;
+
     // 팔로워 구독
     const followersRef = collection(db, "users", user.uid, "followers");
     const unsubscribeFollowers = onSnapshot(followersRef, (snapshot) => {
+      const follower = {};
       // 컬렉션 문서 개수 = 팔로워 수
-      setFollowerCount(snapshot.size);
+      snapshot.docs.forEach((doc) => {
+        follower[doc.id] = true;
+      });
+      setFollowerMap(follower);
     });
+
     // 팔로잉 구독
     const followingRef = collection(db, "users", user.uid, "following");
     const unsubscribeFollowing = onSnapshot(followingRef, (snapshot) => {
-      setFollowingCount(snapshot.size);
+      const following = {};
+      snapshot.docs.forEach((doc) => {
+        following[doc.id] = true;
+      });
+      setFollowingMap(following);
     });
+
     // 언마운트 시 구독 해제
     return () => {
       unsubscribeFollowers();
@@ -125,8 +140,6 @@ export default function Mypage({ navigation }) {
       C_unsubscribe();
     };
   }, [user]);
-
-  // console.log("myliked:", myLikeRV);
 
   const showAlertWithChoices = () => {
     Alert.alert(
@@ -188,21 +201,18 @@ export default function Mypage({ navigation }) {
   //   }
   // };
 
-  //리뷰 가져오기
-  // const getHistory = async (uid) => {
-  //   try {
-  //     const snapshot = await getDocs(collection(db, "users", uid, "reviews"));
-
-  //     const review = snapshot.docs.map((doc) => ({
-  //       id: doc.id,
-  //       ...doc.data(),
-  //     }));
-  //     setMyReviews(review);
-  //     navigation.navigate("History");
-  //   } catch (error) {
-  //     console.error("북마크 불러오기 에러:", error);
-  //   }
-  // };
+  //로그아웃
+  const userLogout = async () => {
+    const auth = getAuth();
+    try {
+      await signOut(auth);
+      setUser(null);
+      console.log("로그아웃 성공");
+      navigation.navigate("Home");
+    } catch (error) {
+      console.error("로그아웃 실패:", error);
+    }
+  };
 
   const pickImage = async () => {
     // 권한 요청
@@ -363,7 +373,7 @@ export default function Mypage({ navigation }) {
                       팔로워
                     </Text>
                     <Text style={{ fontWeight: "bold", color: "#fff" }}>
-                      {followingCount}
+                      {followerCnt}
                     </Text>
                   </View>
                   <View style={{ flexDirection: "row" }}>
@@ -371,7 +381,7 @@ export default function Mypage({ navigation }) {
                       팔로잉
                     </Text>
                     <Text style={{ fontWeight: "bold", color: "#fff" }}>
-                      {followerCount}
+                      {followingCnt}
                     </Text>
                   </View>
                 </View>
@@ -486,7 +496,7 @@ export default function Mypage({ navigation }) {
           </>
         ) : (
           <Pressable
-            onPress={() => setUser(null)}
+            onPress={userLogout}
             style={({ pressed }) => [
               styles.logoutBtnWrapper,
               pressed && styles.logoutBtnPressedWrapper,
