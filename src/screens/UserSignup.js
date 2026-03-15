@@ -12,11 +12,22 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import React, { useState } from "react";
 import Mainlogo from "../assets/icons/logo-main.svg";
 import MainSlogun from "../assets/images/slogan.svg";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  fetchSignInMethodsForEmail,
+} from "firebase/auth";
 import { auth, db, storage } from "../../firebase";
-import { doc, setDoc } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDocs,
+  query,
+  setDoc,
+  where,
+} from "firebase/firestore";
 import * as ImagePicker from "expo-image-picker";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { Button } from "react-native-web";
 
 export default function UserSignup({ navigation }) {
   const [name, setName] = useState("");
@@ -45,18 +56,62 @@ export default function UserSignup({ navigation }) {
     }
   };
 
+  const onCheckEmail = async (email) => {
+    try {
+      const q = query(
+        collection(db, "users"),
+        where("email", "==", email.trim().toLowerCase()),
+      );
+
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        Alert.alert("이메일 확인", "이미 가입된 이메일입니다.");
+        return false; // 중복
+      } else {
+        Alert.alert("이메일 확인", "가입 가능한 이메일입니다.");
+        return true; // 사용 가능
+      }
+    } catch (error) {
+      console.error("이메일 중복 확인 오류:", error);
+      Alert.alert("이메일 확인 실패", error.message || String(error));
+      return false;
+    }
+  };
+
   const onSignup = async () => {
-    if (!email || !password || !passwordCheck) {
-      Alert.alert("입력 오류", "이메일과 비밀번호를 모두 입력해주세요.");
+    // 필수 입력 체크
+    if (!email || !password || !passwordCheck || !name) {
+      Alert.alert("입력 오류", "모든 필드를 입력해주세요.");
       return;
     }
 
+    // 비밀번호 조건 체크 (8자 이상, 문자+숫자+특수문자)
+    const passwordRegex =
+      /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+~`|}{[\]:;?><,./\-]).{8,}$/;
+    if (!passwordRegex.test(password)) {
+      Alert.alert(
+        "비밀번호 조건 오류",
+        "비밀번호는 8자 이상이며, 문자, 숫자, 특수문자를 포함해야 합니다.",
+      );
+      return;
+    }
+
+    // 비밀번호 확인
     if (password !== passwordCheck) {
       Alert.alert("비밀번호 불일치", "비밀번호가 일치하지 않습니다.");
       return;
     }
 
     try {
+      // 이미 가입된 이메일인지 체크
+      const methods = await fetchSignInMethodsForEmail(auth, email);
+      if (methods.length > 0) {
+        Alert.alert("가입 오류", "이미 가입된 이메일입니다.");
+        return;
+      }
+
+      // 회원가입 로직
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
@@ -73,15 +128,14 @@ export default function UserSignup({ navigation }) {
         photoURL = await getDownloadURL(storageRef);
       }
 
-      const userRef = doc(db, "users", user.uid);
-      await setDoc(userRef, {
+      await setDoc(doc(db, "users", user.uid), {
         displayName: name,
         email,
         uid: user.uid,
         createdAt: new Date().toUTCString(),
         followingCnt: 0,
         followerCnt: 0,
-        photoURL, // 프로필 사진 URL 저장
+        photoURL,
       });
 
       Alert.alert("회원가입 성공", "회원가입이 완료되었습니다.");
@@ -121,16 +175,25 @@ export default function UserSignup({ navigation }) {
                 프로필 사진 선택
               </Text>
             </TouchableOpacity>
-            <TextInput
-              style={styles.input}
-              placeholder="이메일"
-              autoCapitalize="none"
-              keyboardType="email-address"
-              textContentType="emailAddress"
-              autoFocus={true}
-              value={email}
-              onChangeText={(text) => setEmail(text)}
-            />
+            <View style={{ flexDirection: "row", justifyContent: "flex-end" }}>
+              <TextInput
+                style={styles.EmailInput}
+                placeholder="이메일"
+                autoCapitalize="none"
+                keyboardType="email-address"
+                textContentType="emailAddress"
+                autoFocus={true}
+                value={email}
+                onChangeText={(text) => setEmail(text)}
+              />
+              <TouchableOpacity
+                onPress={() => onCheckEmail(email)}
+                style={styles.EmailCheckBtn}
+              >
+                <Text style={{ color: "white", fontSize: 12 }}>확인</Text>
+              </TouchableOpacity>
+            </View>
+
             <TextInput
               style={styles.input}
               placeholder="닉네임(한/영/숫자/기호/2-10자)"
@@ -167,10 +230,10 @@ export default function UserSignup({ navigation }) {
               </Text>
             </TouchableOpacity>
             <View style={styles.findContainer}>
-              <TouchableOpacity>
+              {/* <TouchableOpacity>
                 <Text style={styles.findFactor}>ID 찾기</Text>
-              </TouchableOpacity>
-              <TouchableOpacity>
+              </TouchableOpacity> */}
+              <TouchableOpacity onPress={() => navigation.navigate("AccFind")}>
                 <Text style={styles.findFactor}>PW 찾기</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={() => navigation.navigate("Login")}>
@@ -272,6 +335,32 @@ const styles = StyleSheet.create({
     textAlign: "center",
     placeholderTextColor: "#6F6F6F",
     fontSize: 12,
+  },
+  EmailInput: {
+    width: 240,
+    height: 45,
+    backgroundColor: "white",
+    borderColor: "#608D00",
+    borderWidth: 1,
+    borderRadius: 30,
+    padding: 10,
+    marginBottom: 10,
+    textAlign: "center",
+    placeholderTextColor: "#6F6F6F",
+    fontSize: 12,
+    marginRight: 10,
+  },
+  EmailCheckBtn: {
+    width: 50,
+    height: 45,
+    backgroundColor: "#608D00",
+    borderColor: "#608D00",
+    borderWidth: 1,
+    borderRadius: 25,
+    marginBottom: 10,
+    textAlign: "center",
+    alignItems: "center",
+    justifyContent: "center",
   },
   inputContainer: {
     width: "100%",

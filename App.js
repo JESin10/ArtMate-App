@@ -13,6 +13,7 @@ import Bookmarks from "./src/screens/Bookmarks";
 import SearchResult from "./src/screens/SearchResult";
 import Likes from "./src/screens/Likes";
 import History from "./src/screens/History";
+import AccFind from "./src/screens/AccFind";
 
 export default function App() {
   const Stack = createNativeStackNavigator();
@@ -33,6 +34,7 @@ export default function App() {
 
           <Stack.Screen name="Login" component={Login} />
           <Stack.Screen name="Signup" component={UserSignup} />
+          <Stack.Screen name="AccFind" component={AccFind} />
         </Stack.Navigator>
       </NavigationContainer>
     </AuthProvider>
