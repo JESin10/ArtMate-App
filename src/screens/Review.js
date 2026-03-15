@@ -52,8 +52,8 @@ export default function Review({ navigation }) {
   const [showCmtModal, setShowCmtModal] = useState(false);
   const [selectedReview, setSelectedReview] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [likeCnts, setLikeCnts] = useState(0);
   const [likedMap, setLikedMap] = useState({});
+  const [expandedMap, setExpandedMap] = useState({});
   const [reviews, setReviews] = useState([]);
   const [sortType, setSortType] = useState("like");
   const timerRef = useRef(null);
@@ -201,6 +201,7 @@ export default function Review({ navigation }) {
     }
 
     const userLikeRef = doc(db, "users", user.uid, "likedReview", reviewId);
+
     const reviewRef = doc(db, "reviews", reviewId);
 
     const alreadyLiked = !!likedMap[reviewId];
@@ -428,7 +429,7 @@ export default function Review({ navigation }) {
 
               <ImageSlider images={review.images} />
 
-              <View style={styles.reviewTextContainer}>
+              {/* <View style={styles.reviewTextContainer}>
                 <Text
                   style={styles.reviewDescStyle}
                   numberOfLines={3}
@@ -436,6 +437,38 @@ export default function Review({ navigation }) {
                 >
                   {review.content || "리뷰 내용이 없습니다."}
                 </Text>
+              </View> */}
+
+              <View style={styles.reviewTextContainer}>
+                <Text
+                  style={styles.reviewDescStyle}
+                  numberOfLines={expandedMap[review.id] ? undefined : 2} // 펼쳐진 경우 제한 없음
+                  ellipsizeMode="tail"
+                >
+                  {review.content || "리뷰 내용이 없습니다."}
+                </Text>
+                {review.content &&
+                  review.content.length > 50 && ( // 글 길이가 충분할 경우만 버튼
+                    <TouchableOpacity
+                      onPress={() =>
+                        setExpandedMap((prev) => ({
+                          ...prev,
+                          [review.id]: !prev[review.id], // 토글
+                        }))
+                      }
+                    >
+                      <Text
+                        style={{
+                          color: "#608D00",
+                          marginTop: 4,
+                          fontWeight: "bold",
+                          textAlign: "right",
+                        }}
+                      >
+                        {expandedMap[review.id] ? "접기" : "더보기"}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
               </View>
 
               <View style={styles.reactionContainer}>

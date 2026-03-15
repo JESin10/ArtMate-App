@@ -46,46 +46,50 @@ export default function Setting({ navigation }) {
     }
   };
 
-  //탈퇴
+  // Firestore 데이터 삭제
+  const deleteUserData = async (uid) => {
+    try {
+      // 유저 기본 문서 삭제
+      await deleteDoc(doc(db, "users", uid));
+
+      // 팔로워/팔로잉 등 하위 컬렉션 삭제
+      const subCollections = [
+        "followers",
+        "following",
+        "comments",
+        "likedReview",
+        "bookmarks",
+      ];
+      for (const col of subCollections) {
+        const snap = await getDocs(collection(db, "users", uid, col));
+        for (const docSnap of snap.docs) {
+          await deleteDoc(doc(db, "users", uid, col, docSnap.id));
+        }
+      }
+      console.log("DB의 유저 데이터가 삭제되었습니다.");
+    } catch (error) {
+      console.error("Firestore 삭제 실패:", error);
+    }
+  };
+
+  // 탈퇴
   const deleteAccount = async () => {
     try {
-      // Auth 계정 삭제
-      await deleteUser(user);
+      // Auth 계정 삭제 전에 Firestore 삭제
       await deleteUserData(user.uid);
 
+      // Auth 계정 삭제
+      await deleteUser(user);
+
       console.log("계정이 삭제되었습니다.");
+      setUser(null);
+      navigation.goBack();
     } catch (error) {
       console.error("계정 삭제 실패:", error);
       if (error.code === "auth/requires-recent-login") {
         alert("보안을 위해 최근 로그인 후 다시 시도해주세요.");
       }
     }
-
-    //firesotre 삭제
-    const deleteUserData = async (uid) => {
-      try {
-        // 유저 기본 문서 삭제
-        await deleteDoc(doc(db, "users", uid));
-
-        // 팔로워/팔로잉 등 하위 컬렉션 삭제
-        const subCollections = [
-          "followers",
-          "following",
-          "comments",
-          "likedReview",
-          "bookmarks",
-        ];
-        for (const col of subCollections) {
-          const snap = await getDocs(collection(db, "users", uid, col));
-          for (const docSnap of snap.docs) {
-            await deleteDoc(doc(db, "users", uid, col, docSnap.id));
-          }
-        }
-        console.log("DB의 유저 데이터가 삭제되었습니다.");
-      } catch (error) {
-        console.error("Firestore 삭제 실패:", error);
-      }
-    };
   };
 
   return (
