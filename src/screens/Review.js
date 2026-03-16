@@ -169,22 +169,22 @@ export default function Review({ navigation }) {
   };
 
   //토글 좋아요
-  const toggleLike = async (reviewId) => {
+  const toggleLike = async (reviewUserId, reviewId) => {
     if (!user) {
       Alert.alert("로그인 후 이용 가능합니다");
       return;
     }
 
     const userLikeRef = doc(db, "users", user.uid, "likedReview", reviewId);
-
+    const userReviewRef = doc(db, "users", reviewUserId, "reviews", reviewId);
     const reviewRef = doc(db, "reviews", reviewId);
-
     const alreadyLiked = !!likedMap[reviewId];
 
     try {
       if (alreadyLiked) {
         await deleteDoc(userLikeRef);
         await updateDoc(reviewRef, { LikeCnt: increment(-1) });
+        await updateDoc(userReviewRef, { LikeCnt: increment(-1) });
 
         setLikedMap((prev) => {
           const newMap = { ...prev };
@@ -194,6 +194,7 @@ export default function Review({ navigation }) {
       } else {
         await setDoc(userLikeRef, { reviewId, createdAt: serverTimestamp() });
         await updateDoc(reviewRef, { LikeCnt: increment(1) });
+        await updateDoc(userReviewRef, { LikeCnt: increment(1) });
 
         setLikedMap((prev) => ({
           ...prev,
@@ -459,7 +460,9 @@ export default function Review({ navigation }) {
 
               <View style={styles.reactionContainer}>
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <TouchableOpacity onPress={() => toggleLike(review.id)}>
+                  <TouchableOpacity
+                    onPress={() => toggleLike(review.userId, review.id)}
+                  >
                     {likedMap[review.id] ? (
                       <FilledLikeIcon width={16} height={16} fill="red" />
                     ) : (

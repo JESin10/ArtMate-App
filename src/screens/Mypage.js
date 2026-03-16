@@ -141,8 +141,6 @@ export default function Mypage({ navigation }) {
     };
   }, [user]);
 
-  console.log("myReviews:", myReviews);
-
   const showAlertWithChoices = () => {
     Alert.alert(
       "Choose an Option",
@@ -434,10 +432,10 @@ export default function Mypage({ navigation }) {
           <View style={styles.reviewContainer}>
             <Text style={styles.reiewText}>나의 후기 목록</Text>
             <View style={styles.reviewTumbContainer}>
-              {Array.from({ length: exampleNum }).map((_, idx) => (
+              {myReviews.map((item, index) => (
                 <ImageBackground
-                  key={idx}
-                  source={require("../../src/assets/images/ex.jpg")}
+                  key={index}
+                  source={{ uri: item.images[0] }}
                   style={styles.reviewTumblnail}
                   imageStyle={styles.ReviewImage}
                   resizeMode="cover"
