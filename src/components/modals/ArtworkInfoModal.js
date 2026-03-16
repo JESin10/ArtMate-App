@@ -27,17 +27,22 @@ import {
   getDocs,
   collection,
   getDoc,
+  query,
+  where,
+  onSnapshot,
 } from "firebase/firestore";
 import { db } from "../../../firebase";
 import { use } from "react";
 import Map from "../../screens/Map";
 import { XMLParser } from "fast-xml-parser";
+import ReviewImageSlider from "../Slider/ReviewImageSlider";
 
 export default function ArtworkInfoModal({ visible, onClose, seq, artwork }) {
   const [filled, setFilled] = useState(false);
   const { user, setUser } = useContext(AuthContext);
   const [detailArtwork, setDetailArtwork] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [reviews, setReviews] = useState([]);
   const parser = new XMLParser({
     ignoreAttributes: false,
   });
@@ -49,11 +54,23 @@ export default function ArtworkInfoModal({ visible, onClose, seq, artwork }) {
     }
   }, [seq]);
 
-  // useEffect(() => {
-  //   if (artwork) {
-  //     console.log("선택된 작품:", artwork);
-  //   }
-  // }, [artwork]);
+  //해당 작품에 대한 리뷰
+  useEffect(() => {
+    if (!artwork) return;
+
+    const q = query(collection(db, "reviews"), where("artworkId", "==", seq));
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const data = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      setReviews(data);
+    });
+
+    return () => unsubscribe();
+  }, [seq]);
 
   // Modal 열릴 때 북마크 여부 가져오기
   useEffect(() => {
@@ -363,6 +380,53 @@ export default function ArtworkInfoModal({ visible, onClose, seq, artwork }) {
 
               <Map x={detailArtwork?.gpsY} y={detailArtwork?.gpsX} />
             </View>
+            {reviews.length > 0 ? (
+              <View style={{ flexDirection: "row" }}>
+                <Text style={styles.titleText2}>작성된 리뷰</Text>
+                <View style={{ width: "75%" }}>
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={{ paddingVertical: 10 }}
+                  >
+                    {reviews.map((item, index) => (
+                      <View
+                        key={index}
+                        style={{
+                          flexDirection: "column",
+                          // borderWidth: 1,
+                          width: 160,
+                          marginRight: 15,
+                        }}
+                      >
+                        <ReviewImageSlider images={item.images} />
+                        <View
+                          style={{
+                            justifyContent: "center",
+                            marginVertical: 15,
+                            width: "100%",
+                          }}
+                        >
+                          <Text
+                            style={{
+                              fontWeight: "normal",
+                              fontSize: 12,
+                              flexShrink: 1,
+                              color: "gray",
+                              textAlign: "center",
+                            }}
+                          >
+                            {item.displayName}님의 리뷰
+                          </Text>
+                        </View>
+                      </View>
+                    ))}
+                  </ScrollView>
+                </View>
+              </View>
+            ) : (
+              <></>
+            )}
           </ScrollView>
         </View>
       </View>
