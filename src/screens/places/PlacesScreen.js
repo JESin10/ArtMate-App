@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -25,11 +25,11 @@ export default function PlacesScreen({ navigation }) {
     isFetchingMore,
     loadMore,
     fetchPlaces,
+    userLocation,
   } = usePlaces();
   const [showPopup, setShowPopup] = useState(false);
   const [selectedPlace, setSelectedPlace] = useState(null);
   const flatListRef = useRef(null);
-
   const renderItem = useCallback(
     ({ item }) => {
       const detail = details[item.seq];

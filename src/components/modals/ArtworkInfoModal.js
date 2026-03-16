@@ -47,17 +47,10 @@ export default function ArtworkInfoModal({ visible, onClose, seq, artwork }) {
     ignoreAttributes: false,
   });
 
-  useEffect(() => {
-    if (seq) {
-      getDetailArtwork(seq);
-      // console.log("seq:", seq);
-    }
-  }, [seq]);
-
   //해당 작품에 대한 리뷰
   useEffect(() => {
-    if (!artwork) return;
-
+    if (!seq) return;
+    getDetailArtwork(seq);
     const q = query(collection(db, "reviews"), where("artworkId", "==", seq));
 
     const unsubscribe = onSnapshot(q, (snapshot) => {

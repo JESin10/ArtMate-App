@@ -17,7 +17,6 @@ import ArtworkInfoModal from "../components/modals/ArtworkInfoModal";
 import FilterIcon from "../assets/icons/filter.svg";
 import ReloadIcon from "../assets/icons/reload.svg";
 import Mainlogo from "../assets/icons/logo-main.svg";
-import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 import { XMLParser } from "fast-xml-parser";
 import SearchBar from "../components/search/SearchBar.js";
 import { collection, onSnapshot, orderBy, query } from "firebase/firestore";

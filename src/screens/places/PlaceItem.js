@@ -30,10 +30,30 @@ const PlaceItem = React.memo(({ item, detail, onPress }) => {
           <Text>No Image</Text>
         )}
       </View>
+      {/* <View style={styles.image}>
+        {detail?.culViewImg1 ? (
+          <ImageBackground
+            source={{ uri: detail.culViewImg1 }}
+            style={styles.imageBackground}
+            imageStyle={styles.thumbnail}
+          />
+        ) : (
+          <View style={styles.noImage}>
+            <Text>No Image</Text>
+          </View>
+        )}
+      </View> */}
 
       <View style={styles.discriptions}>
         <Text style={styles.titleStyle}>{item.culName}</Text>
-        <Text style={styles.descStyle}>{item.culTel}</Text>
+        {/* <Text style={styles.descStyle}>{item.culTel}</Text> */}
+        {item?.distance !== undefined && item?.distance !== Infinity && (
+          <Text style={styles.distanceText}>
+            {item.distance < 1
+              ? `${Math.round(item.distance * 1000)}m`
+              : `${item.distance.toFixed(1)}km`}
+          </Text>
+        )}
         <Text style={styles.descStyle}>{detail?.culAddr}</Text>
         <Text>{detail?.culGrpName}</Text>
       </View>
@@ -75,7 +95,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     textAlign: "center",
   },
-
+  distanceText: {
+    fontSize: 12,
+    color: "#6B8E23",
+    fontWeight: "600",
+    marginBottom: 6,
+  },
   titleStyle: {
     fontSize: 14,
     fontWeight: "bold",

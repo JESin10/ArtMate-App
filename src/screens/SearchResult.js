@@ -60,30 +60,26 @@ export default function SearchResult({ navigation }) {
         data={results}
         keyExtractor={(item) => item.id.toString()}
         ListHeaderComponent={
-          <>
-            <View style={{ padding: 10 }}>
-              <TouchableOpacity
-                style={{ alignItems: "center" }}
-                onPress={() =>
-                  navigation.navigate("Bottom", { screen: "Home" })
-                }
-              >
-                <Mainlogo width={150} height={50} />
+          <View style={{ padding: 10 }}>
+            <TouchableOpacity
+              style={{ alignItems: "center" }}
+              onPress={() => navigation.navigate("Bottom", { screen: "Home" })}
+            >
+              <Mainlogo width={150} height={50} />
+            </TouchableOpacity>
+
+            <SearchBar />
+
+            <View style={{ flexDirection: "row" }}>
+              <TouchableOpacity onPress={() => navigation.goBack()}>
+                <BackwardIcon width={36} height={36} fill="black" />
               </TouchableOpacity>
 
-              <SearchBar />
-
-              <View style={{ flexDirection: "row" }}>
-                <TouchableOpacity onPress={() => navigation.goBack()}>
-                  <BackwardIcon width={36} height={36} fill="black" />
-                </TouchableOpacity>
-
-                <Text style={styles.resultTitle}>
-                  <Text style={styles.keyword}>[{keyword}]</Text> 의 검색결과
-                </Text>
-              </View>
+              <Text style={styles.resultTitle}>
+                <Text style={styles.keyword}>[{keyword}]</Text> 의 검색결과
+              </Text>
             </View>
-          </>
+          </View>
         }
         renderItem={({ item }) => (
           <TouchableOpacity

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { XMLParser } from "fast-xml-parser";
+import * as Location from "expo-location";
 
 export default function usePlaces() {
   const [gallery, setGallery] = useState([]);
@@ -11,6 +12,8 @@ export default function usePlaces() {
   const [isFetchingMore, setIsFetchingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
 
+  const [userLocation, setUserLocation] = useState(null);
+
   const listCnt = 20;
 
   const parser = new XMLParser({
@@ -18,16 +21,95 @@ export default function usePlaces() {
   });
 
   useEffect(() => {
-    getPlace(1);
-    getArtwork();
+    init();
   }, []);
 
+  useEffect(() => {
+    if (!userLocation) return;
+    setGallery((prev) => sortByDistance(prev, userLocation));
+  }, [userLocation]);
+
+  const init = async () => {
+    getUserLocation();
+    getPlace(1);
+    getArtwork();
+  };
+
+  // 현재 위치 가져오기
+  const getUserLocation = async () => {
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+
+      if (status !== "granted") {
+        console.log("위치 권한 거부됨");
+        return;
+      }
+
+      const location = await Location.getCurrentPositionAsync({});
+
+      setUserLocation({
+        lat: location.coords.latitude,
+        lng: location.coords.longitude,
+      });
+    } catch (error) {
+      console.error("위치 가져오기 실패:", error);
+    }
+  };
+
+  // 거리 계산 (Haversine)
+  const getDistance = (lat1, lon1, lat2, lon2) => {
+    const R = 6371;
+
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLon = ((lon2 - lon1) * Math.PI) / 180;
+
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos((lat1 * Math.PI) / 180) *
+        Math.cos((lat2 * Math.PI) / 180) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    return R * c;
+  };
+
+  // 거리 기준 정렬
+  const sortByDistance = (places, location) => {
+    if (!location) return places;
+
+    return [...places]
+      .map((place) => {
+        if (!place.gpsX || !place.gpsY) {
+          return { ...place, distance: Infinity };
+        }
+
+        const distance = getDistance(
+          location.lat,
+          location.lng,
+          Number(place.gpsY),
+          Number(place.gpsX),
+        );
+
+        return {
+          ...place,
+          distance,
+        };
+      })
+      .sort((a, b) => a.distance - b.distance);
+  };
+
+  // 장소 목록 가져오기
   const getPlace = async (nextPage = 1) => {
     if (!hasMore && nextPage !== 1) return;
+
     if (nextPage === 1) {
       setHasMore(true);
       setLoading(true);
-    } else setIsFetchingMore(true);
+    } else {
+      setIsFetchingMore(true);
+    }
 
     try {
       const response = await fetch(
@@ -36,14 +118,21 @@ export default function usePlaces() {
 
       const xmlText = await response.text();
       const jsonData = parser.parse(xmlText);
+
       const rawItems = jsonData?.response?.body?.items?.item || [];
       const items = Array.isArray(rawItems) ? rawItems : [rawItems];
 
       if (items.length < listCnt) setHasMore(false);
 
-      if (nextPage === 1) setGallery(items);
-      else setGallery((prev) => [...prev, ...items]);
+      const sortedItems = sortByDistance(items, userLocation);
 
+      if (nextPage === 1) {
+        setGallery(sortedItems);
+      } else {
+        setGallery((prev) => [...prev, ...sortedItems]);
+      }
+
+      // detail API 병렬 호출
       const detailPromises = items.map(async (item) => {
         try {
           const res = await fetch(
@@ -58,7 +147,7 @@ export default function usePlaces() {
             detail: json?.response?.body?.items?.item,
           };
         } catch (err) {
-          console.error(err);
+          console.error("detail fetch 실패:", err);
           return null;
         }
       });
@@ -77,7 +166,7 @@ export default function usePlaces() {
 
       setPageNum(nextPage);
     } catch (error) {
-      console.error(error);
+      console.error("place fetch 실패:", error);
     }
 
     setLoading(false);
@@ -90,6 +179,7 @@ export default function usePlaces() {
     }
   };
 
+  // 작품 데이터
   const getArtwork = async () => {
     try {
       const response = await fetch(
@@ -98,6 +188,7 @@ export default function usePlaces() {
 
       const xmlText = await response.text();
       const jsonData = parser.parse(xmlText);
+
       const rawItems = jsonData?.response?.body?.items?.item || [];
       const list = Array.isArray(rawItems) ? rawItems : [rawItems];
 
@@ -110,7 +201,7 @@ export default function usePlaces() {
 
       setArtworks(normalized);
     } catch (error) {
-      console.error(error);
+      console.error("artwork fetch 실패:", error);
     }
   };
 
@@ -126,5 +217,6 @@ export default function usePlaces() {
     isFetchingMore,
     loadMore,
     fetchPlaces,
+    userLocation,
   };
 }
