@@ -110,32 +110,7 @@ export default function Review({ navigation }) {
         ...doc.data(),
       }));
 
-      // setReviews(data);
-      // 유저 displayName 한 번만 가져오기
-      const userIds = [...new Set(data.map((r) => r.userId))];
-      const displayNameMap = {};
-
-      for (const uid of userIds) {
-        try {
-          const userSnap = await getDoc(doc(db, "users", uid));
-          displayNameMap[uid] = userSnap.exists()
-            ? {
-                displayName: userSnap.data().displayName,
-                photoURL: userSnap.data().photoURL || null,
-              }
-            : { displayName: userSnap.data().displayName, photoURL: null };
-        } catch (err) {
-          displayNameMap[uid] = "익명";
-        }
-      }
-
-      // 리뷰 + displayName 합쳐서 상태 업데이트 (한 번만)
-      const fetchReview = data.map((r) => ({
-        ...r,
-        displayName: displayNameMap[r.userId]?.displayName,
-        photoURL: displayNameMap[r.userId]?.photoURL || null,
-      }));
-      setReviews(fetchReview);
+      setReviews(data);
     });
     return () => unsubscribe();
   }, [sortType]);
@@ -360,16 +335,12 @@ export default function Review({ navigation }) {
               >
                 <View style={styles.profileContainer}>
                   <ImageBackground
-                    source={
-                      review.photoURL
-                        ? { uri: review.photoURL }
-                        : require("../../src/assets/images/ex.jpg")
-                    }
+                    source={{ uri: review.photoURL }}
                     style={styles.ProfileTumbnail}
                     imageStyle={styles.ProfileImage}
                     resizeMode="cover"
                   />
-                  <Text>{review.displayName || "익명"}</Text>
+                  <Text style={{ marginRight: 10 }}>{review.displayName}</Text>
 
                   {user && review.userId !== user.uid && (
                     <TouchableOpacity
@@ -408,7 +379,7 @@ export default function Review({ navigation }) {
                         setShowModal(true);
                       }}
                       style={{
-                        borderwidth: 1,
+                        // borderWidth: 1,
                         borderRadius: 10,
                         alignItems: "center",
                         justifyContent: "center",
@@ -648,7 +619,7 @@ const styles = StyleSheet.create({
     height: 40,
     marginRight: 20,
     borderColor: "#A8A8A8",
-    borderWidth: 1,
+    // borderWidth: 1,
     borderRadius: 100,
   },
   ProfileImage: {

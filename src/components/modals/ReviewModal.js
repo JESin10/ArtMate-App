@@ -59,7 +59,6 @@ export default function ReviewModal({
   const [rating, setRating] = useState(0);
   const [image, setImage] = useState([]);
   const [visitedDate, setVisitedDate] = useState(new Date());
-  const [number, onChangeNumber] = useState("");
   const [isDatePickerVisible, setDatePickerVisible] = useState(false);
   const route = useRoute();
   // const { keyword } = route.params;
@@ -163,11 +162,12 @@ export default function ReviewModal({
         images: imageUrls,
         visitedDate: visitedDate.toISOString().split("T")[0],
         updatedAt: serverTimestamp(), // 선택사항 (수정 시간 기록용)
+        displayName: user.displayName,
+        photoURL: user.photoURL,
       };
 
       // 1️⃣ 전체 리뷰 컬렉션 수정 (부분 수정)
       await updateDoc(doc(db, "reviews", reviewId), updateData);
-
       // 2️⃣ 유저 하위 리뷰 수정 (없으면 생성하되 기존 필드 유지)
       const userReviewRef = doc(db, "users", user.uid, "reviews", reviewId);
 
@@ -217,6 +217,8 @@ export default function ReviewModal({
         rating,
         visitedDate: visitedDate.toISOString().split("T")[0],
         images: image,
+        displayName: user.displayName,
+        photoURL: user.photoURL,
       });
 
       alert("리뷰 작성 완료!");

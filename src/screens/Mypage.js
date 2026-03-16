@@ -141,6 +141,8 @@ export default function Mypage({ navigation }) {
     };
   }, [user]);
 
+  console.log("myReviews:", myReviews);
+
   const showAlertWithChoices = () => {
     Alert.alert(
       "Choose an Option",
