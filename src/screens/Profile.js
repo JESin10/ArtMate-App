@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   ImageBackground,
+  FlatList,
 } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -243,9 +244,57 @@ export default function Profile({ route, navigation }) {
               )}
             </View>
           </View>
+
           <View style={styles.reviewContainer}>
-            <Text style={{ fontSize: 20, fontWeight: "bold" }}>후기</Text>
-            <View></View>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Text style={{ fontSize: 20, fontWeight: "bold" }}>사진</Text>
+              <Text
+                style={{
+                  fontSize: 14,
+                  fontWeight: "light",
+                  color: "#608D00",
+                  marginLeft: 5,
+                }}
+              >
+                {review.flatMap((r) => r.images || []).length}
+              </Text>
+            </View>
+            <FlatList
+              data={review.flatMap((r) => r.images || [])}
+              keyExtractor={(item, index) => index.toString()}
+              numColumns={3}
+              renderItem={({ item }) => (
+                <ImageBackground
+                  source={{ uri: item }}
+                  style={{ width: 100, height: 100 }}
+                />
+              )}
+            />
+          </View>
+
+          <View style={styles.reviewContainer}>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Text style={{ fontSize: 20, fontWeight: "bold" }}>후기</Text>
+              <Text
+                style={{
+                  fontSize: 14,
+                  fontWeight: "light",
+                  color: "#608D00",
+                  marginLeft: 5,
+                }}
+              >
+                {review.length}
+              </Text>
+            </View>
+
+            <View>
+              <ImageBackground source={{ uri: review.images }} />
+              <Text
+                style={{ fontSize: 20, fontWeight: "bold", color: "#9b9b9b" }}
+              >
+                {review.title}
+              </Text>
+            </View>
           </View>
         </View>
       </ScrollView>
