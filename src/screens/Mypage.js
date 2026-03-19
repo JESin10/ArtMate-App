@@ -509,7 +509,7 @@ export default function Mypage({ navigation }) {
   );
 }
 
-const styles = {
+const styles = StyleSheet.create({
   container: {
     flex: 1,
     // borderColor: "yellow",
@@ -736,4 +736,4 @@ const styles = {
   logoutBtnPressedText: {
     color: "#608D00",
   },
-};
+});

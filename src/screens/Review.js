@@ -335,13 +335,28 @@ export default function Review({ navigation }) {
                 }}
               >
                 <View style={styles.profileContainer}>
-                  <ImageBackground
-                    source={{ uri: review.photoURL }}
-                    style={styles.ProfileTumbnail}
-                    imageStyle={styles.ProfileImage}
-                    resizeMode="cover"
-                  />
-                  <Text style={{ marginRight: 10 }}>{review.displayName}</Text>
+                  <TouchableOpacity
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                    onPress={() =>
+                      navigation.navigate("Profile", {
+                        userId: review.userId,
+                      })
+                    }
+                  >
+                    <ImageBackground
+                      source={{ uri: review.photoURL }}
+                      style={styles.ProfileTumbnail}
+                      imageStyle={styles.ProfileImage}
+                      resizeMode="cover"
+                    />
+                    <Text style={{ marginRight: 10 }}>
+                      {review.displayName}
+                    </Text>
+                  </TouchableOpacity>
 
                   {user && review.userId !== user.uid && (
                     <TouchableOpacity
@@ -416,16 +431,6 @@ export default function Review({ navigation }) {
 
               <ImageSlider images={review.images} />
 
-              {/* <View style={styles.reviewTextContainer}>
-                <Text
-                  style={styles.reviewDescStyle}
-                  numberOfLines={3}
-                  ellipsizeMode="tail"
-                >
-                  {review.content || "리뷰 내용이 없습니다."}
-                </Text>
-              </View> */}
-
               <View style={styles.reviewTextContainer}>
                 <Text
                   style={styles.reviewDescStyle}
@@ -464,9 +469,19 @@ export default function Review({ navigation }) {
                     onPress={() => toggleLike(review.userId, review.id)}
                   >
                     {likedMap[review.id] ? (
-                      <FilledLikeIcon width={16} height={16} fill="red" />
+                      <FilledLikeIcon
+                        width={16}
+                        height={16}
+                        style={{ marginRight: 5 }}
+                        fill="red"
+                      />
                     ) : (
-                      <LikeIcon width={16} height={16} fill="black" />
+                      <LikeIcon
+                        width={16}
+                        height={16}
+                        style={{ marginRight: 5 }}
+                        fill="black"
+                      />
                     )}
                   </TouchableOpacity>
                   <Text>{review.LikeCnt}</Text>
@@ -620,13 +635,13 @@ const styles = StyleSheet.create({
   ProfileTumbnail: {
     width: 40,
     height: 40,
-    marginRight: 20,
-    borderColor: "#A8A8A8",
-    // borderWidth: 1,
+    marginRight: 14,
     borderRadius: 100,
   },
   ProfileImage: {
     borderRadius: 100,
+    borderColor: "#608D00",
+    borderWidth: 1,
   },
   profileContainer: {
     width: "85%",
@@ -653,7 +668,7 @@ const styles = StyleSheet.create({
   reactionContainer: {
     width: "95%",
     flexDirection: "row",
-    justifyContent: "flex-start",
+    justifyContent: "space-between",
     padding: 10,
     borderTopColor: "#000",
     borderTopWidth: 1,

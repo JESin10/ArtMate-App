@@ -47,6 +47,9 @@ const PlaceItem = React.memo(({ item, detail, onPress }) => {
       <View style={styles.discriptions}>
         <Text style={styles.titleStyle}>{item.culName}</Text>
         {/* <Text style={styles.descStyle}>{item.culTel}</Text> */}
+        <Text>{detail?.culGrpName}</Text>
+        <Text style={styles.descStyle}>{detail?.culAddr}</Text>
+
         {item?.distance !== undefined && item?.distance !== Infinity && (
           <Text style={styles.distanceText}>
             {item.distance < 1
@@ -54,8 +57,6 @@ const PlaceItem = React.memo(({ item, detail, onPress }) => {
               : `${item.distance.toFixed(1)}km`}
           </Text>
         )}
-        <Text style={styles.descStyle}>{detail?.culAddr}</Text>
-        <Text>{detail?.culGrpName}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -100,6 +101,7 @@ const styles = StyleSheet.create({
     color: "#6B8E23",
     fontWeight: "600",
     marginBottom: 6,
+    textAlign: "right",
   },
   titleStyle: {
     fontSize: 14,
