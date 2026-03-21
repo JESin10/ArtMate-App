@@ -49,10 +49,6 @@ export default function Setting({ navigation }) {
   // Firestore 데이터 삭제
   const deleteUserData = async (uid) => {
     try {
-      // 유저 기본 문서 삭제
-      await deleteDoc(doc(db, "users", uid));
-
-      // 팔로워/팔로잉 등 하위 컬렉션 삭제
       const subCollections = [
         "followers",
         "following",
@@ -60,12 +56,18 @@ export default function Setting({ navigation }) {
         "likedReview",
         "bookmarks",
       ];
+
+      //  1. 하위 컬렉션 먼저 삭제
       for (const col of subCollections) {
         const snap = await getDocs(collection(db, "users", uid, col));
         for (const docSnap of snap.docs) {
           await deleteDoc(doc(db, "users", uid, col, docSnap.id));
         }
       }
+
+      // 2. 마지막에 유저 doc 삭제
+      await deleteDoc(doc(db, "users", uid));
+
       console.log("DB의 유저 데이터가 삭제되었습니다.");
     } catch (error) {
       console.error("Firestore 삭제 실패:", error);
@@ -75,19 +77,33 @@ export default function Setting({ navigation }) {
   // 탈퇴
   const deleteAccount = async () => {
     try {
-      // Auth 계정 삭제 전에 Firestore 삭제
-      await deleteUserData(user.uid);
+      const auth = getAuth();
+      const currentUser = auth.currentUser;
 
-      // Auth 계정 삭제
-      await deleteUser(user);
+      if (!currentUser) {
+        alert("유저 정보를 찾을 수 없습니다.");
+        return;
+      }
+
+      // 1. Firestore 삭제
+      await deleteUserData(currentUser.uid);
+
+      // 2. Auth 삭제 (이 순간 로그아웃 상태 됨)
+      await deleteUser(currentUser);
 
       console.log("계정이 삭제되었습니다.");
+
+      // 3. 상태 정리
       setUser(null);
-      navigation.goBack();
+
+      navigation.navigate("Bottom", { screen: "Home" });
     } catch (error) {
       console.error("계정 삭제 실패:", error);
+
       if (error.code === "auth/requires-recent-login") {
-        alert("보안을 위해 최근 로그인 후 다시 시도해주세요.");
+        alert("보안을 위해 다시 로그인 후 시도해주세요.");
+      } else {
+        alert("계정 삭제 실패");
       }
     }
   };
