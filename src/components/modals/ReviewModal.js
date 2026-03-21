@@ -7,13 +7,11 @@ import {
   ScrollView,
   TextInput,
   Alert,
-  Button,
   Image,
 } from "react-native";
-import React, { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import {
-  addDoc,
   collection,
   getDoc,
   serverTimestamp,
@@ -26,17 +24,9 @@ import { AuthContext } from "../../services/context";
 import { useRoute } from "@react-navigation/native";
 import useSearch from "../hooks/useSearch";
 import * as ImagePicker from "expo-image-picker";
-import {
-  ref,
-  uploadBytes,
-  getDownloadURL,
-  uploadString,
-  getStorage,
-} from "firebase/storage";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "../../../firebase";
-import * as FileSystem from "expo-file-system";
 import { useReviewUpload } from "../hooks/useReviewUpload";
-// import storage from "@react-native-firebase/storage";
 
 export default function ReviewModal({
   visible,

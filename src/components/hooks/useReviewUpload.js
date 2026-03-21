@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import {
   collection,
   addDoc,
@@ -8,6 +8,7 @@ import {
 } from "firebase/firestore";
 import { db, storage } from "../../../firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { AuthContext } from "../../services/context";
 
 export const useReviewUpload = (userId, artworkId) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -45,7 +46,15 @@ export const useReviewUpload = (userId, artworkId) => {
     return uploadedUrls;
   };
 
-  const addReview = async ({ title, content, rating, visitedDate, images }) => {
+  const addReview = async ({
+    title,
+    content,
+    rating,
+    visitedDate,
+    images,
+    displayName,
+    photoURL,
+  }) => {
     if (!userId || !artworkId) throw new Error("userId 또는 artworkId 없음");
 
     setIsLoading(true);
@@ -64,6 +73,8 @@ export const useReviewUpload = (userId, artworkId) => {
         CommentCnt: 0,
         createdAt: serverTimestamp(),
         visitedDate,
+        displayName,
+        photoURL,
       });
 
       await setDoc(doc(db, "users", userId, "reviews", newReviewRef.id), {

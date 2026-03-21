@@ -3,7 +3,7 @@ import { useContext } from "react";
 
 import Artworks from "./Artworks";
 import Home from "./Home";
-import Review from "./Review";
+// import Review from "../screens/reviews/Review";
 import Mypage from "./Mypage";
 import Login from "./Login";
 
@@ -19,6 +19,7 @@ import MypageIcon from "../assets/icons/Menubar_user-filled.svg";
 import MypageLineIcon from "../assets/icons/Menubar_user.svg";
 import { AuthContext } from "../services/context";
 import PlacesScreen from "./places/PlacesScreen";
+import ReviewStack from "./reviews/ReviewStack";
 
 export default function BottomTopScreen() {
   const Tab = createBottomTabNavigator();
@@ -115,7 +116,7 @@ export default function BottomTopScreen() {
       <Tab.Screen name="Artworks" component={Artworks} />
       <Tab.Screen name="Places" component={PlacesScreen} />
       <Tab.Screen name="Home" component={Home} />
-      <Tab.Screen name="Review" component={Review} />
+      <Tab.Screen name="Review" component={ReviewStack} />
       {!user ? (
         <Tab.Screen name="Login" component={Login} />
       ) : (

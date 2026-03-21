@@ -58,7 +58,7 @@ export default function SearchResult({ navigation }) {
     >
       <FlatList
         data={results}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item, index) => `${item.id}-${index}`}
         ListHeaderComponent={
           <View style={{ padding: 10 }}>
             <TouchableOpacity

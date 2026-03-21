@@ -9,8 +9,9 @@ import {
 } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import BackwardIcon from "../assets/icons/backward.svg";
-import { AuthContext } from "../services/context";
+import BackwardIcon from "../../assets/icons/backward.svg";
+import Mainlogo from "../../assets/icons/logo-main.svg";
+import { AuthContext } from "../../services/context";
 import {
   collection,
   deleteDoc,
@@ -23,7 +24,8 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
-import { db } from "../../firebase";
+import { db } from "../../../firebase";
+import SearchBar from "../../components/search/SearchBar";
 
 export default function Profile({ route, navigation }) {
   const { user, setUser } = useContext(AuthContext);
@@ -31,8 +33,15 @@ export default function Profile({ route, navigation }) {
   const [followerMap, setFollowerMap] = useState({});
   const [selectedUser, setSelectedUser] = useState([]);
   const [reviewMap, setReviewMap] = useState({});
+  const [showAllImages, setShowAllImages] = useState(false);
   const [review, setReview] = useState([]);
   const { userId } = route.params;
+  const allImages = review.flatMap((r) => r.images || []);
+  const reviewPreview = review.map((r) => ({
+    image: r.images?.[0],
+    title: r.title,
+  }));
+  const visibleImages = showAllImages ? allImages : allImages.slice(0, 6);
 
   //팔로잉 팔로워 구독
   useEffect(() => {
@@ -159,18 +168,53 @@ export default function Profile({ route, navigation }) {
     }
   };
 
+  // console.log(review);
+
   return (
-    <SafeAreaView style={styles.viewContainer}>
-      <ScrollView>
-        <TouchableOpacity
+    <ScrollView
+      style={{
+        width: "95%",
+        marginHorizontal: "auto",
+        flexDirection: "column",
+        flex: 1,
+        position: "relative",
+        paddingBottom: 60,
+      }}
+    >
+      <View style={{ paddingBottom: 80, padding: 10 }}>
+        <TouchableOpacity style={{ alignItems: "center" }}>
+          <Mainlogo
+            width={150}
+            height={50}
+            onPress={() => navigation.navigate("Bottom", { screen: "Home" })}
+          />
+        </TouchableOpacity>
+
+        <SearchBar />
+
+        <View
           style={{
             margin: 8,
+            flexDirection: "row",
+            alignItems: "center",
           }}
-          onPress={() => navigation.goBack()}
         >
-          <BackwardIcon width={24} height={24} fill="#000" />
-        </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <BackwardIcon width={32} height={32} fill="#000" />
+          </TouchableOpacity>
+          <Text
+            style={{
+              fontSize: 22,
+              color: "black",
+              fontWeight: "bold",
+            }}
+          >
+            계정 정보
+          </Text>
+        </View>
+
         <View style={styles.myInfoContainer}>
+          {/* 프로필 */}
           <View style={styles.profileContainer}>
             <View
               style={{
@@ -188,6 +232,7 @@ export default function Profile({ route, navigation }) {
                 imageStyle={styles.tumbnail}
               />
             </View>
+
             <View style={{ flexDirection: "column" }}>
               <Text
                 style={{
@@ -198,6 +243,7 @@ export default function Profile({ route, navigation }) {
               >
                 {selectedUser.displayName}
               </Text>
+
               <View style={{ flexDirection: "row" }}>
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
                   <Text style={{ marginLeft: 30, marginVertical: 5 }}>
@@ -207,6 +253,7 @@ export default function Profile({ route, navigation }) {
                     {selectedUser.followerCnt}
                   </Text>
                 </View>
+
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
                   <Text style={{ marginLeft: 30, marginVertical: 5 }}>
                     팔로잉
@@ -216,6 +263,7 @@ export default function Profile({ route, navigation }) {
                   </Text>
                 </View>
               </View>
+
               {user && selectedUser.uid !== user.uid && (
                 <TouchableOpacity
                   style={
@@ -245,7 +293,8 @@ export default function Profile({ route, navigation }) {
             </View>
           </View>
 
-          <View style={styles.reviewContainer}>
+          {/* 사진 */}
+          <View style={styles.ImageContainer}>
             <View style={{ flexDirection: "row", alignItems: "center" }}>
               <Text style={{ fontSize: 20, fontWeight: "bold" }}>사진</Text>
               <Text
@@ -256,22 +305,49 @@ export default function Profile({ route, navigation }) {
                   marginLeft: 5,
                 }}
               >
-                {review.flatMap((r) => r.images || []).length}
+                {allImages.length}
               </Text>
             </View>
-            <FlatList
-              data={review.flatMap((r) => r.images || [])}
-              keyExtractor={(item, index) => index.toString()}
-              numColumns={3}
-              renderItem={({ item }) => (
-                <ImageBackground
-                  source={{ uri: item }}
-                  style={{ width: 100, height: 100 }}
-                />
-              )}
-            />
+
+            {allImages.length > 0 ? (
+              <View>
+                <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
+                  {visibleImages.map((item, index) => (
+                    <ImageBackground
+                      key={index}
+                      source={{ uri: item }}
+                      style={styles.ImageFactors}
+                    />
+                  ))}
+                </View>
+
+                {allImages.length > 6 && (
+                  <TouchableOpacity
+                    onPress={() => setShowAllImages((prev) => !prev)}
+                  >
+                    <Text style={{ color: "#608D00", marginTop: 10 }}>
+                      {showAllImages ? "접기" : "더보기"}
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            ) : (
+              <View>
+                <Text
+                  style={{
+                    fontSize: 14,
+                    fontWeight: "bold",
+                    color: "#9b9b9b",
+                    marginVertical: 20,
+                  }}
+                >
+                  사진이 없습니다.
+                </Text>
+              </View>
+            )}
           </View>
 
+          {/* 후기 */}
           <View style={styles.reviewContainer}>
             <View style={{ flexDirection: "row", alignItems: "center" }}>
               <Text style={{ fontSize: 20, fontWeight: "bold" }}>후기</Text>
@@ -287,18 +363,53 @@ export default function Profile({ route, navigation }) {
               </Text>
             </View>
 
-            <View>
-              <ImageBackground source={{ uri: review.images }} />
-              <Text
-                style={{ fontSize: 20, fontWeight: "bold", color: "#9b9b9b" }}
-              >
-                {review.title}
-              </Text>
-            </View>
+            {review?.length > 0 ? (
+              <View style={{ flexDirection: "row" }}>
+                <FlatList
+                  data={reviewPreview}
+                  keyExtractor={(item, index) => index.toString()}
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  renderItem={({ item }) => (
+                    <View>
+                      <ImageBackground
+                        source={{ uri: item.image }}
+                        style={styles.reviewImage}
+                      />
+                      <Text
+                        numberOfLines={2}
+                        style={{
+                          width: 180,
+                          fontSize: 10,
+                          color: "#535353",
+                          textAlign: "center",
+                          alignSelf: "center",
+                        }}
+                      >
+                        {item.title}
+                      </Text>
+                    </View>
+                  )}
+                />
+              </View>
+            ) : (
+              <View>
+                <Text
+                  style={{
+                    fontSize: 14,
+                    fontWeight: "bold",
+                    color: "#9b9b9b",
+                    marginVertical: 20,
+                  }}
+                >
+                  리뷰가 없습니다.
+                </Text>
+              </View>
+            )}
           </View>
         </View>
-      </ScrollView>
-    </SafeAreaView>
+      </View>
+    </ScrollView>
   );
 }
 
@@ -370,13 +481,44 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
   },
+  ImageContainer: {
+    width: "100%",
+    height: "auto",
+    flexDirection: "column",
+    paddingVertical: 15,
+    marginVertical: 25,
+    marginHorizontal: "auto",
+  },
+  ImageFactors: {
+    width: 100,
+    height: 100,
+    borderRadius: 20,
+    overflow: "hidden",
+    marginRight: 5,
+    marginVertical: 10,
+  },
+
   reviewContainer: {
     width: "100%",
     height: "auto",
-    borderWidth: 1,
     flexDirection: "column",
     paddingVertical: 15,
-    marginVertical: 15,
+    marginVertical: 25,
     marginHorizontal: "auto",
+  },
+  reviewFactorContainer: {
+    borderWidth: 1,
+    marginRight: 10,
+    marginVertical: 10,
+    flexDirection: "column",
+    justifyContent: "center",
+  },
+  reviewImage: {
+    width: 220,
+    height: 150,
+    borderRadius: 20,
+    overflow: "hidden",
+    marginVertical: 10,
+    marginRight: 5,
   },
 });

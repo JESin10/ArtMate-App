@@ -2,48 +2,42 @@ import {
   View,
   StyleSheet,
   Text,
-  TextInput,
-  ScrollView,
   ImageBackground,
   ActivityIndicator,
   TouchableOpacity,
-  Button,
   Alert,
   FlatList,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import React, { useState, useRef, useEffect, useContext } from "react";
-import ReviewModal from "../components/modals/ReviewModal";
-import Mainlogo from "../assets/icons/logo-main.svg";
-import ReloadIcon from "../assets/icons/reload.svg";
-import FilledLikeIcon from "../assets/icons/heart-filled.svg";
-import LikeIcon from "../assets/icons/heart.svg";
-import CommentIcon from "../assets/icons/list.svg";
-import WriteIcon from "../assets/icons/write.svg";
-import { AuthContext } from "../services/context";
-import useAllReview from "../components/hooks/useAllReview";
+import ReviewModal from "../../components/modals/ReviewModal";
+import Mainlogo from "../../assets/icons/logo-main.svg";
+import ReloadIcon from "../../assets/icons/reload.svg";
+import FilledLikeIcon from "../../assets/icons/heart-filled.svg";
+import LikeIcon from "../../assets/icons/heart.svg";
+import CommentIcon from "../../assets/icons/list.svg";
+import WriteIcon from "../../assets/icons/write.svg";
+import { AuthContext } from "../../services/context";
 import {
-  addDoc,
   deleteDoc,
   serverTimestamp,
   doc,
   setDoc,
   updateDoc,
-  runTransaction,
   increment,
   collection,
   query,
   orderBy,
   onSnapshot,
   getDocs,
-  getDoc,
 } from "firebase/firestore";
-import { db } from "../../firebase";
-import CommentModal from "../components/modals/CommentModal";
-import SearchBar from "../components/search/SearchBar";
+import { db } from "../../../firebase";
+import CommentModal from "../../components/modals/CommentModal";
+import SearchBar from "../../components/search/SearchBar";
 import { Dimensions } from "react-native";
-import ImageSlider from "../components/Slider/ImageSlider";
-import ArtworkInfoModal from "../components/modals/ArtworkInfoModal";
+import ImageSlider from "../../components/Slider/ImageSlider";
+import ArtworkInfoModal from "../../components/modals/ArtworkInfoModal";
+import Profile from "./Profile";
 
 export default function Review({ navigation }) {
   const { user, setUser } = useContext(AuthContext);
@@ -668,7 +662,7 @@ const styles = StyleSheet.create({
   reactionContainer: {
     width: "95%",
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "flex-start",
     padding: 10,
     borderTopColor: "#000",
     borderTopWidth: 1,
