@@ -1,12 +1,21 @@
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  FlatList,
+  ImageBackground,
+} from "react-native";
 import React, { useContext, useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import BackwardIcon from "../../assets/icons/backward.svg";
+import Mainlogo from "../../assets/icons/logo-main.svg";
 import { AuthContext } from "../../services/context";
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
 import { db } from "../../../firebase";
 import ArtworkInfoModal from "../../components/modals/ArtworkInfoModal";
 import PlacesInfoModal from "../../components/modals/PlacesInfoModal";
+import SearchBar from "../../components/search/SearchBar";
 
 export default function Bookmarks({ navigation }) {
   const { user } = useContext(AuthContext);
@@ -16,6 +25,7 @@ export default function Bookmarks({ navigation }) {
   const [myPins, setMyPins] = useState([]);
   const [selectedPlace, setSelectedPlace] = useState(null);
   const [showPlaceModal, setShowPlaceModal] = useState(false);
+  const [tab, setTab] = useState("artwork");
 
   useEffect(() => {
     if (!user?.uid) return;
@@ -67,8 +77,6 @@ export default function Bookmarks({ navigation }) {
     return () => unsubscribe();
   }, [user?.uid]);
 
-  // console.log(selectedArtwork);
-
   const handleArtworkModalOpen = (item) => {
     setSelectedArtwork(item);
     setShowArtworkModal(true);
@@ -80,62 +88,161 @@ export default function Bookmarks({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <View style={styles.settingFactorContainer}>
-        <View style={styles.userSetting}>
-          <TouchableOpacity
-            style={{ margin: 8 }}
-            onPress={() => navigation.goBack()}
-          >
-            <BackwardIcon width={24} height={24} fill="#fff" />
-          </TouchableOpacity>
-        </View>
-        <View>
-          <Text> 작품</Text>
-        </View>
-        <View>
-          {myBookmarks.map((item) => (
+    <SafeAreaView
+      style={{
+        width: "95%",
+        marginHorizontal: "auto",
+        flexDirection: "column",
+        flex: 1,
+        position: "relative",
+        paddingBottom: 60,
+      }}
+    >
+      <View style={{ paddingBottom: 80, padding: 10 }}>
+        <TouchableOpacity style={{ alignItems: "center" }}>
+          <Mainlogo
+            width={150}
+            height={50}
+            onPress={() => navigation.navigate("Bottom", { screen: "Home" })}
+          />
+        </TouchableOpacity>
+
+        <SearchBar />
+        <View style={styles.settingFactorContainer}>
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
             <TouchableOpacity
-              key={item.seq}
-              onPress={() => handleArtworkModalOpen(item)}
+              style={{ margin: 8 }}
+              onPress={() => navigation.goBack()}
             >
-              <Text>{item.artworkTitle}</Text>
+              <BackwardIcon width={32} height={32} fill="#000" />
             </TouchableOpacity>
-          ))}
-        </View>
-        <View>
-          <Text> 장소</Text>
-        </View>
-        <View>
-          {myPins.map((item) => (
+            <Text
+              style={{
+                fontSize: 22,
+                color: "black",
+                fontWeight: "bold",
+              }}
+            >
+              북마크
+            </Text>
+          </View>
+          <View style={styles.btnContainer}>
             <TouchableOpacity
-              key={item.seq}
-              onPress={() => handlePlaceModalOpen(item)}
+              onPress={() => setTab("artwork")}
+              style={styles.btnFactor}
             >
-              <Text>{item.placeName}</Text>
+              <Text
+                style={{
+                  color: tab === "artwork" ? "white" : "#a9a9a9",
+                  textAlign: "center",
+                  fontWeight: tab === "artwork" ? "bold" : "semibold",
+                }}
+              >
+                작품
+              </Text>
             </TouchableOpacity>
-          ))}
+
+            <TouchableOpacity
+              onPress={() => setTab("place")}
+              style={styles.btnFactor}
+            >
+              <Text
+                style={{
+                  color: tab === "place" ? "white" : "#a9a9a9",
+                  textAlign: "center",
+                  fontWeight: tab === "place" ? "bold" : "semibold",
+                }}
+              >
+                장소
+              </Text>
+            </TouchableOpacity>
+          </View>
+          {tab === "artwork" ? (
+            <View style={styles.bookmarksContainer}>
+              <FlatList
+                data={myBookmarks}
+                keyExtractor={(item) => item.id}
+                numColumns={2}
+                contentContainerStyle={{ paddingBottom: 100 }}
+                renderItem={({ item }) => (
+                  <View style={styles.bookmarkData}>
+                    <TouchableOpacity
+                      onPress={() => handleArtworkModalOpen(item)}
+                    >
+                      <ImageBackground
+                        source={{ uri: item.artworkImgUrl }}
+                        style={styles.artworkTumbnail}
+                        imageStyle={styles.artworkImage}
+                        resizeMode="cover"
+                      />
+                      <Text
+                        style={{
+                          margin: 10,
+                          fontSize: 12,
+                          fontWeight: "bold",
+                          textAlign: "center",
+                        }}
+                      >
+                        {item.artworkTitle}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
+              />
+            </View>
+          ) : (
+            <View style={styles.bookmarksContainer}>
+              <FlatList
+                data={myPins}
+                keyExtractor={(item) => item.id}
+                contentContainerStyle={{ paddingBottom: 100 }}
+                numColumns={2}
+                renderItem={({ item }) => (
+                  <View style={styles.bookmarkData}>
+                    <TouchableOpacity
+                      onPress={() => handlePlaceModalOpen(item)}
+                    >
+                      <ImageBackground
+                        source={{ uri: item.placeImgUrl }}
+                        style={styles.artworkTumbnail}
+                        imageStyle={styles.artworkImage}
+                        resizeMode="cover"
+                      />
+                      <Text
+                        style={{
+                          margin: 10,
+                          fontSize: 12,
+                          fontWeight: "bold",
+                          textAlign: "center",
+                        }}
+                      >
+                        {item.placeName}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
+              />
+            </View>
+          )}
         </View>
+        <ArtworkInfoModal
+          visible={showArtworkModal}
+          onClose={() => {
+            setShowArtworkModal(false);
+            setSelectedArtwork(null);
+          }}
+          artwork={selectedArtwork}
+          seq={selectedArtwork?.seq}
+        />
+        <PlacesInfoModal
+          visible={showPlaceModal}
+          onClose={() => {
+            setShowPlaceModal(false);
+            setSelectedPlace(null);
+          }}
+          seq={selectedPlace?.seq}
+        />
       </View>
-
-      <ArtworkInfoModal
-        visible={showArtworkModal}
-        onClose={() => {
-          setShowArtworkModal(false);
-          setSelectedArtwork(null);
-        }}
-        artwork={selectedArtwork}
-        seq={selectedArtwork?.seq}
-      />
-
-      <PlacesInfoModal
-        visible={showPlaceModal}
-        onClose={() => {
-          setShowPlaceModal(false);
-          setSelectedPlace(null);
-        }}
-        seq={selectedPlace?.seq}
-      />
     </SafeAreaView>
   );
 }
@@ -144,8 +251,53 @@ const styles = StyleSheet.create({
   settingFactorContainer: {
     width: "100%",
     height: "100%",
-    borderWidth: 3,
-    borderColor: "blue",
-    backgroundColor: "#b5b5b5",
+  },
+  btnContainer: {
+    width: "95%",
+    marginHorizontal: "auto",
+    marginTop: 20,
+    justifyContent: "center",
+    flexDirection: "row",
+  },
+  btnFactor: {
+    backgroundColor: "#608D00",
+    width: "50%",
+    padding: 10,
+    justifyContent: "center",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    borderWidth: 0.3,
+    borderColor: "#d9d9d9",
+  },
+  bookmarksContainer: {
+    flex: 1,
+    width: "95%",
+    justifyContent: "center",
+    marginHorizontal: "auto",
+    flexDirection: "column",
+    backgroundColor: "#fff",
+    paddingVertical: 10,
+    paddingHorizontal: 5,
+  },
+  bookmarkData: {
+    width: "44%",
+    borderWidth: 1,
+    borderColor: "#608D00",
+    borderRadius: 10,
+    padding: 8,
+    margin: 10,
+    flexDirection: "column",
+    flex: 1,
+  },
+  artworkTumbnail: {
+    width: 110,
+    height: 130,
+    borderColor: "black",
+    borderwidth: 1,
+    marginHorizontal: "auto",
+    marginVertical: 10,
+  },
+  artworkImage: {
+    borderRadius: 10,
   },
 });

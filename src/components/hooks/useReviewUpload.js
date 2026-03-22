@@ -10,7 +10,7 @@ import { db, storage } from "../../../firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { AuthContext } from "../../services/context";
 
-export const useReviewUpload = (userId, artworkId) => {
+export const useReviewUpload = (userId, seq) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const uploadImages = async (images) => {
@@ -55,7 +55,7 @@ export const useReviewUpload = (userId, artworkId) => {
     displayName,
     photoURL,
   }) => {
-    if (!userId || !artworkId) throw new Error("userId 또는 artworkId 없음");
+    if (!userId || !seq) throw new Error("userId 또는 artworkId 없음");
 
     setIsLoading(true);
 
@@ -64,7 +64,7 @@ export const useReviewUpload = (userId, artworkId) => {
 
       const newReviewRef = await addDoc(collection(db, "reviews"), {
         userId,
-        artworkId,
+        seq,
         title,
         content,
         rating,
@@ -78,7 +78,7 @@ export const useReviewUpload = (userId, artworkId) => {
       });
 
       await setDoc(doc(db, "users", userId, "reviews", newReviewRef.id), {
-        artworkId,
+        seq,
         title,
         content,
         rating,

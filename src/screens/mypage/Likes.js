@@ -4,13 +4,17 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  FlatList,
+  ImageBackground,
 } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import BackwardIcon from "../../assets/icons/backward.svg";
+import Mainlogo from "../../assets/icons/logo-main.svg";
 import { AuthContext } from "../../services/context";
 import { collection, doc, getDoc, getDocs } from "firebase/firestore";
 import { db } from "../../../firebase";
+import SearchBar from "../../components/search/SearchBar";
 
 export default function Likes({ navigation }) {
   const [myLikes, setMyLikes] = useState([]);
@@ -55,29 +59,89 @@ export default function Likes({ navigation }) {
     }
   };
 
+  console.log(myLikes[0]);
+
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <View style={styles.settingFactorContainer}>
-        <View style={styles.userSetting}>
-          <TouchableOpacity
-            style={{ margin: 8 }}
-            onPress={() => navigation.goBack()}
+    <SafeAreaView
+      style={{
+        width: "95%",
+        marginHorizontal: "auto",
+        flexDirection: "column",
+        flex: 1,
+        position: "relative",
+        paddingBottom: 60,
+      }}
+    >
+      <View style={{ paddingBottom: 80, padding: 10 }}>
+        <TouchableOpacity style={{ alignItems: "center" }}>
+          <Mainlogo
+            width={150}
+            height={50}
+            onPress={() => navigation.navigate("Bottom", { screen: "Home" })}
+          />
+        </TouchableOpacity>
+        <SearchBar />
+        <View style={styles.settingFactorContainer}>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+            }}
           >
-            <BackwardIcon width={24} height={24} fill="#fff" />
-          </TouchableOpacity>
-        </View>
-        <ScrollView style={{ flex: 1, padding: 8 }}>
+            <TouchableOpacity
+              style={{ margin: 8 }}
+              onPress={() => navigation.goBack()}
+            >
+              <BackwardIcon width={32} height={32} fill="#000" />
+            </TouchableOpacity>
+            <Text
+              style={{
+                fontSize: 22,
+                color: "black",
+                fontWeight: "bold",
+              }}
+            >
+              좋아요
+            </Text>
+          </View>
           {myLikes.length === 0 ? (
             <Text>좋아요한 리뷰가 없습니다.</Text>
           ) : (
-            myLikes.map((item) => (
-              <View key={item.id} style={styles.reviewCard}>
-                <Text style={styles.title}>{item.title}</Text>
-                <Text style={styles.content}>{item.content}</Text>
-              </View>
-            ))
+            <FlatList
+              data={myLikes}
+              keyExtractor={(item) => item.id}
+              contentContainerStyle={{ paddingBottom: 100 }}
+              renderItem={({ item }) => (
+                <View style={styles.reviewCard}>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      marginVertical: 15,
+                      marginHorizontal: 10,
+                    }}
+                  >
+                    <ImageBackground
+                      source={{ uri: item.photoURL }}
+                      style={styles.profileTumbnail}
+                      imageStyle={styles.profileImage}
+                      resizeMode="cover"
+                    />
+                    <Text style={{ fontWeight: "bold", color: "#000" }}>
+                      {item.displayName}
+                    </Text>
+                  </View>
+                  <View
+                    style={{ flexDirection: "column", marginHorizontal: 13 }}
+                  >
+                    <Text style={styles.title}>{item.title}</Text>
+                    <Text style={styles.content}>{item.content}</Text>
+                  </View>
+                </View>
+              )}
+            />
           )}
-        </ScrollView>
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -87,25 +151,32 @@ const styles = StyleSheet.create({
   settingFactorContainer: {
     width: "100%",
     height: "100%",
-    borderWidth: 3,
-    borderColor: "blue",
-    backgroundColor: "#b5b5b5",
-  },
-  userSetting: {
-    flexDirection: "row",
-    alignItems: "center",
   },
   reviewCard: {
-    marginBottom: 12,
+    margin: 12,
     padding: 12,
     backgroundColor: "#fff",
     borderRadius: 8,
+    borderColor: "#608D00",
+    borderWidth: 1,
   },
   title: {
     fontWeight: "bold",
-    marginBottom: 4,
+    marginVertical: 12,
   },
   content: {
     color: "#333",
+    marginBottom: 14,
+  },
+  profileTumbnail: {
+    width: 40,
+    height: 40,
+    marginRight: 14,
+    borderRadius: 100,
+  },
+  profileImage: {
+    borderRadius: 100,
+    borderColor: "#608D00",
+    borderWidth: 1,
   },
 });

@@ -655,7 +655,7 @@ const styles = StyleSheet.create({
   reviewTumbContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "space-between",
+    justifyContent: "flex-start",
     alignItems: "center",
   },
   loginBtnWrapper: {
