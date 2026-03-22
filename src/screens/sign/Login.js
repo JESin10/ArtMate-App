@@ -154,7 +154,7 @@ export default function Login({ navigation }) {
                 marginBottom: 10,
                 alignItems: "center",
               }}
-              onPress={login}
+              // onPress={login}
             >
               <Text style={styles.socialBtn}>카카오로 시작하기</Text>
             </TouchableOpacity>
@@ -167,7 +167,7 @@ export default function Login({ navigation }) {
                 marginBottom: 10,
                 alignItems: "center",
               }}
-              onPress={login}
+              // onPress={login}
             >
               <Text style={styles.socialBtn}>네이버로 시작하기</Text>
             </TouchableOpacity>
@@ -183,7 +183,7 @@ export default function Login({ navigation }) {
                 marginBottom: 10,
                 alignItems: "center",
               }}
-              onPress={login}
+              // onPress={login}
             >
               <Text style={styles.socialBtn}>구글로 시작하기</Text>
             </TouchableOpacity>

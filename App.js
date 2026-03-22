@@ -24,11 +24,19 @@ export default function App() {
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen name="Bottom" component={BottomTabScreen} />
-          <Stack.Screen name="Map" component={Map} />
+          <Stack.Screen
+            name="Map"
+            component={Map}
+            options={{ animation: "none" }}
+          />
           <Stack.Screen name="AllMap" component={AllMap} />
           <Stack.Screen name="SearchResult" component={SearchResult} />
           {/* <Stack.Screen name="Status" component={Status} /> */}
-          <Stack.Screen name="Setting" component={Setting} />
+          <Stack.Screen
+            name="Setting"
+            component={Setting}
+            options={{ animation: "none" }}
+          />
           {/* <Stack.Screen name="Bookmarks" component={Bookmarks} />
           <Stack.Screen name="Likes" component={Likes} />
           <Stack.Screen name="History" component={History} />
