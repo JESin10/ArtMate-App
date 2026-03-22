@@ -113,8 +113,6 @@ export default function Profile({ route, navigation }) {
     return () => unsubscribe();
   }, [userId]);
 
-  console.log(review);
-
   // 팔로우, 언팔로우
   const FollowUser = async (targetUser) => {
     if (!user) {
@@ -167,8 +165,6 @@ export default function Profile({ route, navigation }) {
       Alert.alert("팔로우/언팔로우 실패. 다시 시도해주세요.");
     }
   };
-
-  // console.log(review);
 
   return (
     <ScrollView

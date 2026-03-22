@@ -4,8 +4,7 @@ import { useContext } from "react";
 import Artworks from "./Artworks";
 import Home from "./Home";
 // import Review from "../screens/reviews/Review";
-import Mypage from "./Mypage";
-import Login from "./Login";
+// import Mypage from "./mypage/Mypage";
 
 import HomeIcon from "../assets/icons/Menubar_home-filled.svg";
 import HomeLineIcon from "../assets/icons/Menubar_home.svg";
@@ -20,6 +19,8 @@ import MypageLineIcon from "../assets/icons/Menubar_user.svg";
 import { AuthContext } from "../services/context";
 import PlacesScreen from "./places/PlacesScreen";
 import ReviewStack from "./reviews/ReviewStack";
+import SignupStack from "./sign/SignupStack";
+import MyPageStack from "./mypage/MyPageStack";
 
 export default function BottomTopScreen() {
   const Tab = createBottomTabNavigator();
@@ -118,9 +119,9 @@ export default function BottomTopScreen() {
       <Tab.Screen name="Home" component={Home} />
       <Tab.Screen name="Review" component={ReviewStack} />
       {!user ? (
-        <Tab.Screen name="Login" component={Login} />
+        <Tab.Screen name="Login" component={SignupStack} />
       ) : (
-        <Tab.Screen name="Mypage" component={Mypage} />
+        <Tab.Screen name="Mypage" component={MyPageStack} />
       )}
     </Tab.Navigator>
   );

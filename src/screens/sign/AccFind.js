@@ -10,19 +10,12 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import React, { useState, useContext } from "react";
-import Mainlogo from "../assets/icons/logo-main.svg";
-import MainSlogun from "../assets/images/slogan.svg";
-import {
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  query,
-  where,
-} from "firebase/firestore";
-import { db } from "../../firebase";
-import { AuthContext } from "../services/context";
-import { deleteUser, getAuth, sendPasswordResetEmail } from "firebase/auth";
+import Mainlogo from "../../assets/icons/logo-main.svg";
+import MainSlogun from "../../assets/images/slogan.svg";
+import { collection, getDocs, query, where } from "firebase/firestore";
+import { getAuth, sendPasswordResetEmail } from "firebase/auth";
+import { AuthContext } from "../../services/context";
+import { db } from "../../../firebase";
 
 export default function AccFind({ navigation }) {
   const [userId, setUserId] = useState("");

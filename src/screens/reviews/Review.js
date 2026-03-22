@@ -37,7 +37,6 @@ import SearchBar from "../../components/search/SearchBar";
 import { Dimensions } from "react-native";
 import ImageSlider from "../../components/Slider/ImageSlider";
 import ArtworkInfoModal from "../../components/modals/ArtworkInfoModal";
-import Profile from "./Profile";
 
 export default function Review({ navigation }) {
   const { user, setUser } = useContext(AuthContext);

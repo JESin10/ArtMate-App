@@ -11,8 +11,20 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import BackwardIcon from "../assets/icons/backward.svg";
 import { useContext } from "react";
 import { AuthContext } from "../services/context";
-import { deleteUser, getAuth, signOut } from "firebase/auth";
-import { collection, deleteDoc, doc, getDocs } from "firebase/firestore";
+import {
+  deleteUser,
+  getAuth,
+  sendPasswordResetEmail,
+  signOut,
+} from "firebase/auth";
+import {
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  query,
+  where,
+} from "firebase/firestore";
 import { db } from "../../firebase";
 import { getFunctions, httpsCallable } from "firebase/functions";
 
@@ -32,6 +44,21 @@ export default function Setting({ navigation }) {
     //  원하는 형식으로 문자열 만들기
     const formatted = `${year}년 ${month}월 ${day}일 가입`;
     alert(formatted);
+  };
+
+  //비밀번호 찾기
+  const findPassword = async () => {
+    try {
+      // Firebase Auth에서 비밀번호 재설정 이메일 발송
+      await sendPasswordResetEmail(getAuth(), user.email);
+      Alert.alert(
+        "비밀번호 재설정",
+        "입력한 이메일로 비밀번호 재설정 링크를 보냈습니다.",
+      );
+    } catch (error) {
+      console.error("비밀번호 재설정 오류:", error);
+      Alert.alert("오류", error.message || "오류가 발생했습니다.");
+    }
   };
 
   //로그아웃
@@ -133,7 +160,9 @@ export default function Setting({ navigation }) {
               가입정보 확인
             </Text>
           </TouchableOpacity>
-          <Text style={styles.userSettingFactor}>비밀번호 변경</Text>
+          <Text style={styles.userSettingFactor} onPress={() => findPassword()}>
+            비밀번호 변경
+          </Text>
           <Text style={styles.userSettingFactor}>소셜 로그인 연동</Text>
           <Text style={styles.userSettingFactor}>최근 본 콘텐츠</Text>
           <Text style={styles.userSettingFactor}>이벤트 참여 현황</Text>

@@ -7,10 +7,10 @@ import {
 } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import BackwardIcon from "../assets/icons/backward.svg";
-import { AuthContext } from "../services/context";
+import BackwardIcon from "../../assets/icons/backward.svg";
+import { AuthContext } from "../../services/context";
 import { collection, doc, getDoc, getDocs } from "firebase/firestore";
-import { db } from "../../firebase";
+import { db } from "../../../firebase";
 
 export default function Likes({ navigation }) {
   const [myLikes, setMyLikes] = useState([]);

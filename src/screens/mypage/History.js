@@ -1,10 +1,10 @@
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import BackwardIcon from "../assets/icons/backward.svg";
-import { AuthContext } from "../services/context";
+import BackwardIcon from "../../assets/icons/backward.svg";
+import { AuthContext } from "../../services/context";
 import { collection, getDocs } from "firebase/firestore";
-import { db } from "../../firebase";
+import { db } from "../../../firebase";
 
 export default function History({ navigation }) {
   const [myhistory, setMyHistory] = useState([]);

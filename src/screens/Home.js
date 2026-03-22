@@ -10,18 +10,15 @@ import {
   Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { decode } from "html-entities"; // 추가: HTML 엔티티 디코드
 import { useState, useEffect, useRef, useContext } from "react";
 import ArtworkInfoModal from "../components/modals/ArtworkInfoModal";
 import BackwardIcon from "../assets/icons/backward.svg";
 import ForwardIcon from "../assets/icons/forward.svg";
 import Mainlogo from "../assets/icons/logo-main.svg";
 import PlaceIcon from "../assets/icons/Menubar_gallery.svg";
-import ArtworkIcon from "../assets/icons/Menubar_image.svg";
 import { AuthContext } from "../services/context";
 import { XMLParser } from "fast-xml-parser";
 import SearchBar from "../components/search/SearchBar";
-import ImageSlider from "../components/Slider/ImageSlider";
 import {
   doc,
   setDoc,
@@ -48,7 +45,7 @@ export default function Home({ navigation }) {
   const [recommendedArtworks, setRecommendedArtworks] = useState([]);
   const [recommendedUsers, setRecommendedUsers] = useState([]);
   const [followingMap, setFollowingMap] = useState({});
-  const followingCnt = Object.keys(followingMap).length;
+  const [followerMap, setFollowerMap] = useState({});
   const CARD_WIDTH = 310;
   const ITEM_SPACING = 12;
   const ITEM_SIZE = CARD_WIDTH + ITEM_SPACING;
@@ -79,16 +76,27 @@ export default function Home({ navigation }) {
     if (!user) return;
 
     const followingRef = collection(db, "users", user.uid, "following");
+    const followerRef = collection(db, "users", user.uid, "followers");
 
-    const unsubscribe = onSnapshot(followingRef, (snapshot) => {
-      const map = {};
+    const followingUnsubscribe = onSnapshot(followingRef, (snapshot) => {
+      const following = {};
       snapshot.docs.forEach((doc) => {
-        map[doc.id] = true; // 팔로우 상태
+        following[doc.id] = true; // 팔로우 상태
       });
-      setFollowingMap(map);
+      setFollowingMap(following);
+    });
+    const followerUnsubscribe = onSnapshot(followerRef, (snapshot) => {
+      const follower = {};
+      snapshot.docs.forEach((doc) => {
+        follower[doc.id] = true; // 팔로우 상태
+      });
+      setFollowerMap(follower);
     });
 
-    return () => unsubscribe();
+    return () => {
+      followerUnsubscribe();
+      followingUnsubscribe();
+    };
   }, [user]);
 
   // 자동 슬라이드 (5초)
@@ -669,14 +677,22 @@ export default function Home({ navigation }) {
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               {recommendedUsers.map((u, index) => (
                 <View key={u.id} style={styles.userCard}>
-                  <View style={styles.userAvatar}>
+                  <TouchableOpacity
+                    style={styles.userAvatar}
+                    onPress={() =>
+                      navigation.navigate("Review", {
+                        screen: "Profile",
+                        params: { userId: u.uid },
+                      })
+                    }
+                  >
                     {u.photoURL && (
                       <Image
                         source={{ uri: u.photoURL }}
                         style={{ width: 60, height: 60, borderRadius: 30 }}
                       />
                     )}
-                  </View>
+                  </TouchableOpacity>
 
                   <Text style={styles.userName}>{u.displayName}</Text>
 
@@ -689,13 +705,13 @@ export default function Home({ navigation }) {
                   {!user ? (
                     <View style={{ height: 20, marginTop: 10 }}>
                       <Text style={{ color: "black", fontSize: 12 }}>
-                        팔로워 {followingCnt}명
+                        팔로워 {u.followerCnt}명
                       </Text>
                     </View>
                   ) : followingMap[u.id] ? (
                     <View style={{ height: 20, marginTop: 10 }}>
                       <Text style={{ color: "black", fontSize: 12 }}>
-                        팔로워 {followingCnt + 1}명 {/* 실시간 반영용 */}
+                        팔로워 {u.followerCnt + 1}명 {/* 실시간 반영용 */}
                       </Text>
                     </View>
                   ) : (
@@ -780,7 +796,7 @@ export default function Home({ navigation }) {
             </View>
             <View style={styles.artInPlaceContents}>
               {Object.entries(placeGroups)
-                .slice(16, 20)
+                .slice(0, 5)
                 .map(([place, items]) => (
                   <View key={place} style={{ flexDirection: "column" }}>
                     <View

@@ -12,36 +12,31 @@ import {
   Pressable,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import LikeIcon from "../../src/assets/icons/heart.svg";
-import BookMarkIcon from "../../src/assets/icons/bookmark.svg";
-import ListIcon from "../../src/assets/icons/receipt.svg";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import AlertIcon from "../assets/icons/alert.svg";
-import SettingIcon from "../assets/icons/setting.svg";
-import ShareIcon from "../assets/icons/share.svg";
-import EditIcon from "../assets/icons/edit.svg";
-import { AuthContext } from "../services/context";
+import LikeIcon from "../../assets/icons/heart.svg";
+import BookMarkIcon from "../../assets/icons/bookmark.svg";
+import ListIcon from "../../assets/icons/receipt.svg";
+import AlertIcon from "../../assets/icons/alert.svg";
+import SettingIcon from "../../assets/icons/setting.svg";
+import ShareIcon from "../../assets/icons/share.svg";
+import EditIcon from "../../assets/icons/edit.svg";
+import { AuthContext } from "../../services/context";
 import {
   collection,
   doc,
-  getDoc,
   query,
   updateDoc,
   orderBy,
   onSnapshot,
-  getDocs,
   where,
   collectionGroup,
 } from "firebase/firestore";
-import { db, storage } from "../../firebase";
-import Bookmarks from "./Bookmarks";
+import { db, storage } from "../../../firebase";
 import * as ImagePicker from "expo-image-picker";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { getAuth, signOut } from "firebase/auth";
 
 export default function Mypage({ navigation }) {
   const { user, setUser } = useContext(AuthContext);
-  const [exampleNum, setExampleNum] = useState(7);
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState(user?.displayName || "");
   const [bookmarks, setBookmarks] = useState([]);
@@ -274,7 +269,7 @@ export default function Mypage({ navigation }) {
                           source={
                             profileImage
                               ? { uri: profileImage }
-                              : require("../../src/assets/images/ex.jpg")
+                              : require("../../assets/images/ex.jpg")
                           }
                           style={styles.imageBackground}
                           imageStyle={styles.tumbnail}
@@ -320,7 +315,7 @@ export default function Mypage({ navigation }) {
                         source={
                           profileImage
                             ? { uri: profileImage }
-                            : require("../../src/assets/images/ex.jpg")
+                            : require("../../assets/images/ex.jpg")
                         }
                         style={styles.imageBackground}
                         imageStyle={styles.tumbnail}
@@ -354,7 +349,9 @@ export default function Mypage({ navigation }) {
                 <View style={styles.myFollowInfo}>
                   <TouchableOpacity
                     style={{ flexDirection: "row" }}
-                    onPress={() => navigation.navigate("FollowList")}
+                    onPress={() =>
+                      navigation.navigate("FollowList", { tab: "followers" })
+                    }
                   >
                     <Text style={{ marginRight: 10, color: "#fff" }}>
                       팔로워
@@ -364,7 +361,9 @@ export default function Mypage({ navigation }) {
                     </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
-                    onPress={() => navigation.navigate("FollowList")}
+                    onPress={() =>
+                      navigation.navigate("FollowList", { tab: "followings" })
+                    }
                     style={{ flexDirection: "row" }}
                   >
                     <Text style={{ marginRight: 10, color: "#fff" }}>

@@ -10,13 +10,13 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import React, { useState } from "react";
-import Mainlogo from "../assets/icons/logo-main.svg";
-import MainSlogun from "../assets/images/slogan.svg";
+import Mainlogo from "../../assets/icons/logo-main.svg";
+import MainSlogun from "../../assets/images/slogan.svg";
 import {
   createUserWithEmailAndPassword,
   fetchSignInMethodsForEmail,
 } from "firebase/auth";
-import { auth, db, storage } from "../../firebase";
+import { auth, db, storage } from "../../../firebase";
 import {
   collection,
   doc,
@@ -27,7 +27,6 @@ import {
 } from "firebase/firestore";
 import * as ImagePicker from "expo-image-picker";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { Button } from "react-native-web";
 
 export default function UserSignup({ navigation }) {
   const [name, setName] = useState("");
