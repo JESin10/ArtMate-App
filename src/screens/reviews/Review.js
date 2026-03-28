@@ -30,6 +30,7 @@ import {
   orderBy,
   onSnapshot,
   getDocs,
+  addDoc,
 } from "firebase/firestore";
 import { db } from "../../../firebase";
 import CommentModal from "../../components/modals/CommentModal";
@@ -186,9 +187,26 @@ export default function Review({ navigation }) {
         });
       } else {
         await setDoc(userLikeRef, { reviewId, createdAt: serverTimestamp() });
+        await setDoc(notifyRef, {
+          type: "like",
+          fromUserId: user.uid,
+          reviewId: reviewId,
+          createdAt: serverTimestamp(),
+          isRead: false,
+        });
         await updateDoc(reviewRef, { LikeCnt: increment(1) });
-        await updateDoc(userReviewRef, { LikeCnt: increment(1) });
-
+        //상대에게 좋아요 알림
+        if (user.uid !== reviewUserId) {
+          await addDoc(collection(db, "users", reviewUserId, "notifications"), {
+            type: "like",
+            fromUserId: user.uid,
+            fromUserName: user.displayName,
+            fromUserPhoto: user.photoURL,
+            reviewId: reviewId,
+            createdAt: serverTimestamp(),
+            isRead: false,
+          });
+        }
         setLikedMap((prev) => ({
           ...prev,
           [reviewId]: true,
@@ -216,7 +234,6 @@ export default function Review({ navigation }) {
         // 언팔로우
         await deleteDoc(followingRef);
         await deleteDoc(followerRef);
-
         await updateDoc(doc(db, "users", user.uid), {
           followingCnt: increment(-1),
         });
@@ -245,6 +262,17 @@ export default function Review({ navigation }) {
         await updateDoc(doc(db, "users", targetUserId), {
           followerCnt: increment(1),
         });
+        //상대에게 팔로우 알림
+        if (user.uid !== targetUserId) {
+          await addDoc(collection(db, "users", targetUserId, "notifications"), {
+            type: "follow",
+            fromUserId: user.uid,
+            createdAt: serverTimestamp(),
+            fromUserName: user.displayName,
+            fromUserPhoto: user.photoURL,
+            isRead: false,
+          });
+        }
       }
     } catch (error) {
       console.error("팔로우 토글 실패:", error);

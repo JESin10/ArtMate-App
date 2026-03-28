@@ -11,12 +11,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import BackwardIcon from "../assets/icons/backward.svg";
 import { useContext } from "react";
 import { AuthContext } from "../services/context";
-import {
-  deleteUser,
-  getAuth,
-  sendPasswordResetEmail,
-  signOut,
-} from "firebase/auth";
+import { deleteUser, sendPasswordResetEmail, signOut } from "firebase/auth";
 import {
   collection,
   deleteDoc,
@@ -25,12 +20,11 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import { db } from "../../firebase";
+import { auth, db } from "../../firebase";
 import { getFunctions, httpsCallable } from "firebase/functions";
 
 export default function Setting({ navigation }) {
   const { user, setUser } = useContext(AuthContext);
-  const auth = getAuth();
 
   const userInfoCheck = async () => {
     // 문자열을 Date 객체로 변환
@@ -50,7 +44,7 @@ export default function Setting({ navigation }) {
   const findPassword = async () => {
     try {
       // Firebase Auth에서 비밀번호 재설정 이메일 발송
-      await sendPasswordResetEmail(getAuth(), user.email);
+      await sendPasswordResetEmail(auth, user.email);
       Alert.alert(
         "비밀번호 재설정",
         "입력한 이메일로 비밀번호 재설정 링크를 보냈습니다.",
@@ -104,7 +98,6 @@ export default function Setting({ navigation }) {
   // 탈퇴
   const deleteAccount = async () => {
     try {
-      const auth = getAuth();
       const currentUser = auth.currentUser;
 
       if (!currentUser) {
@@ -238,13 +231,6 @@ const styles = StyleSheet.create({
     height: "100%",
     // borderWidth: 1,
     // borderColor: "blue",
-  },
-  BackBtn: {
-    alignItems: "flex-start",
-    justifyContent: "flex-start",
-    margin: 10,
-    color: "white",
-    fontSize: 24,
   },
   userSetting: {
     width: "100%",

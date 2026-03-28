@@ -30,10 +30,11 @@ import {
   where,
   collectionGroup,
 } from "firebase/firestore";
-import { db, storage } from "../../../firebase";
+import { auth, db, storage } from "../../../firebase";
 import * as ImagePicker from "expo-image-picker";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { getAuth, signOut } from "firebase/auth";
+import { signOut } from "firebase/auth";
+import Toast from "react-native-toast-message";
 
 export default function Mypage({ navigation }) {
   const { user, setUser } = useContext(AuthContext);
@@ -136,6 +137,29 @@ export default function Mypage({ navigation }) {
     };
   }, [user]);
 
+  //알림 구독
+  useEffect(() => {
+    if (!user) return;
+
+    const q = query(
+      collection(db, "users", user.uid, "notifications"),
+      orderBy("createdAt", "desc"),
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      snapshot.docChanges().forEach((change) => {
+        if (change.type === "added") {
+          const newItem = change.doc.data();
+
+          // 🔥 여기서 토스트
+          showNotification(newItem);
+        }
+      });
+    });
+
+    return unsubscribe;
+  }, [user]);
+
   const showAlertWithChoices = () => {
     Alert.alert(
       "Choose an Option",
@@ -182,7 +206,6 @@ export default function Mypage({ navigation }) {
 
   //로그아웃
   const userLogout = async () => {
-    const auth = getAuth();
     try {
       await signOut(auth);
       setUser(null);
@@ -232,13 +255,34 @@ export default function Mypage({ navigation }) {
     }
   };
 
+  //알림 보여주기
+  const showNotification = (item) => {
+    if (item.type === "like") {
+      Toast.show({
+        type: "info",
+        text1: "❤️ 좋아요",
+        text2: `${item.fromUserName}님이 회원님의 글을 좋아합니다`,
+        position: "top",
+      });
+    }
+
+    if (item.type === "follow") {
+      Toast.show({
+        type: "info",
+        text1: "👤 팔로우",
+        text2: `${item.fromUserName}님이 회원님을 팔로우했습니다`,
+        position: "top",
+      });
+    }
+  };
+
   return (
     <SafeAreaView>
       <ScrollView>
         {/* <TouchableOpacity style={styles.container}> */}
         <View style={styles.container}>
           <View style={styles.settingContainer}>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate("Notify")}>
               <AlertIcon width={24} height={24} />
             </TouchableOpacity>
             <TouchableOpacity style={{ marginLeft: 10 }}>

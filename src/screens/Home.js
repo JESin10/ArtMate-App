@@ -480,6 +480,17 @@ export default function Home({ navigation }) {
         await updateDoc(doc(db, "users", targetUserId), {
           followerCnt: increment(1),
         });
+        //상대에게 팔로우 알림
+        if (user.uid !== targetUserId) {
+          await addDoc(collection(db, "users", targetUserId, "notifications"), {
+            type: "follow",
+            fromUserId: user.uid,
+            fromUserName: user.displayName,
+            fromUserPhoto: user.photoURL,
+            createdAt: serverTimestamp(),
+            isRead: false,
+          });
+        }
       }
     } catch (error) {
       console.error("팔로우 토글 실패:", error);

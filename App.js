@@ -15,6 +15,8 @@ import History from "./src/screens/mypage/History";
 // import AccFind from "./src/screens/AccFind";
 import FollowList from "./src/screens/mypage/FollowList";
 // import Profile from "./src/screens/reviews/Profile";
+import Toast from "react-native-toast-message";
+import Notification from "./src/screens/notify/Notification";
 
 export default function App() {
   const Stack = createNativeStackNavigator();
@@ -44,9 +46,10 @@ export default function App() {
           {/* <Stack.Screen name="Profile" component={Profile} /> */}
           {/* <Stack.Screen name="Login" component={Login} /> */}
           {/* <Stack.Screen name="Signup" component={UserSignup} /> */}
-          {/* <Stack.Screen name="AccFind" component={AccFind} /> */}
+          <Stack.Screen name="Notify" component={Notification} />
         </Stack.Navigator>
       </NavigationContainer>
+      <Toast topOffset={60} />
     </AuthProvider>
   );
 }

@@ -13,16 +13,15 @@ import React, { useState, useContext } from "react";
 import Mainlogo from "../../assets/icons/logo-main.svg";
 import MainSlogun from "../../assets/images/slogan.svg";
 import { collection, getDocs, query, where } from "firebase/firestore";
-import { getAuth, sendPasswordResetEmail } from "firebase/auth";
+import { sendPasswordResetEmail } from "firebase/auth";
 import { AuthContext } from "../../services/context";
-import { db } from "../../../firebase";
+import { auth, db } from "../../../firebase";
 
 export default function AccFind({ navigation }) {
   const [userId, setUserId] = useState("");
   const [userPw, setUserPw] = useState("");
   const [userName, setUserName] = useState("");
   const { setUser } = useContext(AuthContext);
-  const auth = getAuth();
 
   const findPassword = async () => {
     if (!userId) {
@@ -42,7 +41,7 @@ export default function AccFind({ navigation }) {
       }
 
       // Firebase Auth에서 비밀번호 재설정 이메일 발송
-      await sendPasswordResetEmail(getAuth(), userId);
+      await sendPasswordResetEmail(auth, userId);
       Alert.alert(
         "비밀번호 재설정",
         "입력한 이메일로 비밀번호 재설정 링크를 보냈습니다.",

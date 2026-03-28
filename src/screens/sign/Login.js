@@ -11,16 +11,15 @@ import React, { useState, useContext } from "react";
 import Mainlogo from "../../assets/icons/logo-main.svg";
 import MainSlogun from "../../assets/images/slogan.svg";
 import { doc, getDoc } from "firebase/firestore";
-import { db } from "../../../firebase";
+import { auth, db } from "../../../firebase";
 import { AuthContext } from "../../services/context";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 export default function Login({ navigation }) {
   const [userId, setUserId] = useState("");
   const [userPw, setUserPw] = useState("");
   const [userName, setUserName] = useState("");
   const { setUser } = useContext(AuthContext);
-  const auth = getAuth();
 
   const login = async () => {
     try {

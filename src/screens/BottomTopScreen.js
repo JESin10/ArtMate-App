@@ -87,7 +87,7 @@ export default function BottomTopScreen() {
               />
             );
           }
-          if (route.name === "Mypage") {
+          if (route.name === "UserMypage") {
             return focused ? (
               <MypageIcon width={size ?? 24} height={size ?? 24} fill={color} />
             ) : (
@@ -98,7 +98,7 @@ export default function BottomTopScreen() {
               />
             );
           }
-          if (route.name === "Login") {
+          if (route.name === "User") {
             return focused ? (
               <MypageIcon width={size ?? 24} height={size ?? 24} fill={color} />
             ) : (
@@ -119,9 +119,9 @@ export default function BottomTopScreen() {
       <Tab.Screen name="Home" component={Home} />
       <Tab.Screen name="Review" component={ReviewStack} />
       {!user ? (
-        <Tab.Screen name="Login" component={SignupStack} />
+        <Tab.Screen name="User" component={SignupStack} />
       ) : (
-        <Tab.Screen name="Mypage" component={MyPageStack} />
+        <Tab.Screen name="UserMypage" component={MyPageStack} />
       )}
     </Tab.Navigator>
   );
