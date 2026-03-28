@@ -29,6 +29,9 @@ import {
   updateDoc,
   increment,
   serverTimestamp,
+  Timestamp,
+  where,
+  addDoc,
 } from "firebase/firestore";
 import { db } from "../../firebase";
 
@@ -60,6 +63,10 @@ export default function Home({ navigation }) {
   const parser = new XMLParser({
     ignoreAttributes: false,
   });
+  const now = Timestamp.now();
+  const expireAt = Timestamp.fromMillis(
+    now.toMillis() + 7 * 24 * 60 * 60 * 1000,
+  );
 
   // useEffect 수정
   useEffect(() => {
@@ -442,7 +449,6 @@ export default function Home({ navigation }) {
     }
 
     const targetUserId = targetUser.id;
-
     const followingRef = doc(db, "users", user.uid, "following", targetUserId);
     const followerRef = doc(db, "users", targetUserId, "followers", user.uid);
 
@@ -451,14 +457,13 @@ export default function Home({ navigation }) {
         // 언팔로우
         await deleteDoc(followingRef);
         await deleteDoc(followerRef);
-
         await updateDoc(doc(db, "users", user.uid), {
           followingCnt: increment(-1),
         });
-
         await updateDoc(doc(db, "users", targetUserId), {
           followerCnt: increment(-1),
         });
+        await deleteFollowNotification(targetUserId);
       } else {
         // 팔로우
         await setDoc(followingRef, {
@@ -488,6 +493,7 @@ export default function Home({ navigation }) {
             fromUserName: user.displayName,
             fromUserPhoto: user.photoURL,
             createdAt: serverTimestamp(),
+            expireAt: expireAt,
             isRead: false,
           });
         }
@@ -496,6 +502,21 @@ export default function Home({ navigation }) {
       console.error("팔로우 토글 실패:", error);
       Alert.alert("팔로우/언팔로우 실패. 다시 시도해주세요.");
     }
+  };
+
+  //언팔로우시 알림 삭제
+  const deleteFollowNotification = async (targetUserId) => {
+    const q = query(
+      collection(db, "users", targetUserId, "notifications"),
+      where("type", "==", "follow"),
+      where("fromUserId", "==", user.uid),
+    );
+
+    const snapshot = await getDocs(q);
+
+    snapshot.forEach(async (docSnap) => {
+      await deleteDoc(docSnap.ref);
+    });
   };
 
   return (

@@ -31,6 +31,8 @@ import {
   onSnapshot,
   getDocs,
   addDoc,
+  Timestamp,
+  where,
 } from "firebase/firestore";
 import { db } from "../../../firebase";
 import CommentModal from "../../components/modals/CommentModal";
@@ -53,7 +55,10 @@ export default function Review({ navigation }) {
   const timerRef = useRef(null);
   const [showArtworkModal, setShowArtworkModal] = useState(false);
   const flatListRef = useRef(null);
-  const scrollRef = useRef(null);
+  const now = Timestamp.now();
+  const expireAt = Timestamp.fromMillis(
+    now.toMillis() + 7 * 24 * 60 * 60 * 1000,
+  );
   const [followingMap, setFollowingMap] = useState({});
 
   // console.log(user);
@@ -172,30 +177,35 @@ export default function Review({ navigation }) {
     const userLikeRef = doc(db, "users", user.uid, "likedReview", reviewId);
     const userReviewRef = doc(db, "users", reviewUserId, "reviews", reviewId);
     const reviewRef = doc(db, "reviews", reviewId);
+
     const alreadyLiked = !!likedMap[reviewId];
 
     try {
       if (alreadyLiked) {
+        // 🔥 좋아요 취소
         await deleteDoc(userLikeRef);
         await updateDoc(reviewRef, { LikeCnt: increment(-1) });
         await updateDoc(userReviewRef, { LikeCnt: increment(-1) });
-
+        if (user.uid !== reviewUserId) {
+          await deleteLikeNotification(reviewUserId, reviewId);
+        }
         setLikedMap((prev) => {
           const newMap = { ...prev };
           delete newMap[reviewId];
           return newMap;
         });
       } else {
+        // 🔥 좋아요 추가
         await setDoc(userLikeRef, { reviewId, createdAt: serverTimestamp() });
-        await setDoc(notifyRef, {
-          type: "like",
-          fromUserId: user.uid,
-          reviewId: reviewId,
-          createdAt: serverTimestamp(),
-          isRead: false,
-        });
         await updateDoc(reviewRef, { LikeCnt: increment(1) });
-        //상대에게 좋아요 알림
+        await updateDoc(userReviewRef, { LikeCnt: increment(1) });
+
+        setLikedMap((prev) => ({
+          ...prev,
+          [reviewId]: true,
+        }));
+
+        // 🔥 여기만 알림 생성
         if (user.uid !== reviewUserId) {
           await addDoc(collection(db, "users", reviewUserId, "notifications"), {
             type: "like",
@@ -204,17 +214,29 @@ export default function Review({ navigation }) {
             fromUserPhoto: user.photoURL,
             reviewId: reviewId,
             createdAt: serverTimestamp(),
+            expireAt: expireAt,
             isRead: false,
           });
         }
-        setLikedMap((prev) => ({
-          ...prev,
-          [reviewId]: true,
-        }));
       }
     } catch (error) {
       console.error("좋아요 토글 실패:", error);
     }
+  };
+  //좋아요 취소시 알림 삭제
+  const deleteLikeNotification = async (reviewUserId, reviewId) => {
+    const q = query(
+      collection(db, "users", reviewUserId, "notifications"),
+      where("type", "==", "like"),
+      where("fromUserId", "==", user.uid),
+      where("reviewId", "==", reviewId),
+    );
+
+    const snapshot = await getDocs(q);
+
+    snapshot.forEach(async (docSnap) => {
+      await deleteDoc(docSnap.ref);
+    });
   };
 
   // 팔로우, 언팔로우
@@ -237,10 +259,10 @@ export default function Review({ navigation }) {
         await updateDoc(doc(db, "users", user.uid), {
           followingCnt: increment(-1),
         });
-
         await updateDoc(doc(db, "users", targetUserId), {
           followerCnt: increment(-1),
         });
+        await deleteFollowNotification(targetUserId);
       } else {
         // 팔로우
         await setDoc(followingRef, {
@@ -271,6 +293,7 @@ export default function Review({ navigation }) {
             fromUserName: user.displayName,
             fromUserPhoto: user.photoURL,
             isRead: false,
+            expireAt: expireAt,
           });
         }
       }
@@ -278,6 +301,21 @@ export default function Review({ navigation }) {
       console.error("팔로우 토글 실패:", error);
       Alert.alert("팔로우/언팔로우 실패. 다시 시도해주세요.");
     }
+  };
+
+  //언팔로우시 알림 삭제
+  const deleteFollowNotification = async (targetUserId) => {
+    const q = query(
+      collection(db, "users", targetUserId, "notifications"),
+      where("type", "==", "follow"),
+      where("fromUserId", "==", user.uid),
+    );
+
+    const snapshot = await getDocs(q);
+
+    snapshot.forEach(async (docSnap) => {
+      await deleteDoc(docSnap.ref);
+    });
   };
 
   return (

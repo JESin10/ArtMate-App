@@ -11,14 +11,19 @@ import BackwardIcon from "../../assets/icons/backward.svg";
 import Mainlogo from "../../assets/icons/logo-main.svg";
 import { AuthContext } from "../../services/context";
 import {
+  addDoc,
   collection,
   deleteDoc,
   doc,
+  getDocs,
   increment,
   onSnapshot,
+  query,
   serverTimestamp,
   setDoc,
+  Timestamp,
   updateDoc,
+  where,
 } from "firebase/firestore";
 import { db } from "../../../firebase";
 import SearchBar from "../../components/search/SearchBar";
@@ -34,6 +39,10 @@ export default function FollowList({ navigation }) {
   const initialTab = route.params?.tab || "followers";
   const [tab, setTab] = useState(initialTab);
   const isMe = followingList.uid === user.uid;
+  const now = Timestamp.now();
+  const expireAt = Timestamp.fromMillis(
+    now.toMillis() + 7 * 24 * 60 * 60 * 1000,
+  );
 
   useEffect(() => {
     if (route.params?.tab) {
@@ -117,11 +126,10 @@ export default function FollowList({ navigation }) {
         // 언팔로우
         await deleteDoc(followingRef);
         await deleteDoc(followerRef);
-
+        await deleteFollowNotification(targetUserId);
         await updateDoc(doc(db, "users", user.uid), {
           followingCnt: increment(-1),
         });
-
         await updateDoc(doc(db, "users", targetUserId), {
           followerCnt: increment(-1),
         });
@@ -132,25 +140,48 @@ export default function FollowList({ navigation }) {
           photoURL: targetUser.photoURL || null,
           createdAt: serverTimestamp(),
         });
-
         await setDoc(followerRef, {
           displayName: user.displayName,
           photoURL: user.photoURL || null,
           createdAt: serverTimestamp(),
         });
-
         await updateDoc(doc(db, "users", user.uid), {
           followingCnt: increment(1),
         });
-
         await updateDoc(doc(db, "users", targetUserId), {
           followerCnt: increment(1),
         });
+        if (user.uid !== targetUserId) {
+          await addDoc(collection(db, "users", targetUserId, "notifications"), {
+            type: "follow",
+            fromUserId: user.uid,
+            createdAt: serverTimestamp(),
+            fromUserName: user.displayName,
+            fromUserPhoto: user.photoURL,
+            isRead: false,
+            expireAt: expireAt,
+          });
+        }
       }
     } catch (error) {
       console.error("팔로우 토글 실패:", error);
       Alert.alert("팔로우/언팔로우 실패. 다시 시도해주세요.");
     }
+  };
+
+  //언팔로우시 알림 삭제
+  const deleteFollowNotification = async (targetUserId) => {
+    const q = query(
+      collection(db, "users", targetUserId, "notifications"),
+      where("type", "==", "follow"),
+      where("fromUserId", "==", user.uid),
+    );
+
+    const snapshot = await getDocs(q);
+
+    snapshot.forEach(async (docSnap) => {
+      await deleteDoc(docSnap.ref);
+    });
   };
 
   return (
