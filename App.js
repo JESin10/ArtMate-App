@@ -16,7 +16,7 @@ import History from "./src/screens/mypage/History";
 import FollowList from "./src/screens/mypage/FollowList";
 // import Profile from "./src/screens/reviews/Profile";
 import Toast from "react-native-toast-message";
-import Notification from "./src/screens/notify/Notification";
+import Notification from "./src/screens/notify/NotificationModal";
 
 export default function App() {
   const Stack = createNativeStackNavigator();

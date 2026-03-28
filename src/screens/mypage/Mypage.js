@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -35,12 +35,12 @@ import * as ImagePicker from "expo-image-picker";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { signOut } from "firebase/auth";
 import Toast from "react-native-toast-message";
+import NotificationModal from "../notify/NotificationModal";
 
 export default function Mypage({ navigation }) {
   const { user, setUser } = useContext(AuthContext);
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState(user?.displayName || "");
-  const [bookmarks, setBookmarks] = useState([]);
   const [myReviews, setMyReviews] = useState([]);
   const [myLikeRV, setMyLikeRV] = useState([]);
   const [myComments, setMyComments] = useState([]);
@@ -49,6 +49,9 @@ export default function Mypage({ navigation }) {
   const [followerMap, setFollowerMap] = useState({});
   const followerCnt = Object.keys(followerMap).length;
   const followingCnt = Object.keys(followingMap).length;
+  const [showNotificationModal, setShowNotificationModal] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const isFirstLoad = useRef(true);
 
   //프로필 이미지
   useEffect(() => {
@@ -147,14 +150,22 @@ export default function Mypage({ navigation }) {
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
+      // 새로 추가된 문서만 감지
       snapshot.docChanges().forEach((change) => {
         if (change.type === "added") {
           const newItem = change.doc.data();
 
-          // 🔥 여기서 토스트
-          showNotification(newItem);
+          // 최초 로딩에서는 토스트 안 띄움
+          if (!isFirstLoad.current) {
+            showNotification(newItem);
+          }
         }
       });
+
+      const unread = snapshot.docs.filter((doc) => !doc.data().isRead).length;
+      setUnreadCount(unread);
+
+      isFirstLoad.current = false;
     });
 
     return unsubscribe;
@@ -282,8 +293,21 @@ export default function Mypage({ navigation }) {
         {/* <TouchableOpacity style={styles.container}> */}
         <View style={styles.container}>
           <View style={styles.settingContainer}>
-            <TouchableOpacity onPress={() => navigation.navigate("Notify")}>
+            {/* <TouchableOpacity onPress={() => navigation.navigate("Notify")}>
               <AlertIcon width={24} height={24} />
+            </TouchableOpacity> */}
+            <TouchableOpacity onPress={() => setShowNotificationModal(true)}>
+              <View style={{ position: "relative" }}>
+                <AlertIcon width={24} height={24} />
+
+                {unreadCount > 0 && (
+                  <View style={styles.badge}>
+                    <Text style={styles.badgeText}>
+                      {unreadCount > 9 ? "9+" : unreadCount}
+                    </Text>
+                  </View>
+                )}
+              </View>
             </TouchableOpacity>
             <TouchableOpacity style={{ marginLeft: 10 }}>
               <ShareIcon
@@ -548,6 +572,12 @@ export default function Mypage({ navigation }) {
           </Pressable>
         )}
       </ScrollView>
+      <NotificationModal
+        visible={showNotificationModal}
+        onClose={() => {
+          setShowNotificationModal(false);
+        }}
+      />
     </SafeAreaView>
   );
 }
@@ -778,5 +808,23 @@ const styles = StyleSheet.create({
   },
   logoutBtnPressedText: {
     color: "#608D00",
+  },
+  badge: {
+    position: "absolute",
+    top: -5,
+    right: -5,
+    backgroundColor: "red",
+    borderRadius: 10,
+    minWidth: 18,
+    height: 18,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 4,
+  },
+
+  badgeText: {
+    color: "#fff",
+    fontSize: 10,
+    fontWeight: "bold",
   },
 });
