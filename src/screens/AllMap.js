@@ -138,17 +138,28 @@ export default function AllMap({ route, navigation }) {
       <View style={styles.filterContainer}>
         <TouchableOpacity
           onPress={() => setFilter("artwork")}
-          style={styles.filterBtn}
+          style={[
+            styles.filterBtn,
+            filter === "artwork" && styles.activeFilterBtn,
+          ]}
         >
-          <Text>작품</Text>
+          <Text style={filter === "artwork" ? styles.activeFilterText : null}>
+            작품
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           onPress={() => setFilter("place")}
-          style={styles.filterBtn}
+          style={[
+            styles.filterBtn,
+            filter === "place" && styles.activeFilterBtn,
+          ]}
         >
-          <Text>장소</Text>
+          <Text style={filter === "place" ? styles.activeFilterText : null}>
+            장소
+          </Text>
         </TouchableOpacity>
+
         <TouchableOpacity
           onPress={() => {
             if (!user) {
@@ -159,19 +170,22 @@ export default function AllMap({ route, navigation }) {
               );
               return;
             }
-
             setFilter("my");
           }}
-          style={styles.filterBtn}
+          style={[styles.filterBtn, filter === "my" && styles.activeFilterBtn]}
         >
-          <Text>내 장소</Text>
+          <Text style={filter === "my" ? styles.activeFilterText : null}>
+            내 장소
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           onPress={() => setFilter("all")}
-          style={styles.filterBtn}
+          style={[styles.filterBtn, filter === "all" && styles.activeFilterBtn]}
         >
-          <Text>전체</Text>
+          <Text style={filter === "all" ? styles.activeFilterText : null}>
+            전체
+          </Text>
         </TouchableOpacity>
       </View>
       <View style={styles.container}>
@@ -329,11 +343,17 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
     marginBottom: 10,
   },
-
   filterBtn: {
     paddingVertical: 8,
     paddingHorizontal: 15,
     backgroundColor: "#eee",
     borderRadius: 20,
+  },
+  activeFilterBtn: {
+    backgroundColor: "#608D00", // 클릭된 버튼 색
+  },
+  activeFilterText: {
+    color: "#fff", // 클릭된 버튼 텍스트 색
+    fontWeight: "bold",
   },
 });
