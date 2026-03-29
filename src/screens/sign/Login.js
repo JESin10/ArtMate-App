@@ -7,20 +7,36 @@ import {
   ScrollView,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import Mainlogo from "../../assets/icons/logo-main.svg";
 import MainSlogun from "../../assets/images/slogan.svg";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "../../../firebase";
 import { AuthContext } from "../../services/context";
 import { signInWithEmailAndPassword } from "firebase/auth";
+import { useKakaoLogin } from "../../components/hooks/useKakaoLogin";
+
+import * as WebBrowser from "expo-web-browser";
+import * as AuthSession from "expo-auth-session";
+
+// WebBrowser.maybeCompleteAuthSession();
+
+// const redirectUri = AuthSession.makeRedirectUri({
+//   useProxy: true,
+// });
+// console.log("redirectUri:", redirectUri);
 
 export default function Login({ navigation }) {
   const [userId, setUserId] = useState("");
   const [userPw, setUserPw] = useState("");
   const [userName, setUserName] = useState("");
   const { setUser } = useContext(AuthContext);
+  const { promptAsync, request } = useKakaoLogin({
+    setUser,
+    navigation,
+  });
 
+  //일반 로그인
   const login = async () => {
     try {
       const userCredential = await signInWithEmailAndPassword(
@@ -153,7 +169,8 @@ export default function Login({ navigation }) {
                 marginBottom: 10,
                 alignItems: "center",
               }}
-              // onPress={login}
+              onPress={() => promptAsync()}
+              disabled={!request}
             >
               <Text style={styles.socialBtn}>카카오로 시작하기</Text>
             </TouchableOpacity>

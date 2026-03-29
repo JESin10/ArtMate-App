@@ -21,7 +21,8 @@ import {
   where,
 } from "firebase/firestore";
 import { auth, db } from "../../firebase";
-import { getFunctions, httpsCallable } from "firebase/functions";
+import Mainlogo from "../assets/icons/logo-main.svg";
+import MainSlogun from "../assets/images/slogan.svg";
 
 export default function Setting({ navigation }) {
   const { user, setUser } = useContext(AuthContext);
@@ -130,6 +131,13 @@ export default function Setting({ navigation }) {
 
   return (
     <SafeAreaView>
+      <TouchableOpacity
+        onPress={() => navigation.navigate("Bottom", { screen: "Home" })}
+        style={{ alignItems: "center", marginBottom: 30 }}
+      >
+        <Mainlogo width={200} height={100} />
+        <MainSlogun width={180} height={30} />
+      </TouchableOpacity>
       <View style={styles.settingFactorContainer}>
         <View style={styles.userSetting}>
           <TouchableOpacity
@@ -146,8 +154,7 @@ export default function Setting({ navigation }) {
                 backgroundColor: "#fff",
                 padding: 10,
                 borderBottomWidth: 1,
-                borderTopWidth: 1,
-                borderBottomColor: "black",
+                borderBottomColor: "#d9d9d9",
               }}
             >
               가입정보 확인
@@ -166,8 +173,7 @@ export default function Setting({ navigation }) {
               backgroundColor: "#fff",
               padding: 10,
               borderBottomWidth: 1,
-              borderTopWidth: 1,
-              borderBottomColor: "black",
+              borderBottomColor: "#d9d9d9",
             }}
           >
             공지사항
@@ -209,8 +215,7 @@ export default function Setting({ navigation }) {
               backgroundColor: "#fff",
               padding: 10,
               borderBottomWidth: 1,
-              borderTopWidth: 1,
-              borderBottomColor: "black",
+              borderBottomColor: "#d9d9d9",
             }}
           >
             <Text>로그아웃</Text>
@@ -229,8 +234,6 @@ const styles = StyleSheet.create({
     flexDirection: "horizontal",
     width: "100%",
     height: "100%",
-    // borderWidth: 1,
-    // borderColor: "blue",
   },
   userSetting: {
     width: "100%",
@@ -244,7 +247,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: "black",
+    borderBottomColor: "#d9d9d9",
   },
   QASetting: {
     width: "100%",
@@ -254,13 +257,11 @@ const styles = StyleSheet.create({
     paddingTop: 40,
     paddingBottom: 0,
     backgroundColor: "#608D00",
-    // borderWidth: 2,
-    // borderColor: "yellow",
   },
   QAFactor: {
     backgroundColor: "#fff",
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: "black",
+    borderBottomColor: "#d9d9d9",
   },
 });

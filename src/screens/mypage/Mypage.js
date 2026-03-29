@@ -499,7 +499,7 @@ export default function Mypage({ navigation }) {
           <View style={styles.reviewContainer}>
             <Text style={styles.reiewText}>나의 후기 목록</Text>
             <View style={styles.reviewTumbContainer}>
-              {myReviews.map((item, index) => (
+              {/* {myReviews.map((item, index) => (
                 <ImageBackground
                   key={index}
                   source={{ uri: item.images[0] }}
@@ -507,7 +507,31 @@ export default function Mypage({ navigation }) {
                   imageStyle={styles.ReviewImage}
                   resizeMode="cover"
                 />
-              ))}
+              ))} */}
+              {myReviews.length === 0 ? (
+                <View
+                  style={{
+                    width: "100%",
+                    justifyContent: "center",
+                    padding: 20,
+                    marginVertical: 20,
+                  }}
+                >
+                  <Text style={{ textAlign: "center", color: "#828282" }}>
+                    등록된 후기가 없습니다
+                  </Text>
+                </View>
+              ) : (
+                myReviews.map((item, index) => (
+                  <ImageBackground
+                    key={index}
+                    source={{ uri: item.images[0] }}
+                    style={styles.reviewTumblnail}
+                    imageStyle={styles.ReviewImage}
+                    resizeMode="cover"
+                  />
+                ))
+              )}
             </View>
           </View>
         </View>
