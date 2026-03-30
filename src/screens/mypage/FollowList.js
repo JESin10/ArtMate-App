@@ -257,7 +257,7 @@ export default function FollowList({ navigation }) {
           {/* 리스트 */}
           {tab === "followers" &&
             followerList.map((follower) => (
-              <View key={follower.id} style={styles.followContainer}>
+              <View key={follower.uid} style={styles.followContainer}>
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
                   <ImageBackground
                     source={{ uri: follower.photoURL }}
@@ -289,7 +289,7 @@ export default function FollowList({ navigation }) {
 
           {tab === "followings" &&
             followingList.map((following) => (
-              <View key={following.id} style={styles.followContainer}>
+              <View key={following.uid} style={styles.followContainer}>
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
                   <ImageBackground
                     source={{ uri: following.photoURL }}

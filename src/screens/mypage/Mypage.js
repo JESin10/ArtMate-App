@@ -221,7 +221,7 @@ export default function Mypage({ navigation }) {
       await signOut(auth);
       setUser(null);
       console.log("로그아웃 성공");
-      navigation.navigate("Home");
+      navigation.navigate("Bottom", { screen: "Home" });
     } catch (error) {
       console.error("로그아웃 실패:", error);
     }
