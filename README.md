@@ -3,16 +3,17 @@
 <img width="100%" alt="Top-Bar" src="https://github.com/JESin10/ArtMate/assets/119720123/cbeac7bc-7d28-4814-a172-a0091b069357">
 
 ~ 26.03.29 / 총 39일 Commit
+
 (구현 시 최소 1일 1commit 하였기에 총 commit 일수로 표시하였습니다.)
 
 <!--
 artmate URL : [artmate](https://artmate-ver100.web.app/)
 
 📎 회고 URL
-[Velog 회고](https://velog.io/@jin_s/WIL-24.06.15)
+[Velog 회고](https://velog.io/@jin_s/WIL-24.06.15)-->
 
 Notion URL
-[artmate-Notion](https://jin29.notion.site/ArtMate-7a7b69e3c1da4f4bbf64cda1999a9ab0?pvs=4) -->
+[artmate-Notion](https://jin29.notion.site/ArtMate-7a7b69e3c1da4f4bbf64cda1999a9ab0?source=copy_link)
 
 ## 📌 서비스 소개
 
@@ -28,13 +29,13 @@ FrontEnd: React Native, Typescript, TailwindCss
 
 BackEnd : FireBase
 
-Depoloyment : Expo
+Deployment : Expo
 
 ## 📌 서비스 예시
 
 <details><summary> 🎨 WireFrame </summary>
 
-<img width="52%" alt="Initial_wireframe" src="https://github.com/user-attachments/assets/9489e92e-26f7-4b26-9680-81b0f4fc5b7a">
+<img width="55%" alt="Initial_wireframe" src="https://github.com/user-attachments/assets/9489e92e-26f7-4b26-9680-81b0f4fc5b7a">
 
 [Link to Figma](https://www.figma.com/design/0iw4lYmsIkfaZHq0X9uad2/artmate?node-id=0-1&t=JupJ97lyvlU1kN9X-1)
 
@@ -42,9 +43,28 @@ Depoloyment : Expo
 
 <details><summary> Mobile </summary>
 
-<!-- <img width="25%" alt="Page_ex1" src="https://github.com/JESin10/ArtMate/assets/119720123/e7216398-04af-4401-a5fb-9c970dcf2cd8">
-<img width="25%" alt="Page_ex2" src="https://github.com/JESin10/ArtMate/assets/119720123/0526dba7-1bbc-4790-a574-c0cdc050d5d1">
-<img width="25%" alt="Page_ex3" src="https://github.com/JESin10/ArtMate/assets/119720123/d79c4f86-e389-47c3-abd1-b15922300a19"> -->
+<img width="25%" alt="home1" src="https://github.com/user-attachments/assets/e69173fd-24d3-4b63-8271-2b8a77c76f22" />
+<img width="25%" alt="home2" src="https://github.com/user-attachments/assets/b3efb6d2-c8e1-4688-b356-e12dad50e44b" />
+<img width="25%" alt="home3" src="https://github.com/user-attachments/assets/e6d8876c-f87d-4b5b-b8e1-2c74debd7d07" />
+
+<img width="25%" alt="map1" src="https://github.com/user-attachments/assets/b8fec565-937e-449f-9303-c7900768535a" />
+<img width="25%" alt="map2" src="https://github.com/user-attachments/assets/ad8a87e1-5072-489d-a499-330abcd91a27" />
+<img width="25%" alt="map3" src="https://github.com/user-attachments/assets/579150eb-4b77-470d-82d7-028c6e8f2c4b" />
+<img width="25%" alt="map4" src="https://github.com/user-attachments/assets/4523451b-7e01-4967-b923-7f35b2ab9a5a" />
+<img width="25%" alt="map5" src="https://github.com/user-attachments/assets/7224fc9c-88f6-4b87-a051-9dedc145c1d2" />
+
+<img width="25%" alt="art1" src="https://github.com/user-attachments/assets/4d2e413f-47bd-4dbd-99ba-7cfa7004af33" />
+<img width="25%" alt="art2" src="https://github.com/user-attachments/assets/94d5f3be-bdbc-43e9-9290-f6a8e332d2ea" />
+<img width="25%" alt="art3" src="https://github.com/user-attachments/assets/e8be58c3-b7fd-4b23-aa60-9c697d9073e3" />
+
+<img width="1206" height="2622" alt="Image" src="https://github.com/user-attachments/assets/edca79e9-4373-4a56-9fb3-e7fbeb966037" />
+<img width="1206" height="2622" alt="Image" src="https://github.com/user-attachments/assets/63753c9a-8529-49fe-bbc1-054acba03538" />
+<img width="1206" height="2622" alt="Image" src="https://github.com/user-attachments/assets/0158e51c-8d31-4378-8258-0ff5af890751" />
+<img width="1206" height="2622" alt="Image" src="https://github.com/user-attachments/assets/4d40125e-1b3c-4ecd-98fb-b4a88715f2ac" />
+<img width="1206" height="2622" alt="Image" src="https://github.com/user-attachments/assets/93393980-3363-45cc-b145-ae42f9a7c270" />
+<img width="1206" height="2622" alt="Image" src="https://github.com/user-attachments/assets/351a629c-5d22-4060-ba25-0d6af3e9de21" />
+<img width="1206" height="2622" alt="Image" src="https://github.com/user-attachments/assets/9eb55217-1194-47ca-8053-ca883089c556" />
+<img width="1206" height="2622" alt="Image" src="https://github.com/user-attachments/assets/5819e0a5-cb22-4f3f-8a49-a80abb0470ee" />
 
 </details>
 
@@ -66,7 +86,9 @@ Depoloyment : Expo
 
 최종적으로 React Native + Expo를 기반으로 iOS/Android 크로스 플랫폼 앱으로 구현하였습니다.
 
-초기에는 JS로 기본 개발을 진행하였고, 이후 TypeScript로 마이그레이션을 진행해 Data의 type으로 발생할 수 있는 에러를 줄이고자 하였습니다.
+현재는 JS로 기본 개발 되어있으나 data type으로 발생할 수 있는 에러를 줄이고, 마이그레이션의 경험을 위해 typescript로 마이그레이션 할 예정입니다.
+
+<!-- 초기에는 JS로 기본 개발을 진행하였고, 이후 TypeScript로 마이그레이션을 진행해 Data의 type으로 발생할 수 있는 에러를 줄이고자 하였습니다. -->
 
 ✅ 공공 API 활용
 
@@ -78,9 +100,11 @@ Depoloyment : Expo
 
 초기에는 스타일의 확장성 및 커스터마이징을 위해 React Native 기본 컴포넌트와 StyleSheet를 사용하였습니다.
 
-이후, 복잡하지 않은 UIUX의 쉬운 관리를 위하여 tailwind와 styled-component를 함께 결합한 tailwind-styled-component를 사용했습니다.
+ts 마이그레이션을 진행하며 uiux의 쉬운 관리를 위해 tailwind와 styled-component를 함께 결합한 tailwind-styled-component를 사용할 에정입니다.
 
-정교한 CSS가 필요한 상황의 경우 두개를 따로 분리하여 사용하기도 하였으나, 보편적으로는 관리의 용이와 통일성을 위해 tailwind-styled-component를 사용하였습니다.
+<!-- 이후, 복잡하지 않은 UIUX의 쉬운 관리를 위하여 tailwind와 styled-component를 함께 결합한 tailwind-styled-component를 사용했습니다.
+
+정교한 CSS가 필요한 상황의 경우 두개를 따로 분리하여 사용하기도 하였으나, 보편적으로는 관리의 용이와 통일성을 위해 tailwind-styled-component를 사용하였습니다. -->
 
 ✅ Custom Hook
 
