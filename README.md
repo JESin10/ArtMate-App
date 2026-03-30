@@ -44,7 +44,7 @@ Deployment : Expo
 Mobile View
 
 <details> <summary>HOME</summary> 
-<img width="15" alt="home1" src="https://github.com/user-attachments/assets/e69173fd-24d3-4b63-8271-2b8a77c76f22" />
+<img width="15%" alt="home1" src="https://github.com/user-attachments/assets/e69173fd-24d3-4b63-8271-2b8a77c76f22" />
 <img width="15%" alt="home2" src="https://github.com/user-attachments/assets/b3efb6d2-c8e1-4688-b356-e12dad50e44b" />
 <img width="15%" alt="home3" src="https://github.com/user-attachments/assets/e6d8876c-f87d-4b5b-b8e1-2c74debd7d07" />
 </details>
@@ -54,8 +54,8 @@ Mobile View
 <img width="15%" alt="map1" src="https://github.com/user-attachments/assets/b8fec565-937e-449f-9303-c7900768535a" />
 <img width="15%" alt="map2" src="https://github.com/user-attachments/assets/ad8a87e1-5072-489d-a499-330abcd91a27" />
 <img width="15%" alt="map3" src="https://github.com/user-attachments/assets/579150eb-4b77-470d-82d7-028c6e8f2c4b" />
-<img width="20%" alt="map4" src="https://github.com/user-attachments/assets/4523451b-7e01-4967-b923-7f35b2ab9a5a" />
-<img width="20%" alt="map5" src="https://github.com/user-attachments/assets/7224fc9c-88f6-4b87-a051-9dedc145c1d2" />
+<img width="15%" alt="map4" src="https://github.com/user-attachments/assets/4523451b-7e01-4967-b923-7f35b2ab9a5a" />
+<img width="15" alt="map5" src="https://github.com/user-attachments/assets/7224fc9c-88f6-4b87-a051-9dedc145c1d2" />
 </details>
 
 <details><summary> ART </summary>

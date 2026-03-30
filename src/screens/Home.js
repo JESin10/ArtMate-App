@@ -711,12 +711,18 @@ export default function Home({ navigation }) {
                 <View key={u.id} style={styles.userCard}>
                   <TouchableOpacity
                     style={styles.userAvatar}
-                    onPress={() =>
+                    onPress={() => {
                       navigation.navigate("Review", {
-                        screen: "Profile",
-                        params: { userId: u.uid },
-                      })
-                    }
+                        screen: "ReviewMain",
+                      });
+
+                      setTimeout(() => {
+                        navigation.navigate("Review", {
+                          screen: "Profile",
+                          params: { userId: u.uid },
+                        });
+                      }, 0);
+                    }}
                   >
                     {u.photoURL && (
                       <Image

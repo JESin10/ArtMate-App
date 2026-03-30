@@ -1,6 +1,7 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Review from "./Review";
 import Profile from "./Profile";
+import { useEffect } from "react";
 
 const Stack = createNativeStackNavigator();
 

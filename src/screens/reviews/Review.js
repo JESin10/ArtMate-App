@@ -41,7 +41,7 @@ import { Dimensions } from "react-native";
 import ImageSlider from "../../components/Slider/ImageSlider";
 import ArtworkInfoModal from "../../components/modals/ArtworkInfoModal";
 
-export default function Review({ navigation }) {
+export default function Review({ route, navigation }) {
   const { user, setUser } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -60,8 +60,6 @@ export default function Review({ navigation }) {
     now.toMillis() + 7 * 24 * 60 * 60 * 1000,
   );
   const [followingMap, setFollowingMap] = useState({});
-
-  // console.log(user);
   const onRefresh = React.useCallback(() => {
     setLoading(true);
     // 정렬 초기화
@@ -401,8 +399,9 @@ export default function Review({ navigation }) {
                       alignItems: "center",
                     }}
                     onPress={() =>
-                      navigation.navigate("Profile", {
-                        userId: review.userId,
+                      navigation.navigate("Review", {
+                        screen: "Profile",
+                        params: { userId: review.userId },
                       })
                     }
                   >
