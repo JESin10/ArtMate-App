@@ -16,7 +16,7 @@ import BookmarkIcon from "../../assets/icons/bookmark.svg";
 import FilledBookmarkIcon from "../../assets/icons/bookmark-filled.svg";
 import ShareIcon from "../../assets/icons/share.svg";
 import InfoIcon from "../../assets/icons/info.svg";
-import { AuthContext } from "../../services/context";
+import { AuthContext } from "../../store/context";
 import {
   doc,
   setDoc,
@@ -33,7 +33,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../../../firebase";
 import { use } from "react";
-import Map from "../../screens/Map";
+import Map from "../../screens/places/Map";
 import { XMLParser } from "fast-xml-parser";
 import ReviewImageSlider from "../Slider/ReviewImageSlider";
 

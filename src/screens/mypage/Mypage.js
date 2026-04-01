@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect, useRef } from "react";
+import { useState, useContext, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   ScrollView,
   ImageBackground,
-  Button,
   Alert,
   Pressable,
 } from "react-native";
@@ -19,7 +18,7 @@ import AlertIcon from "../../assets/icons/alert.svg";
 import SettingIcon from "../../assets/icons/setting.svg";
 import ShareIcon from "../../assets/icons/share.svg";
 import EditIcon from "../../assets/icons/edit.svg";
-import { AuthContext } from "../../services/context";
+import { AuthContext } from "../../store/context";
 import {
   collection,
   doc,
@@ -35,7 +34,7 @@ import * as ImagePicker from "expo-image-picker";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { signOut } from "firebase/auth";
 import Toast from "react-native-toast-message";
-import NotificationModal from "../notify/NotificationModal";
+import NotificationModal from "../../components/notify/NotificationModal";
 
 export default function Mypage({ navigation }) {
   const { user, setUser } = useContext(AuthContext);

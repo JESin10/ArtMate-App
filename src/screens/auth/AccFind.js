@@ -4,17 +4,16 @@ import {
   StyleSheet,
   TouchableOpacity,
   TextInput,
-  Button,
   ScrollView,
   Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import React, { useState, useContext } from "react";
+import { useState, useContext } from "react";
 import Mainlogo from "../../assets/icons/logo-main.svg";
 import MainSlogun from "../../assets/images/slogan.svg";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { sendPasswordResetEmail } from "firebase/auth";
-import { AuthContext } from "../../services/context";
+import { AuthContext } from "../../store/context";
 import { auth, db } from "../../../firebase";
 
 export default function AccFind({ navigation }) {

@@ -12,9 +12,9 @@ import Mainlogo from "../../assets/icons/logo-main.svg";
 import MainSlogun from "../../assets/images/slogan.svg";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "../../../firebase";
-import { AuthContext } from "../../services/context";
+import { AuthContext } from "../../store/context";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { useKakaoLogin } from "../../components/hooks/useKakaoLogin";
+import { useKakaoLogin } from "../../hooks/useKakaoLogin";
 
 import * as WebBrowser from "expo-web-browser";
 import * as AuthSession from "expo-auth-session";
@@ -26,7 +26,7 @@ import * as AuthSession from "expo-auth-session";
 // });
 // console.log("redirectUri:", redirectUri);
 
-export default function Login({ navigation }) {
+export default function SignIn({ navigation }) {
   const [userId, setUserId] = useState("");
   const [userPw, setUserPw] = useState("");
   const [userName, setUserName] = useState("");

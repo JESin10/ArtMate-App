@@ -1,4 +1,3 @@
-// screens/NotificationsScreen.js
 import {
   FlatList,
   StyleSheet,
@@ -20,8 +19,7 @@ import {
 } from "firebase/firestore";
 import NotificationItem from "./NotificationItem";
 import { db } from "../../../firebase";
-import { AuthContext } from "../../services/context";
-import BackwardIcon from "../../assets/icons/backward.svg";
+import { AuthContext } from "../../store/context";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const screenHeight = Dimensions.get("window").height;

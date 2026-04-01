@@ -1,13 +1,6 @@
 import { View, Text } from "react-native";
-import React, { useState } from "react";
-import {
-  collection,
-  doc,
-  onSnapshot,
-  query,
-  orderBy,
-  getDoc,
-} from "firebase/firestore";
+import { useState } from "react";
+import { collection, getDoc } from "firebase/firestore";
 
 const useAllCmt = () => {
   const [comments, setComments] = useState([]);

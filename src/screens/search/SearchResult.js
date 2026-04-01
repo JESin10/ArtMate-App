@@ -4,20 +4,18 @@ import {
   FlatList,
   ActivityIndicator,
   TouchableOpacity,
-  ScrollView,
   Keyboard,
   StyleSheet,
-  Button,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect, useRoute } from "@react-navigation/native";
-import useSearch from "../../src/components/hooks/useSearch";
-import BackwardIcon from "../assets/icons/backward.svg";
-import SearchBar from "../components/search/SearchBar";
-import Mainlogo from "../assets/icons/logo-main.svg";
+import useSearch from "../../hooks/useSearch";
+import BackwardIcon from "../../assets/icons/backward.svg";
+import SearchBar from "../../components/search/SearchBar";
+import Mainlogo from "../../assets/icons/logo-main.svg";
 import React, { useState } from "react";
-import PlacesInfoModal from "../components/modals/PlacesInfoModal";
-import ArtworkInfoModal from "../components/modals/ArtworkInfoModal";
+import PlacesInfoModal from "../../components/modals/PlacesInfoModal";
+import ArtworkInfoModal from "../../components/modals/ArtworkInfoModal";
 
 export default function SearchResult({ navigation }) {
   const route = useRoute();

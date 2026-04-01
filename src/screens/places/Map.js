@@ -1,12 +1,4 @@
-import {
-  View,
-  StyleSheet,
-  ActivityIndicator,
-  Text,
-  Platform,
-  TouchableOpacity,
-} from "react-native";
-import React, { useState, useEffect, useRef, useContext } from "react";
+import { View, Text } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 
 export default function Map({ x, y }) {

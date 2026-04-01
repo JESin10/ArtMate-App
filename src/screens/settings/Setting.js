@@ -1,28 +1,13 @@
-import {
-  View,
-  Text,
-  Button,
-  BackHandler,
-  TouchableOpacity,
-  Alert,
-  StyleSheet,
-} from "react-native";
+import { View, Text, TouchableOpacity, Alert, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import BackwardIcon from "../assets/icons/backward.svg";
+import BackwardIcon from "../../assets/icons/backward.svg";
 import { useContext } from "react";
-import { AuthContext } from "../services/context";
+import { AuthContext } from "../../store/context";
 import { deleteUser, sendPasswordResetEmail, signOut } from "firebase/auth";
-import {
-  collection,
-  deleteDoc,
-  doc,
-  getDocs,
-  query,
-  where,
-} from "firebase/firestore";
-import { auth, db } from "../../firebase";
-import Mainlogo from "../assets/icons/logo-main.svg";
-import MainSlogun from "../assets/images/slogan.svg";
+import { collection, deleteDoc, doc, getDocs } from "firebase/firestore";
+import { auth, db } from "../../../firebase";
+import Mainlogo from "../../assets/icons/logo-main.svg";
+import MainSlogun from "../../assets/images/slogan.svg";
 
 export default function Setting({ navigation }) {
   const { user, setUser } = useContext(AuthContext);

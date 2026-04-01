@@ -16,7 +16,7 @@ import BackwardIcon from "../assets/icons/backward.svg";
 import ForwardIcon from "../assets/icons/forward.svg";
 import Mainlogo from "../assets/icons/logo-main.svg";
 import PlaceIcon from "../assets/icons/Menubar_gallery.svg";
-import { AuthContext } from "../services/context";
+import { AuthContext } from "../store/context";
 import { XMLParser } from "fast-xml-parser";
 import SearchBar from "../components/search/SearchBar";
 import {

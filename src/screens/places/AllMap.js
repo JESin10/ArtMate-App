@@ -1,22 +1,14 @@
-import {
-  Text,
-  View,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-  TextInput,
-  Alert,
-} from "react-native";
+import { Text, View, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import MapView, { Marker } from "react-native-maps";
-import Mainlogo from "../assets/icons/logo-main.svg";
-import ListIcon from "../assets/icons/list.svg";
-import React, { useState, useRef, useEffect, useContext } from "react";
+import Mainlogo from "../../assets/icons/logo-main.svg";
+import ListIcon from "../../assets/icons/list.svg";
+import { useState, useRef, useEffect, useContext } from "react";
 import * as Location from "expo-location";
-import { AuthContext } from "../services/context";
-import { collection, doc, getDoc, getDocs } from "firebase/firestore";
-import { db } from "../../firebase";
-import SearchBar from "../components/search/SearchBar";
+import { AuthContext } from "../../store/context";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../../../firebase";
+import SearchBar from "../../components/search/SearchBar";
 
 export default function AllMap({ route, navigation }) {
   const markers = route?.params?.markers ?? [];

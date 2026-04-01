@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -7,14 +7,13 @@ import {
   FlatList,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
-import PlaceItem from "./PlaceItem";
+import PlaceItem from "../../components/places/PlaceItem";
 import PlacesInfoModal from "../../components/modals/PlacesInfoModal";
 import MapIcon from "../../assets/icons/location.svg";
 import ReloadIcon from "../../assets/icons/reload.svg";
 import Mainlogo from "../../assets/icons/logo-main.svg";
 import SearchBar from "../../components/search/SearchBar";
-import usePlaces from "../../components/hooks/usePlaces";
+import usePlaces from "../../hooks/usePlaces";
 
 export default function PlacesScreen({ navigation }) {
   const {

@@ -2,7 +2,7 @@
 
 <img width="100%" alt="Top-Bar" src="https://github.com/JESin10/ArtMate/assets/119720123/cbeac7bc-7d28-4814-a172-a0091b069357">
 
-~ 26.03.29 / 총 39일 Commit
+~ 26.03.29 / 총 37일 Commit
 
 (구현 시 최소 1일 1commit 하였기에 총 commit 일수로 표시하였습니다.)
 

@@ -16,9 +16,9 @@ import BookmarkIcon from "../../assets/icons/bookmark.svg";
 import FilledBookmarkIcon from "../../assets/icons/bookmark-filled.svg";
 import ShareIcon from "../../assets/icons/share.svg";
 import { decode } from "html-entities";
-import Map from "../../screens/Map";
+import Map from "../../screens/places/Map";
 import { XMLParser } from "fast-xml-parser";
-import { AuthContext } from "../../services/context";
+import { AuthContext } from "../../store/context";
 import {
   doc,
   setDoc,

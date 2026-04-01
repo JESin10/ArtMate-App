@@ -20,13 +20,13 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { db } from "../../../firebase";
-import { AuthContext } from "../../services/context";
+import { AuthContext } from "../../store/context";
 import { useRoute } from "@react-navigation/native";
-import useSearch from "../hooks/useSearch";
+import useSearch from "../../hooks/useSearch";
 import * as ImagePicker from "expo-image-picker";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "../../../firebase";
-import { useReviewUpload } from "../hooks/useReviewUpload";
+import { useReviewUpload } from "../../hooks/useReviewUpload";
 
 export default function ReviewModal({
   visible,

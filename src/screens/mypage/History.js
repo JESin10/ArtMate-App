@@ -6,11 +6,11 @@ import {
   FlatList,
   ImageBackground,
 } from "react-native";
-import React, { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import BackwardIcon from "../../assets/icons/backward.svg";
 import Mainlogo from "../../assets/icons/logo-main.svg";
-import { AuthContext } from "../../services/context";
+import { AuthContext } from "../../store/context";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../../firebase";
 import SearchBar from "../../components/search/SearchBar";

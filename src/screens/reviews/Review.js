@@ -17,7 +17,7 @@ import FilledLikeIcon from "../../assets/icons/heart-filled.svg";
 import LikeIcon from "../../assets/icons/heart.svg";
 import CommentIcon from "../../assets/icons/list.svg";
 import WriteIcon from "../../assets/icons/write.svg";
-import { AuthContext } from "../../services/context";
+import { AuthContext } from "../../store/context";
 import {
   deleteDoc,
   serverTimestamp,

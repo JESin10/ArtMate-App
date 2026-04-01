@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import {
   collection,
   addDoc,
@@ -6,9 +6,8 @@ import {
   setDoc,
   doc,
 } from "firebase/firestore";
-import { db, storage } from "../../../firebase";
+import { db, storage } from "../../firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { AuthContext } from "../../services/context";
 
 export const useReviewUpload = (userId, seq) => {
   const [isLoading, setIsLoading] = useState(false);

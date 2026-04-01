@@ -3,7 +3,7 @@ import { Alert } from "react-native";
 import * as WebBrowser from "expo-web-browser";
 import * as AuthSession from "expo-auth-session";
 import { doc, getDoc, setDoc } from "firebase/firestore";
-import { db } from "../../../firebase";
+import { db } from "../../firebase";
 
 WebBrowser.maybeCompleteAuthSession();
 

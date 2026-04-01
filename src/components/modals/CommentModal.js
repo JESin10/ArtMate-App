@@ -30,7 +30,7 @@ import {
   deleteDoc,
 } from "firebase/firestore";
 import { db } from "../../../firebase";
-import { AuthContext } from "../../services/context";
+import { AuthContext } from "../../store/context";
 
 export default function CommentModal({ visible, onClose, reviewId }) {
   const { user } = useContext(AuthContext);

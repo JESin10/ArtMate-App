@@ -1,26 +1,22 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useContext } from "react";
-
-import Artworks from "./Artworks";
-import Home from "./Home";
-// import Review from "../screens/reviews/Review";
-// import Mypage from "./mypage/Mypage";
-
-import HomeIcon from "../assets/icons/Menubar_home-filled.svg";
-import HomeLineIcon from "../assets/icons/Menubar_home.svg";
-import ArtworksIcon from "../assets/icons/Menubar_image-filled.svg";
-import ArtworksLineIcon from "../assets/icons/Menubar_image.svg";
-import PlacesIcon from "../assets/icons/Menubar_gallery-filled.svg";
-import PlacesLineIcon from "../assets/icons/Menubar_gallery.svg";
-import ReviewIcon from "../assets/icons/Menubar_bookmark-filled.svg";
-import ReviewLineIcon from "../assets/icons/Menubar_bookmark.svg";
-import MypageIcon from "../assets/icons/Menubar_user-filled.svg";
-import MypageLineIcon from "../assets/icons/Menubar_user.svg";
-import { AuthContext } from "../services/context";
-import PlacesScreen from "./places/PlacesScreen";
-import ReviewStack from "./reviews/ReviewStack";
-import SignupStack from "./sign/SignupStack";
-import MyPageStack from "./mypage/MyPageStack";
+import Artworks from "../../screens/Artworks";
+import Home from "../../screens/Home";
+import HomeIcon from "../../assets/icons/Menubar_home-filled.svg";
+import HomeLineIcon from "../../assets/icons/Menubar_home.svg";
+import ArtworksIcon from "../../assets/icons/Menubar_image-filled.svg";
+import ArtworksLineIcon from "../../assets/icons/Menubar_image.svg";
+import PlacesIcon from "../../assets/icons/Menubar_gallery-filled.svg";
+import PlacesLineIcon from "../../assets/icons/Menubar_gallery.svg";
+import ReviewIcon from "../../assets/icons/Menubar_bookmark-filled.svg";
+import ReviewLineIcon from "../../assets/icons/Menubar_bookmark.svg";
+import MypageIcon from "../../assets/icons/Menubar_user-filled.svg";
+import MypageLineIcon from "../../assets/icons/Menubar_user.svg";
+import { AuthContext } from "../../store/context";
+import PlacesScreen from "../places/PlacesScreen";
+import ReviewStack from "../reviews/ReviewStack";
+import MyPageStack from "../mypage/MyPageStack";
+import AuthStack from "../auth/AuthStack";
 
 export default function BottomTopScreen() {
   const Tab = createBottomTabNavigator();
@@ -87,7 +83,7 @@ export default function BottomTopScreen() {
               />
             );
           }
-          if (route.name === "UserMypage") {
+          if (route.name === "Mypage") {
             return focused ? (
               <MypageIcon width={size ?? 24} height={size ?? 24} fill={color} />
             ) : (
@@ -98,7 +94,7 @@ export default function BottomTopScreen() {
               />
             );
           }
-          if (route.name === "User") {
+          if (route.name === "Auth") {
             return focused ? (
               <MypageIcon width={size ?? 24} height={size ?? 24} fill={color} />
             ) : (
@@ -113,15 +109,14 @@ export default function BottomTopScreen() {
         },
       })}
     >
-      {/* <Tab.Screen name="Search" component={Search} /> */}
       <Tab.Screen name="Artworks" component={Artworks} />
       <Tab.Screen name="Places" component={PlacesScreen} />
       <Tab.Screen name="Home" component={Home} />
       <Tab.Screen name="Review" component={ReviewStack} />
       {!user ? (
-        <Tab.Screen name="User" component={SignupStack} />
+        <Tab.Screen name="Auth" component={AuthStack} />
       ) : (
-        <Tab.Screen name="UserMypage" component={MyPageStack} />
+        <Tab.Screen name="Mypage" component={MyPageStack} />
       )}
     </Tab.Navigator>
   );
