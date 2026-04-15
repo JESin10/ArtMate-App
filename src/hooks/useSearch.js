@@ -1,5 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { XMLParser } from "fast-xml-parser";
+import { fetchPlace } from "../services/placeeAPI";
+import { fetchArtwork } from "../services/exhibitionAPI";
 
 export default function useSearch(keyword) {
   const [places, setPlaces] = useState([]);
@@ -18,16 +20,12 @@ export default function useSearch(keyword) {
     setLoading(true);
     try {
       const [placeRes, artworkRes] = await Promise.all([
-        fetch(
-          `${process.env.REACT_APP_PLACE_SERVER_URL}/artgallery?serviceKey=${process.env.REACT_APP_API_KEY}&PageNo=${page}&numOfRows=${count}`,
-        ),
-        fetch(
-          `${process.env.REACT_APP_SERVER_URL}/area2?serviceKey=${process.env.REACT_APP_API_KEY}&PageNo=${page}&numOfrows=${count}`,
-        ),
+        fetchPlace(page, count),
+        fetchArtwork(page, count),
       ]);
 
-      const placeJson = parser.parse(await placeRes.text());
-      const artworkJson = parser.parse(await artworkRes.text());
+      const placeJson = parser.parse(placeRes);
+      const artworkJson = parser.parse(artworkRes);
 
       let placeItems = placeJson?.response?.body?.items?.item || [];
       let artworkItems = artworkJson?.response?.body?.items?.item || [];

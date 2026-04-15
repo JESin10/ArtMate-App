@@ -29,6 +29,7 @@ import {
   getDoc,
 } from "firebase/firestore";
 import { db } from "../../../firebase";
+import { fetchDetailPlace } from "../../services/placeeAPI";
 
 export default function PlacesInfoModal({
   visible,
@@ -88,11 +89,7 @@ export default function PlacesInfoModal({
   const getDetailPlace = async (seq) => {
     setLoading(true);
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_PLACE_SERVER_URL}/detail?serviceKey=${process.env.REACT_APP_API_KEY}&seq=${seq}`,
-      );
-
-      const xmlText = await response.text();
+      const xmlText = await fetchDetailPlace(seq);
       const jsonData = parser.parse(xmlText);
       const item = jsonData?.response?.body?.items?.item;
 

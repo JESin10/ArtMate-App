@@ -21,6 +21,7 @@ import { XMLParser } from "fast-xml-parser";
 import SearchBar from "../components/search/SearchBar.js";
 import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 import { db } from "../../firebase.js";
+import { fetchArtwork } from "../services/exhibitionAPI.js";
 
 export default function Artworks({ navigation }) {
   const [artworks, setArtworks] = useState([]); // 원본 전체
@@ -101,13 +102,7 @@ export default function Artworks({ navigation }) {
     else setIsFetchingMore(true);
 
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/area2?serviceKey=${
-          process.env.REACT_APP_API_KEY
-        }&PageNo=${nextPage}&numOfrows=${listCnt}`,
-      );
-
-      const xmlText = await response.text();
+      const xmlText = await fetchArtwork(nextPage, listCnt);
       const jsonData = parser.parse(xmlText);
 
       const rawItems = jsonData?.response?.body?.items?.item || [];

@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { XMLParser } from "fast-xml-parser";
 import * as Location from "expo-location";
+import { fetchDetailPlace, fetchPlace } from "../services/placeeAPI";
+import { fetchArtwork } from "../services/exhibitionAPI";
 
 export default function usePlaces() {
   const [gallery, setGallery] = useState([]);
@@ -112,11 +114,7 @@ export default function usePlaces() {
     }
 
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_PLACE_SERVER_URL}/artgallery?serviceKey=${process.env.REACT_APP_API_KEY}&PageNo=${nextPage}&numOfrows=${listCnt}`,
-      );
-
-      const xmlText = await response.text();
+      const xmlText = await fetchPlace(nextPage, listCnt);
       const jsonData = parser.parse(xmlText);
 
       const rawItems = jsonData?.response?.body?.items?.item || [];
@@ -135,12 +133,8 @@ export default function usePlaces() {
       // detail API 병렬 호출
       const detailPromises = items.map(async (item) => {
         try {
-          const res = await fetch(
-            `${process.env.REACT_APP_PLACE_SERVER_URL}/detail?serviceKey=${process.env.REACT_APP_API_KEY}&seq=${item.seq}`,
-          );
-
-          const xml = await res.text();
-          const json = parser.parse(xml);
+          const xmlText = await fetchDetailPlace(item.seq);
+          const json = parser.parse(xmlText);
 
           return {
             seq: item.seq,
@@ -182,11 +176,7 @@ export default function usePlaces() {
   // 작품 데이터
   const getArtwork = async () => {
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/area2?serviceKey=${process.env.REACT_APP_API_KEY}&PageNo=1&numOfrows=40`,
-      );
-
-      const xmlText = await response.text();
+      const xmlText = await fetchArtwork(1, 40);
       const jsonData = parser.parse(xmlText);
 
       const rawItems = jsonData?.response?.body?.items?.item || [];

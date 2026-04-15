@@ -34,6 +34,7 @@ import {
   addDoc,
 } from "firebase/firestore";
 import { db } from "../../firebase";
+import { fetchArtwork, fetchDetailArtwork } from "../services/exhibitionAPI";
 
 export default function Home({ navigation }) {
   const { user } = useContext(AuthContext);
@@ -179,13 +180,7 @@ export default function Home({ navigation }) {
     setLoading(true);
 
     try {
-      const url = `${process.env.REACT_APP_SERVER_URL}/area2?serviceKey=${
-        process.env.REACT_APP_API_KEY
-      }&PageNo=${parseInt(1)}&numOfrows=${parseInt(30)}`;
-
-      const response = await fetch(url);
-      const xmlText = await response.text();
-
+      const xmlText = await fetchArtwork(1, 30);
       const jsonData = parser.parse(xmlText);
 
       const rawItems = jsonData?.response?.body?.items?.item || [];
@@ -217,20 +212,7 @@ export default function Home({ navigation }) {
   //상세 작품정보
   const getDetailArtwork = async (seq) => {
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/detail2?serviceKey=${process.env.REACT_APP_API_KEY}&seq=${seq}`,
-      );
-
-      if (!response.ok) {
-        console.error(
-          `getDetailArtwork: API 호출 실패 (상태 코드: ${response.status})`,
-        );
-        setDetailArtwork([]);
-        return;
-      }
-
-      const xmlText = await response.text();
-
+      const xmlText = await fetchDetailArtwork(seq);
       if (!xmlText || xmlText.trim().length === 0) {
         console.error("getDetailArtwork: 응답이 비어 있습니다.");
         setDetailArtwork([]);

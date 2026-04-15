@@ -36,6 +36,8 @@ import { use } from "react";
 import Map from "../../screens/places/Map";
 import { XMLParser } from "fast-xml-parser";
 import ReviewImageSlider from "../Slider/ReviewImageSlider";
+import { fetchDetailArtwork } from "../../services/exhibitionAPI";
+import xmlParser from "../../utils/xmlParser";
 
 export default function ArtworkInfoModal({ visible, onClose, seq, artwork }) {
   const [filled, setFilled] = useState(false);
@@ -121,31 +123,17 @@ export default function ArtworkInfoModal({ visible, onClose, seq, artwork }) {
   const getDetailArtwork = async (seq) => {
     setLoading(true);
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/detail2?serviceKey=${process.env.REACT_APP_API_KEY}&seq=${seq}`,
-      );
-
-      const xmlText = await response.text();
-
-      if (!xmlText || xmlText.trim().length === 0) {
-        setDetailArtwork([]);
-        return;
-      }
-
-      const jsonData = parser.parse(xmlText);
-
-      const detail = jsonData?.response?.body?.items?.item || null;
+      const xmlText = await fetchDetailArtwork(seq);
+      const detail = xmlParser(xmlText, parser);
 
       setDetailArtwork(detail);
-      setLoading(false);
     } catch (error) {
-      console.error("getDetailArtwork: API 호출 오류:", error);
+      console.error(error);
       setDetailArtwork([]);
+    } finally {
+      setLoading(false);
     }
   };
-
-  // console.log(detailArtwork);
-
   //링크 열기
   const openLink = async (rawUrl) => {
     if (!rawUrl) {
