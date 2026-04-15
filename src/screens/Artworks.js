@@ -22,11 +22,17 @@ import SearchBar from "../components/search/SearchBar.js";
 import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 import { db } from "../../firebase.js";
 import { fetchArtwork } from "../services/exhibitionAPI.js";
+import { useArtStore } from "../store/useArtStore.js";
 
 export default function Artworks({ navigation }) {
-  const [artworks, setArtworks] = useState([]); // 원본 전체
-  const [displayedArtworks, setDisplayedArtworks] = useState([]); // 필터 적용된 목록
-  const [loading, setLoading] = useState(false);
+  const {
+    artworks,
+    displayedArtworks,
+    loading,
+    setArtworks,
+    setDisplayedArtworks,
+    setLoading,
+  } = useArtStore();
   const [showFilter, setShowFilter] = useState(false);
   const [startIndex, setStartIndex] = useState(parseInt(1));
   const [endIndex, setEndIndex] = useState(parseInt(60));

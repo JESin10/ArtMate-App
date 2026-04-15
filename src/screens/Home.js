@@ -35,15 +35,15 @@ import {
 } from "firebase/firestore";
 import { db } from "../../firebase";
 import { fetchArtwork, fetchDetailArtwork } from "../services/exhibitionAPI";
+import { useArtStore } from "../store/useArtStore";
 
 export default function Home({ navigation }) {
   const { user } = useContext(AuthContext);
-  const [artworks, setArtworks] = useState([]); // 작품들 전체
+  const { artworks, setArtworks, detailArtwork, setDetailArtwork, setLoading } =
+    useArtStore();
   const [recentArtworks, setRecentArtworks] = useState([]); // 금주의 최신작품
   const [recentPage, setRecentPage] = useState(0);
   const [endedArtworks, setEndedArtworks] = useState([]); // 종료예정 작품
-  const [detailArtwork, setDetailArtwork] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [selectedArtwork, setSelectedArtwork] = useState(null);
   const [recommendedArtworks, setRecommendedArtworks] = useState([]);

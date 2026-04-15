@@ -1,20 +1,40 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { XMLParser } from "fast-xml-parser";
 import * as Location from "expo-location";
 import { fetchDetailPlace, fetchPlace } from "../services/placeeAPI";
 import { fetchArtwork } from "../services/exhibitionAPI";
+import { usePlaceStore } from "../store/usePlaceStore";
+import { useArtStore } from "../store/useArtStore";
 
 export default function usePlaces() {
-  const [gallery, setGallery] = useState([]);
-  const [details, setDetails] = useState({});
-  const [artworks, setArtworks] = useState([]);
-  const [pageNum, setPageNum] = useState(1);
+  // const [gallery, setGallery] = useState([]);
+  // const [details, setDetails] = useState({});
+  // const [artworks, setArtworks] = useState([]);
+  // const [pageNum, setPageNum] = useState(1);
 
-  const [loading, setLoading] = useState(false);
-  const [isFetchingMore, setIsFetchingMore] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
+  // const [loading, setLoading] = useState(false);
+  // const [isFetchingMore, setIsFetchingMore] = useState(false);
+  // const [hasMore, setHasMore] = useState(true);
 
-  const [userLocation, setUserLocation] = useState(null);
+  // const [userLocation, setUserLocation] = useState(null);
+
+  const {
+    gallery,
+    setGallery,
+    details,
+    setDetails,
+    loading,
+    setLoading,
+    isFetchingMore,
+    setIsFetchingMore,
+    hasMore,
+    setHasMore,
+    pageNum,
+    setPageNum,
+    userLocation,
+    setUserLocation,
+  } = usePlaceStore();
+  const { artworks, setArtworks } = useArtStore();
 
   const listCnt = 20;
 
@@ -28,7 +48,7 @@ export default function usePlaces() {
 
   useEffect(() => {
     if (!userLocation) return;
-    setGallery((prev) => sortByDistance(prev, userLocation));
+    setGallery(sortByDistance(gallery, userLocation));
   }, [userLocation]);
 
   const init = async () => {
@@ -127,7 +147,7 @@ export default function usePlaces() {
       if (nextPage === 1) {
         setGallery(sortedItems);
       } else {
-        setGallery((prev) => [...prev, ...sortedItems]);
+        setGallery([...gallery, ...sortedItems]);
       }
 
       // detail API 병렬 호출
@@ -148,15 +168,13 @@ export default function usePlaces() {
 
       const results = await Promise.all(detailPromises);
 
-      setDetails((prev) => {
-        const newMap = { ...prev };
+      const newMap = { ...details };
 
-        results.forEach((r) => {
-          if (r) newMap[r.seq] = r.detail;
-        });
-
-        return newMap;
+      results.forEach((r) => {
+        if (r) newMap[r.seq] = r.detail;
       });
+
+      setDetails(newMap);
 
       setPageNum(nextPage);
     } catch (error) {
