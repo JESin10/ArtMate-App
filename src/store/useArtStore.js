@@ -1,9 +1,19 @@
 import { create } from "zustand";
 
+const initialFilter = {
+  start: 1,
+  end: 60,
+  genres: [],
+  regions: [],
+  minRating: 0,
+};
+
 export const useArtStore = create((set) => ({
   artworks: [],
   displayedArtworks: [],
   loading: false,
+
+  filter: initialFilter,
 
   setArtworks: (value) =>
     set((state) => ({
@@ -17,4 +27,17 @@ export const useArtStore = create((set) => ({
     })),
 
   setLoading: (value) => set({ loading: value }),
+
+  setFilter: (value) =>
+    set((state) => ({
+      filter: {
+        ...state.filter,
+        ...value,
+      },
+    })),
+
+  resetFilter: () =>
+    set({
+      filter: initialFilter,
+    }),
 }));

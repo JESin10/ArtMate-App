@@ -7,6 +7,7 @@ import {
   ScrollView,
 } from "react-native";
 import { useState, useEffect } from "react";
+import { useArtStore } from "../../store/useArtStore";
 
 export default function ArtworkFilter({
   visible,
@@ -17,62 +18,46 @@ export default function ArtworkFilter({
   genres,
   regions,
 }) {
+  const { filter, setFilter, resetFilter } = useArtStore();
+
+  const {
+    start,
+    end,
+    genres: selectedGenres,
+    regions: selectedRegions,
+    minRating: selectedRating,
+  } = filter;
+
   const [sIdx, setSIdx] = useState(String(initStart ?? "1"));
   const [eIdx, setEIdx] = useState(String(initEnd ?? "60"));
-  const [selectedGenres, setSelectedGenres] = useState([]);
-  const [selectedRegions, setSelectedRegions] = useState([]);
   const [openGenre, setOpenGenre] = useState(true);
   const [openRegion, setOpenRegion] = useState(false);
   const [openRating, setOpenRating] = useState(false);
-  const [minRating, setMinRating] = useState(0);
-  const [selectedRating, setSelectedRating] = useState(0);
 
   useEffect(() => {
     if (initStart !== undefined) setSIdx(String(initStart));
     if (initEnd !== undefined) setEIdx(String(initEnd));
   }, [initStart, initEnd]);
 
-  useEffect(() => {
-    if (visible) {
-      setSelectedGenres([]);
-      setSelectedRegions([]);
-      // setSelectedRealm([]);
-    }
-  }, [visible]);
-
   const toggleGenre = (genre) => {
-    setSelectedGenres((prev) =>
-      prev.includes(genre) ? prev.filter((g) => g !== genre) : [...prev, genre],
-    );
+    const next = selectedGenres.includes(genre)
+      ? selectedGenres.filter((g) => g !== genre)
+      : [...selectedGenres, genre];
+
+    setFilter({ genres: next });
   };
 
   const toggleRegion = (region) => {
-    setSelectedRegions((prev) =>
-      prev.includes(region)
-        ? prev.filter((r) => r !== region)
-        : [...prev, region],
-    );
+    const next = selectedRegions.includes(region)
+      ? selectedRegions.filter((r) => r !== region)
+      : [...selectedRegions, region];
+
+    setFilter({ regions: next });
   };
 
   const handleApply = () => {
-    const start = Math.max(1, parseInt(sIdx || "1", 10));
-    const end = Math.max(start, parseInt(eIdx || String(start + 59), 10));
-    onApply({
-      start,
-      end,
-      genres: selectedGenres,
-      regions: selectedRegions,
-      minRating: selectedRating,
-    });
-    setSelectedGenres([]);
-    setSelectedRegions([]);
-    setSelectedRating(0);
-    setMinRating(0);
-    setSIdx("1");
-    setEIdx("60");
-    setOpenGenre(true);
-    setOpenRegion(false);
-    setOpenRating(false);
+    onApply(filter);
+    onClose();
   };
 
   return (
@@ -111,7 +96,7 @@ export default function ArtworkFilter({
                     styles.partButton,
                     selectedGenres.length === 0 && styles.partButtonActive,
                   ]}
-                  onPress={() => setSelectedGenres([])}
+                  onPress={() => setFilter({ genres: [] })}
                 >
                   <Text
                     style={
@@ -160,7 +145,7 @@ export default function ArtworkFilter({
                     styles.partButton,
                     selectedRegions.length === 0 && styles.partButtonActive,
                   ]}
-                  onPress={() => setSelectedRegions([])}
+                  onPress={() => setFilter({ regions: [] })}
                 >
                   <Text
                     style={
@@ -217,7 +202,7 @@ export default function ArtworkFilter({
                         styles.partButton,
                         selectedRating === r && styles.partButtonActive,
                       ]}
-                      onPress={() => setSelectedRating(r)}
+                      onPress={() => setFilter({ minRating: r })}
                     >
                       <Text
                         style={

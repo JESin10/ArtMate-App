@@ -22,7 +22,7 @@ import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 import { db } from "../../firebase.js";
 import { fetchArtwork } from "../services/artService.js";
 import { useArtStore } from "../store/useArtStore.js";
-import { parseItems, xmlParser } from "../utils/xmlParser.js";
+import { parseItems } from "../utils/xmlParser.js";
 
 export default function Artworks({ navigation }) {
   const {
@@ -401,7 +401,6 @@ export default function Artworks({ navigation }) {
           setSelectedGenres(filters.genres);
           setSelectedRegions(filters.regions);
           setSelectedRating(filters.minRating);
-
           applyFilter({
             ...filters,
             sourceData: artworks,
@@ -419,8 +418,6 @@ export default function Artworks({ navigation }) {
         visible={showModal}
         onClose={() => {
           setShowModal(false);
-          // setDetailArtwork([]);
-          // getDetailArtwork();
         }}
         artwork={selectedArtwork}
         seq={selectedArtwork?.DP_SEQ}
