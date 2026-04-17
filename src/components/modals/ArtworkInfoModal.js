@@ -24,42 +24,34 @@ import {
   updateDoc,
   increment,
   serverTimestamp,
-  getDocs,
-  collection,
   getDoc,
-  query,
-  where,
-  onSnapshot,
 } from "firebase/firestore";
 import { db } from "../../../firebase";
-import { use } from "react";
 import Map from "../../screens/places/Map";
 import ReviewImageSlider from "../Slider/ReviewImageSlider";
 import { fetchDetailArtwork } from "../../services/artService";
-import { parseItems, xmlParser } from "../../utils/xmlParser";
+import { parseItems } from "../../utils/xmlParser";
+import { useArtStore } from "../../store/useArtStore";
 
 export default function ArtworkInfoModal({ visible, onClose, seq, artwork }) {
+  const {
+    detailArtwork,
+    loading,
+    reviews,
+    getDetailArtwork,
+    subscribeReviews,
+  } = useArtStore();
   const [filled, setFilled] = useState(false);
   const { user, setUser } = useContext(AuthContext);
-  const [detailArtwork, setDetailArtwork] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [reviews, setReviews] = useState([]);
+  // const [detailArtwork, setDetailArtwork] = useState([]);
+  // const [loading, setLoading] = useState(false);
+  // const [reviews, setReviews] = useState([]);
 
   //해당 작품에 대한 리뷰
   useEffect(() => {
     if (!seq) return;
     getDetailArtwork(seq);
-    const q = query(collection(db, "reviews"), where("artworkId", "==", seq));
-
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-
-      setReviews(data);
-    });
-
+    const unsubscribe = subscribeReviews(seq);
     return () => unsubscribe();
   }, [seq]);
 
@@ -116,20 +108,21 @@ export default function ArtworkInfoModal({ visible, onClose, seq, artwork }) {
     return String(dateStr) ?? "";
   };
 
-  const getDetailArtwork = async (seq) => {
-    setLoading(true);
-    try {
-      const xmlText = await fetchDetailArtwork(seq);
-      const detail = parseItems(xmlText);
+  // const getDetailArtwork = async (seq) => {
+  //   setLoading(true);
+  //   try {
+  //     const xmlText = await fetchDetailArtwork(seq);
+  //     const detail = parseItems(xmlText);
 
-      setDetailArtwork(detail[0] || null);
-    } catch (error) {
-      console.error(error);
-      setDetailArtwork([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     setDetailArtwork(detail[0] || null);
+  //   } catch (error) {
+  //     console.error(error);
+  //     setDetailArtwork([]);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
   //링크 열기
   const openLink = async (rawUrl) => {
     if (!rawUrl) {
@@ -357,7 +350,7 @@ export default function ArtworkInfoModal({ visible, onClose, seq, artwork }) {
 
               <Map x={detailArtwork?.gpsY} y={detailArtwork?.gpsX} />
             </View>
-            {reviews.length > 0 ? (
+            {reviews?.length > 0 ? (
               <View style={{ flexDirection: "row" }}>
                 <Text style={styles.titleText2}>작성된 리뷰</Text>
                 <View style={{ width: "75%" }}>
