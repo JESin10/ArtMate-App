@@ -17,7 +17,6 @@ import ForwardIcon from "../assets/icons/forward.svg";
 import Mainlogo from "../assets/icons/logo-main.svg";
 import PlaceIcon from "../assets/icons/Menubar_gallery.svg";
 import { AuthContext } from "../store/context";
-import { XMLParser } from "fast-xml-parser";
 import SearchBar from "../components/search/SearchBar";
 import {
   doc,
@@ -34,8 +33,9 @@ import {
   addDoc,
 } from "firebase/firestore";
 import { db } from "../../firebase";
-import { fetchArtwork, fetchDetailArtwork } from "../services/exhibitionAPI";
+import { fetchArtwork, fetchDetailArtwork } from "../services/artService";
 import { useArtStore } from "../store/useArtStore";
+import { parseItems } from "../utils/xmlParser";
 
 export default function Home({ navigation }) {
   const { user } = useContext(AuthContext);
@@ -61,9 +61,7 @@ export default function Home({ navigation }) {
     1,
     Math.ceil(RECENT_TOTAL_ITEMS / RECENT_PER_PAGE),
   );
-  const parser = new XMLParser({
-    ignoreAttributes: false,
-  });
+
   const now = Timestamp.now();
   const expireAt = Timestamp.fromMillis(
     now.toMillis() + 7 * 24 * 60 * 60 * 1000,
@@ -181,11 +179,8 @@ export default function Home({ navigation }) {
 
     try {
       const xmlText = await fetchArtwork(1, 30);
-      const jsonData = parser.parse(xmlText);
-
-      const rawItems = jsonData?.response?.body?.items?.item || [];
-      const list = Array.isArray(rawItems) ? rawItems : [rawItems];
-      // console.log(list);
+      const jsonData = parseItems(xmlText);
+      const list = Array.isArray(jsonData) ? jsonData : [jsonData];
       const normalized = list.map((item) => ({
         seq: item.seq,
         title: item?.title,
@@ -219,9 +214,9 @@ export default function Home({ navigation }) {
         return;
       }
 
-      const jsonData = parser.parse(xmlText);
+      // const jsonData =
 
-      const detail = jsonData?.response?.body?.items?.item || null;
+      const detail = parseItems(xmlText);
 
       if (!detail) {
         console.warn("getDetailArtwork: detail 데이터가 없습니다.");

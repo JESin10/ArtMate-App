@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { XMLParser } from "fast-xml-parser";
-import { fetchPlace } from "../services/placeeAPI";
-import { fetchArtwork } from "../services/exhibitionAPI";
+import { fetchPlace } from "../services/placeService";
+import { fetchArtwork } from "../services/artService";
 
 export default function useSearch(keyword) {
   const [places, setPlaces] = useState([]);

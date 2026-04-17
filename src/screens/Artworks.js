@@ -17,12 +17,12 @@ import ArtworkInfoModal from "../components/modals/ArtworkInfoModal";
 import FilterIcon from "../assets/icons/filter.svg";
 import ReloadIcon from "../assets/icons/reload.svg";
 import Mainlogo from "../assets/icons/logo-main.svg";
-import { XMLParser } from "fast-xml-parser";
 import SearchBar from "../components/search/SearchBar.js";
 import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 import { db } from "../../firebase.js";
-import { fetchArtwork } from "../services/exhibitionAPI.js";
+import { fetchArtwork } from "../services/artService.js";
 import { useArtStore } from "../store/useArtStore.js";
+import { parseItems, xmlParser } from "../utils/xmlParser.js";
 
 export default function Artworks({ navigation }) {
   const {
@@ -48,10 +48,6 @@ export default function Artworks({ navigation }) {
   const [selectedRegions, setSelectedRegions] = useState([]);
   const [selectedRating, setSelectedRating] = useState(0);
   const flatListRef = useRef(null);
-
-  const parser = new XMLParser({
-    ignoreAttributes: false,
-  });
 
   useEffect(() => {
     getArtwork(1);
@@ -109,10 +105,9 @@ export default function Artworks({ navigation }) {
 
     try {
       const xmlText = await fetchArtwork(nextPage, listCnt);
-      const jsonData = parser.parse(xmlText);
-
-      const rawItems = jsonData?.response?.body?.items?.item || [];
-      const list = Array.isArray(rawItems) ? rawItems : [rawItems];
+      const items = parseItems(xmlText);
+      // const list = items[0] || []; // items가 배열이지만, 실제 데이터는 첫 번째 요소에 있음
+      const list = Array.isArray(items) ? items : [items];
 
       if (list.length < listCnt) setHasMore(false);
 
@@ -217,50 +212,48 @@ export default function Artworks({ navigation }) {
     genres = [],
     regions = [],
     minRating = 0,
-    sourceData = artworks, // 🔥 핵심
+    sourceData,
   }) => {
-    setStartIndex(start);
-    setEndIndex(end);
+    const base = sourceData ?? artworks ?? [];
 
-    let source = sourceData || [];
+    let filtered = [...base];
 
-    // 장르 필터
     if (genres.length > 0) {
       const lowered = genres.map((g) => g.toLowerCase());
-      source = source.filter((a) =>
+
+      filtered = filtered.filter((item) =>
         lowered.some((g) =>
-          String(a.serviceName || "")
+          String(item.serviceName || "")
             .toLowerCase()
             .includes(g),
         ),
       );
     }
 
-    // 지역 필터
     if (regions.length > 0) {
       const lowered = regions.map((r) => r.toLowerCase());
-      source = source.filter((a) =>
+
+      filtered = filtered.filter((item) =>
         lowered.some((r) =>
-          String(a.area || "")
+          String(item.area || "")
             .toLowerCase()
             .includes(r),
         ),
       );
     }
 
-    // 평점 필터
     if (minRating > 0) {
-      source = source.filter((a) => {
-        const avg = avgRatingMap[a.DP_SEQ] || 0;
+      filtered = filtered.filter((item) => {
+        const avg = avgRatingMap[item.DP_SEQ] || 0;
         return avg >= minRating;
       });
     }
 
-    const s = Math.max(1, start);
-    const e = Math.min(source.length, end);
+    const sliced = filtered.slice(start - 1, end);
 
-    setDisplayedArtworks(source.slice(s - 1, e));
+    setDisplayedArtworks(sliced);
   };
+
   const onRefresh = async () => {
     if (loading) return;
 
@@ -409,7 +402,10 @@ export default function Artworks({ navigation }) {
           setSelectedRegions(filters.regions);
           setSelectedRating(filters.minRating);
 
-          applyFilter(filters); // 실제 필터 적용
+          applyFilter({
+            ...filters,
+            sourceData: artworks,
+          });
           setShowFilter(false);
         }}
         genres={[

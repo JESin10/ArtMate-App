@@ -34,10 +34,9 @@ import {
 import { db } from "../../../firebase";
 import { use } from "react";
 import Map from "../../screens/places/Map";
-import { XMLParser } from "fast-xml-parser";
 import ReviewImageSlider from "../Slider/ReviewImageSlider";
-import { fetchDetailArtwork } from "../../services/exhibitionAPI";
-import xmlParser from "../../utils/xmlParser";
+import { fetchDetailArtwork } from "../../services/artService";
+import { parseItems, xmlParser } from "../../utils/xmlParser";
 
 export default function ArtworkInfoModal({ visible, onClose, seq, artwork }) {
   const [filled, setFilled] = useState(false);
@@ -45,9 +44,6 @@ export default function ArtworkInfoModal({ visible, onClose, seq, artwork }) {
   const [detailArtwork, setDetailArtwork] = useState([]);
   const [loading, setLoading] = useState(false);
   const [reviews, setReviews] = useState([]);
-  const parser = new XMLParser({
-    ignoreAttributes: false,
-  });
 
   //해당 작품에 대한 리뷰
   useEffect(() => {
@@ -124,9 +120,9 @@ export default function ArtworkInfoModal({ visible, onClose, seq, artwork }) {
     setLoading(true);
     try {
       const xmlText = await fetchDetailArtwork(seq);
-      const detail = xmlParser(xmlText, parser);
+      const detail = parseItems(xmlText);
 
-      setDetailArtwork(detail);
+      setDetailArtwork(detail[0] || null);
     } catch (error) {
       console.error(error);
       setDetailArtwork([]);

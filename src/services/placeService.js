@@ -3,7 +3,7 @@ export const fetchDetailPlace = async (seq) => {
     `${process.env.REACT_APP_PLACE_SERVER_URL}/detail?serviceKey=${process.env.REACT_APP_API_KEY}&seq=${seq}`,
   );
 
-  return await response.text(); // 👉 XML 그대로 반환
+  return await response.text();
 };
 
 export const fetchPlace = async (nextPage, listCnt) => {
@@ -11,5 +11,5 @@ export const fetchPlace = async (nextPage, listCnt) => {
     `${process.env.REACT_APP_PLACE_SERVER_URL}/artgallery?serviceKey=${process.env.REACT_APP_API_KEY}&PageNo=${nextPage}&numOfrows=${listCnt}`,
   );
 
-  return await response.text(); // 👉 XML 그대로 반환
+  return await response.text();
 };

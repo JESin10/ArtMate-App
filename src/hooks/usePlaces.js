@@ -1,23 +1,12 @@
 import { useEffect } from "react";
-import { XMLParser } from "fast-xml-parser";
 import * as Location from "expo-location";
-import { fetchDetailPlace, fetchPlace } from "../services/placeeAPI";
-import { fetchArtwork } from "../services/exhibitionAPI";
+import { fetchDetailPlace, fetchPlace } from "../services/placeService";
+import { fetchArtwork } from "../services/artService";
 import { usePlaceStore } from "../store/usePlaceStore";
 import { useArtStore } from "../store/useArtStore";
+import { xmlParser } from "../utils/xmlParser";
 
 export default function usePlaces() {
-  // const [gallery, setGallery] = useState([]);
-  // const [details, setDetails] = useState({});
-  // const [artworks, setArtworks] = useState([]);
-  // const [pageNum, setPageNum] = useState(1);
-
-  // const [loading, setLoading] = useState(false);
-  // const [isFetchingMore, setIsFetchingMore] = useState(false);
-  // const [hasMore, setHasMore] = useState(true);
-
-  // const [userLocation, setUserLocation] = useState(null);
-
   const {
     gallery,
     setGallery,
@@ -35,12 +24,7 @@ export default function usePlaces() {
     setUserLocation,
   } = usePlaceStore();
   const { artworks, setArtworks } = useArtStore();
-
   const listCnt = 20;
-
-  const parser = new XMLParser({
-    ignoreAttributes: false,
-  });
 
   useEffect(() => {
     init();
@@ -135,7 +119,7 @@ export default function usePlaces() {
 
     try {
       const xmlText = await fetchPlace(nextPage, listCnt);
-      const jsonData = parser.parse(xmlText);
+      const jsonData = xmlParser(xmlText);
 
       const rawItems = jsonData?.response?.body?.items?.item || [];
       const items = Array.isArray(rawItems) ? rawItems : [rawItems];
@@ -154,7 +138,7 @@ export default function usePlaces() {
       const detailPromises = items.map(async (item) => {
         try {
           const xmlText = await fetchDetailPlace(item.seq);
-          const json = parser.parse(xmlText);
+          const json = xmlParser(xmlText);
 
           return {
             seq: item.seq,
@@ -195,7 +179,7 @@ export default function usePlaces() {
   const getArtwork = async () => {
     try {
       const xmlText = await fetchArtwork(1, 40);
-      const jsonData = parser.parse(xmlText);
+      const jsonData = xmlParser(xmlText);
 
       const rawItems = jsonData?.response?.body?.items?.item || [];
       const list = Array.isArray(rawItems) ? rawItems : [rawItems];

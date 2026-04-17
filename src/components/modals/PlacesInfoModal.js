@@ -17,7 +17,6 @@ import FilledBookmarkIcon from "../../assets/icons/bookmark-filled.svg";
 import ShareIcon from "../../assets/icons/share.svg";
 import { decode } from "html-entities";
 import Map from "../../screens/places/Map";
-import { XMLParser } from "fast-xml-parser";
 import { AuthContext } from "../../store/context";
 import {
   doc,
@@ -29,7 +28,8 @@ import {
   getDoc,
 } from "firebase/firestore";
 import { db } from "../../../firebase";
-import { fetchDetailPlace } from "../../services/placeeAPI";
+import { fetchDetailPlace } from "../../services/placeService";
+import { parseItems } from "../../utils/xmlParser";
 
 export default function PlacesInfoModal({
   visible,
@@ -40,9 +40,6 @@ export default function PlacesInfoModal({
   const [city, setCity] = useState("");
   const [detail, setDetail] = useState([]);
   const [loading, setLoading] = useState(false);
-  const parser = new XMLParser({
-    ignoreAttributes: false,
-  });
   const { user, setUser } = useContext(AuthContext);
   const [filled, setFilled] = useState(false);
   const getProvinceFromAddress = (addr) => {
@@ -90,8 +87,7 @@ export default function PlacesInfoModal({
     setLoading(true);
     try {
       const xmlText = await fetchDetailPlace(seq);
-      const jsonData = parser.parse(xmlText);
-      const item = jsonData?.response?.body?.items?.item;
+      const item = parseItems(xmlText)[0] || null;
 
       setDetail(item);
       setLoading(false);
