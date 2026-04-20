@@ -31,17 +31,39 @@ import {
   Timestamp,
   where,
   addDoc,
+  query,
 } from "firebase/firestore";
 import { db } from "../../firebase";
 import { fetchArtwork, fetchDetailArtwork } from "../services/artService";
 import { useArtStore } from "../store/useArtStore";
 import { parseItems } from "../utils/xmlParser";
 import { useUserStore } from "../store/useUserStore";
+import useRecommendArtworks from "../hooks/useRecommendArtworks";
+import useRecentArtworks from "../hooks/useRecentArtworks";
 
 export default function Home({ navigation }) {
   const { user } = useContext(AuthContext);
   const { artworks, setArtworks, detailArtwork, setDetailArtwork, setLoading } =
     useArtStore();
+  const parseDateSafe = (dateStr) => {
+    if (!dateStr) return null;
+
+    const s = String(dateStr).trim();
+
+    // 20281231 같은 숫자형 날짜 처리
+    if (/^\d{8}$/.test(s)) {
+      const year = s.slice(0, 4);
+      const month = s.slice(4, 6);
+      const day = s.slice(6, 8);
+      return new Date(`${year}-${month}-${day}`);
+    }
+
+    // 일반 날짜 처리
+    const normalized = s.replace(/\./g, "-").slice(0, 10);
+    const d = new Date(normalized);
+
+    return isNaN(d.getTime()) ? null : d;
+  };
   const {
     followingMap,
     setFollowingMap,
@@ -49,24 +71,29 @@ export default function Home({ navigation }) {
     setFollowerMap,
     setBookmarks,
   } = useUserStore();
-  const [recentArtworks, setRecentArtworks] = useState([]); // 금주의 최신작품
-  const [recentPage, setRecentPage] = useState(0);
+  const {
+    recentPage,
+    setRecentPage,
+    setRecentArtworks,
+    filledRecent,
+    recentTotalPages,
+    RECENT_PER_PAGE,
+  } = useRecentArtworks(artworks, parseDateSafe);
+  const {
+    recommendedArtworks,
+    currentIndex,
+    setCurrentIndex,
+    flatListRef,
+    goToIndex,
+  } = useRecommendArtworks(artworks, parseDateSafe);
+
   const [endedArtworks, setEndedArtworks] = useState([]); // 종료예정 작품
   const [showModal, setShowModal] = useState(false);
   const [selectedArtwork, setSelectedArtwork] = useState(null);
-  const [recommendedArtworks, setRecommendedArtworks] = useState([]);
   const [recommendedUsers, setRecommendedUsers] = useState([]);
   const CARD_WIDTH = 310;
   const ITEM_SPACING = 12;
   const ITEM_SIZE = CARD_WIDTH + ITEM_SPACING;
-  const flatListRef = useRef(null);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const RECENT_PER_PAGE = 4;
-  const RECENT_TOTAL_ITEMS = 16; // 총 슬롯 수 (항상 16개로 맞춤)
-  const recentTotalPages = Math.max(
-    1,
-    Math.ceil(RECENT_TOTAL_ITEMS / RECENT_PER_PAGE),
-  );
 
   const now = Timestamp.now();
   const expireAt = Timestamp.fromMillis(
@@ -105,72 +132,19 @@ export default function Home({ navigation }) {
     };
   }, [user]);
 
-  // 자동 슬라이드 (5초)
-  useEffect(() => {
-    if (!recommendedArtworks || recommendedArtworks.length === 0) return;
-
-    const id = setInterval(() => {
-      setCurrentIndex((prev) => {
-        const next = (prev + 1) % recommendedArtworks.length;
-
-        if (flatListRef.current && recommendedArtworks.length > 0) {
-          flatListRef.current.scrollToIndex({
-            index: next,
-            animated: true,
-            viewPosition: 0.5,
-          });
-        }
-
-        return next;
-      });
-    }, 5000);
-
-    return () => clearInterval(id);
-  }, [recommendedArtworks]);
-
-  //최근전시불러오기
-  useEffect(() => {
-    if (recentPage >= recentTotalPages) setRecentPage(0);
-  }, [recentArtworks, recentTotalPages]);
-
   //추천게정불러오기
   useEffect(() => {
     getRecommendedUsers();
   }, []);
 
-  //작품 랜덤 추천
-  useEffect(() => {
-    if (!artworks || artworks.length === 0) {
-      setRecommendedArtworks([]);
-      return;
-    }
-
-    const today = new Date();
-    // 종료 안 된 전시만
-    const activeArtworks = artworks?.filter((item) => {
-      const end = parseDateSafe(item.endDate);
-      return end && end >= today;
-    });
-    // 썸네일 있는 전시만
-    const withThumbnail = activeArtworks.filter(
-      (item) => item.thumbnail && item.thumbnail.startsWith("http"),
-    );
-    // 랜덤 5개 추출
-    const randomFive = getRandomItems(withThumbnail, 5);
-    setRecommendedArtworks(randomFive);
-  }, [artworks]);
-
   // artworks가 바뀔 때마다 recent/ended 계산
   useEffect(() => {
     if (!artworks || artworks.length === 0) {
-      setRecentArtworks([]);
       setEndedArtworks([]);
       return;
-    } else {
-      setRecentArtworks(computeRecentArtworks(artworks));
-      // computeRecentArtworks(artworks);
-      setEndedArtworks(computeEndedArtworks(artworks));
     }
+
+    setEndedArtworks(computeEndedArtworks(artworks));
   }, [artworks]);
 
   //간단 작품 정보
@@ -209,8 +183,6 @@ export default function Home({ navigation }) {
     setShowModal(true);
   };
 
-  const data = artworks?.slice(0, 4); // 슬라이드에 사용할 데이터
-
   // ViewableItems 변경시 인덱스 동기화
   const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 });
   const onViewableItemsChanged = useRef(({ viewableItems }) => {
@@ -219,40 +191,6 @@ export default function Home({ navigation }) {
       setCurrentIndex(idx);
     }
   });
-
-  // dot 클릭 시 이동
-  const goToIndex = (index) => {
-    if (!flatListRef.current || recommendedArtworks.length === 0) return;
-
-    flatListRef.current.scrollToIndex({
-      index,
-      animated: true,
-      viewPosition: 0.5,
-    });
-
-    setCurrentIndex(index);
-  };
-
-  // 날짜 문자열을 안전하게 Date로 파싱 (YYYY-MM-DD 같은 형태 예상)
-  const parseDateSafe = (dateStr) => {
-    if (!dateStr) return null;
-
-    const s = String(dateStr).trim();
-
-    // 20281231 같은 숫자형 날짜 처리
-    if (/^\d{8}$/.test(s)) {
-      const year = s.slice(0, 4);
-      const month = s.slice(4, 6);
-      const day = s.slice(6, 8);
-      return new Date(`${year}-${month}-${day}`);
-    }
-
-    // 일반 날짜 처리
-    const normalized = s.replace(/\./g, "-").slice(0, 10);
-    const d = new Date(normalized);
-
-    return isNaN(d.getTime()) ? null : d;
-  };
 
   // 날짜 문자열을 'YYYY년 M월 D일' 형식으로 변환
   const Dateformat = (dateStr) => {
@@ -268,18 +206,6 @@ export default function Home({ navigation }) {
     }
 
     return String(dateStr) ?? "";
-  };
-
-  //랜덤 추천
-  const getRandomItems = (array, count) => {
-    const shuffled = [...array];
-
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-
-    return shuffled.slice(0, count);
   };
 
   // artworks 배열을 받아 DP_START 기준으로 현재 날짜와 가까운 순으로 정렬하여 설정
@@ -319,17 +245,6 @@ export default function Home({ navigation }) {
 
     return mapped.map((m) => m.raw);
   };
-
-  const filledRecent = (() => {
-    if (!recentArtworks || recentArtworks.length === 0) {
-      console.warn("recentArtworks가 비어 있습니다. 기본값을 채웁니다.");
-      return Array(RECENT_TOTAL_ITEMS).fill(null); // 기본값으로 null 채우기
-    }
-
-    const arr = recentArtworks.slice(0, RECENT_TOTAL_ITEMS);
-    while (arr.length < RECENT_TOTAL_ITEMS) arr.push(null);
-    return arr;
-  })();
 
   // place로 묶기
   const groupByPlace = (items) => {
@@ -507,7 +422,7 @@ export default function Home({ navigation }) {
                   horizontal
                   pagingEnabled={false}
                   showsHorizontalScrollIndicator={false}
-                  keyExtractor={(item, index) => String(item.DP_SEQ ?? index)}
+                  keyExtractor={(item, index) => String(item.seq ?? index)}
                   contentContainerStyle={styles.recommandList}
                   renderItem={({ item }) => (
                     <TouchableOpacity
@@ -539,9 +454,6 @@ export default function Home({ navigation }) {
                         <Text numberOfLines={1} style={styles.recommandTitle}>
                           {item.title}
                         </Text>
-                        {/* <Text numberOfLines={3} style={styles.DescStyle}>
-                          {htmlToPlain(item.DP_INFO)}
-                        </Text> */}
                         <Text style={styles.DescStyle}>
                           {Dateformat(item.startDate)} ~
                           {Dateformat(item.endDate)}

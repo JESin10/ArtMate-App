@@ -1,48 +1,64 @@
-import { View } from "react-native";
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-export default function useRecentArtworks() {
+export default function useRecentArtworks(artworks, parseDateSafe) {
+  const RECENT_PER_PAGE = 4;
+  const RECENT_TOTAL_ITEMS = 16;
+
+  const [recentPage, setRecentPage] = useState(0);
   const [recentArtworks, setRecentArtworks] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [startIndex, setStartIndex] = useState(1);
-  const [endIndex, setEndIndex] = useState(6);
 
-  const getRecentArtWork = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch(
-        `${SERVER_URL}/${API_KEY}/xml/ListExhibitionOfSeoulMOAInfo/${parseInt(
-          startIndex,
-          10,
-        )}/${parseInt(endIndex, 10)}/`,
-      );
+  const recentTotalPages = Math.max(
+    1,
+    Math.ceil(RECENT_TOTAL_ITEMS / RECENT_PER_PAGE),
+  );
 
-      const xmlText = await response.text();
+  const computeRecentArtworks = (items) => {
+    const today = new Date();
 
-      parseString(xmlText, { explicitArray: false }, (err, jsonData) => {
-        if (err) {
-          setRecentArtworks([]);
-          setDisplayedArtworks([]);
-          setLoading(false);
-          return;
-        }
-        let items = jsonData.ListExhibitionOfSeoulMOAInfo?.row || [];
-        // setDetailArtwork((prev) => ({ ...prev, [seq]: detail }));
-
-        if (!Array.isArray(items)) items = [items];
-
-        setRecentArtworks(items);
-        // 기본은 전체를 표시 (필터 적용 시 applyFilter 호출)
-        setLoading(false);
+    return items
+      .map((artwork) => ({
+        ...artwork,
+        start: parseDateSafe(artwork.startDate) || today,
+      }))
+      .sort((a, b) => {
+        const aDiff = Math.abs(a.start - today);
+        const bDiff = Math.abs(b.start - today);
+        return aDiff - bDiff;
       });
-      console.log("Recent Artworks:", recentArtworks);
-    } catch (error) {
-      setLoading(false);
-    }
   };
-  useEffect(() => {
-    getRecentArtWork();
-  }, [recentArtworks?.length]);
 
-  return <View></View>;
+  useEffect(() => {
+    if (!artworks || artworks.length === 0) {
+      setRecentArtworks([]);
+      return;
+    }
+
+    setRecentArtworks(computeRecentArtworks(artworks));
+  }, [artworks]);
+
+  useEffect(() => {
+    if (recentPage >= recentTotalPages) {
+      setRecentPage(0);
+    }
+  }, [recentArtworks]);
+
+  const filledRecent = useMemo(() => {
+    const arr = recentArtworks.slice(0, RECENT_TOTAL_ITEMS);
+
+    while (arr.length < RECENT_TOTAL_ITEMS) {
+      arr.push(null);
+    }
+
+    return arr;
+  }, [recentArtworks]);
+
+  return {
+    recentPage,
+    setRecentPage,
+    setRecentArtworks,
+    recentArtworks,
+    filledRecent,
+    recentTotalPages,
+    RECENT_PER_PAGE,
+  };
 }

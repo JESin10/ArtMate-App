@@ -30,8 +30,6 @@ export default function History({ navigation }) {
     content: r.content,
   }));
 
-  console.log("myhistory:", myhistory);
-
   useEffect(() => {
     getHistory(user.uid);
   }, []);

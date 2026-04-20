@@ -53,30 +53,6 @@ export default function ArtworkInfoModal({ visible, onClose, seq, artwork }) {
     return () => unsubscribe();
   }, [seq]);
 
-  // Modal 열릴 때 북마크 여부 가져오기
-  // useEffect(() => {
-  //   if (!visible || !user || !seq) return;
-
-  //   const checkBookmark = async () => {
-  //     try {
-  //       const bookmarkRef = doc(
-  //         db,
-  //         "users",
-  //         user.uid,
-  //         "bookmarks",
-  //         String(seq),
-  //       );
-  //       const snap = await getDoc(bookmarkRef);
-  //       setFilled(snap.exists());
-  //     } catch (err) {
-  //       console.error("Bookmark check error:", err);
-  //       setFilled(false);
-  //     }
-  //   };
-
-  //   checkBookmark();
-  // }, [visible, user?.uid, seq]);
-
   // 북마크 실시간 구독
   useEffect(() => {
     if (!visible || !user?.uid || !seq) return;
