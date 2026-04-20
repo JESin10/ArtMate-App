@@ -36,11 +36,19 @@ import { db } from "../../firebase";
 import { fetchArtwork, fetchDetailArtwork } from "../services/artService";
 import { useArtStore } from "../store/useArtStore";
 import { parseItems } from "../utils/xmlParser";
+import { useUserStore } from "../store/useUserStore";
 
 export default function Home({ navigation }) {
   const { user } = useContext(AuthContext);
   const { artworks, setArtworks, detailArtwork, setDetailArtwork, setLoading } =
     useArtStore();
+  const {
+    followingMap,
+    setFollowingMap,
+    followerMap,
+    setFollowerMap,
+    setBookmarks,
+  } = useUserStore();
   const [recentArtworks, setRecentArtworks] = useState([]); // 금주의 최신작품
   const [recentPage, setRecentPage] = useState(0);
   const [endedArtworks, setEndedArtworks] = useState([]); // 종료예정 작품
@@ -48,8 +56,6 @@ export default function Home({ navigation }) {
   const [selectedArtwork, setSelectedArtwork] = useState(null);
   const [recommendedArtworks, setRecommendedArtworks] = useState([]);
   const [recommendedUsers, setRecommendedUsers] = useState([]);
-  const [followingMap, setFollowingMap] = useState({});
-  const [followerMap, setFollowerMap] = useState({});
   const CARD_WIDTH = 310;
   const ITEM_SPACING = 12;
   const ITEM_SIZE = CARD_WIDTH + ITEM_SPACING;
@@ -67,15 +73,9 @@ export default function Home({ navigation }) {
     now.toMillis() + 7 * 24 * 60 * 60 * 1000,
   );
 
-  // useEffect 수정
   useEffect(() => {
-    if (selectedArtwork?.seq) {
-      getArtwork();
-      getDetailArtwork(selectedArtwork.seq);
-    } else {
-      getArtwork();
-    }
-  }, [selectedArtwork]);
+    getArtwork();
+  }, []);
 
   // 팔로우 여부 실시간 구독
   useEffect(() => {
@@ -204,34 +204,8 @@ export default function Home({ navigation }) {
     setLoading(false);
   };
 
-  //상세 작품정보
-  const getDetailArtwork = async (seq) => {
-    try {
-      const xmlText = await fetchDetailArtwork(seq);
-      if (!xmlText || xmlText.trim().length === 0) {
-        console.error("getDetailArtwork: 응답이 비어 있습니다.");
-        setDetailArtwork([]);
-        return;
-      }
-
-      // const jsonData =
-
-      const detail = parseItems(xmlText);
-
-      if (!detail) {
-        console.warn("getDetailArtwork: detail 데이터가 없습니다.");
-      }
-
-      setDetailArtwork(detail);
-    } catch (error) {
-      console.error("getDetailArtwork: API 호출 오류:", error);
-      setDetailArtwork([]);
-    }
-  };
-
   const handleModalOpen = (seq) => {
     if (!seq) return;
-    getDetailArtwork(seq);
     setShowModal(true);
   };
 
@@ -798,10 +772,10 @@ export default function Home({ navigation }) {
               visible={showModal}
               onClose={() => {
                 setShowModal(false);
-                setDetailArtwork([]);
+                setDetailArtwork(null);
                 setSelectedArtwork(null);
               }}
-              artwork={detailArtwork}
+              selectedArtwork={selectedArtwork}
               seq={selectedArtwork?.seq}
             />
           </View>

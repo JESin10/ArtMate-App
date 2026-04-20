@@ -16,66 +16,66 @@ import { db } from "../../../firebase";
 import ArtworkInfoModal from "../../components/modals/ArtworkInfoModal";
 import PlacesInfoModal from "../../components/modals/PlacesInfoModal";
 import SearchBar from "../../components/search/SearchBar";
+import { useUserStore } from "../../store/useUserStore";
 
 export default function Bookmarks({ navigation }) {
   const { user } = useContext(AuthContext);
-  const [myBookmarks, setMyBookmarks] = useState([]);
+  const { myBookmarks, setMyBookmarks, myPins, setMyPins } = useUserStore();
   const [showArtworkModal, setShowArtworkModal] = useState(false);
   const [selectedArtwork, setSelectedArtwork] = useState(null);
-  const [myPins, setMyPins] = useState([]);
   const [selectedPlace, setSelectedPlace] = useState(null);
   const [showPlaceModal, setShowPlaceModal] = useState(false);
   const [tab, setTab] = useState("artwork");
 
-  useEffect(() => {
-    if (!user?.uid) return;
+  // useEffect(() => {
+  //   if (!user?.uid) return;
 
-    // Firestore 컬렉션 실시간 구독
-    const pinsRef = collection(db, "users", user.uid, "pins");
-    const b = query(pinsRef, orderBy("createdAt", "desc")); // 최신순 정렬
+  //   // Firestore 컬렉션 실시간 구독
+  //   const pinsRef = collection(db, "users", user.uid, "pins");
+  //   const b = query(pinsRef, orderBy("createdAt", "desc")); // 최신순 정렬
 
-    const unsubscribe = onSnapshot(
-      b,
-      (snapshot) => {
-        const pinData = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setMyPins(pinData);
-      },
-      (error) => {
-        console.error("실시간 구독 에러:", error);
-      },
-    );
+  //   const unsubscribe = onSnapshot(
+  //     b,
+  //     (snapshot) => {
+  //       const pinData = snapshot.docs.map((doc) => ({
+  //         id: doc.id,
+  //         ...doc.data(),
+  //       }));
+  //       setMyPins(pinData);
+  //     },
+  //     (error) => {
+  //       console.error("실시간 구독 에러:", error);
+  //     },
+  //   );
 
-    // 컴포넌트 언마운트 시 구독 해제
-    return () => unsubscribe();
-  }, [user?.uid]);
+  //   // 컴포넌트 언마운트 시 구독 해제
+  //   return () => unsubscribe();
+  // }, [user?.uid]);
 
-  useEffect(() => {
-    if (!user?.uid) return;
+  // useEffect(() => {
+  //   if (!user?.uid) return;
 
-    // Firestore 컬렉션 실시간 구독
-    const bookmarksRef = collection(db, "users", user.uid, "bookmarks");
-    const q = query(bookmarksRef, orderBy("createdAt", "desc")); // 최신순 정렬
+  //   // Firestore 컬렉션 실시간 구독
+  //   const bookmarksRef = collection(db, "users", user.uid, "bookmarks");
+  //   const q = query(bookmarksRef, orderBy("createdAt", "desc")); // 최신순 정렬
 
-    const unsubscribe = onSnapshot(
-      q,
-      (snapshot) => {
-        const bookmarkData = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setMyBookmarks(bookmarkData);
-      },
-      (error) => {
-        console.error("실시간 구독 에러:", error);
-      },
-    );
+  //   const unsubscribe = onSnapshot(
+  //     q,
+  //     (snapshot) => {
+  //       const bookmarkData = snapshot.docs.map((doc) => ({
+  //         id: doc.id,
+  //         ...doc.data(),
+  //       }));
+  //       setMyBookmarks(bookmarkData);
+  //     },
+  //     (error) => {
+  //       console.error("실시간 구독 에러:", error);
+  //     },
+  //   );
 
-    // 컴포넌트 언마운트 시 구독 해제
-    return () => unsubscribe();
-  }, [user?.uid]);
+  //   // 컴포넌트 언마운트 시 구독 해제
+  //   return () => unsubscribe();
+  // }, [user?.uid]);
 
   const handleArtworkModalOpen = (item) => {
     setSelectedArtwork(item);

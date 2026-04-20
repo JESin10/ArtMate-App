@@ -52,13 +52,15 @@ export default function Mypage({ navigation }) {
     clearUserStore,
     myLikeRV,
     setMyLikeRV,
+    setMyBookmarks,
+    setMyPins,
   } = useUserStore();
   const { user, setUser } = useContext(AuthContext);
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState(user?.displayName || "");
   const [profileImage, setProfileImage] = useState(null);
-  const followerCnt = Object.keys(followerMap).length;
-  const followingCnt = Object.keys(followingMap).length;
+  const followerCnt = Object.keys(followerMap || {}).length;
+  const followingCnt = Object.keys(followingMap || {}).length;
   const [showNotificationModal, setShowNotificationModal] = useState(false);
   const isFirstLoad = useRef(true);
 
@@ -68,6 +70,51 @@ export default function Mypage({ navigation }) {
       setProfileImage(user.photoURL);
     }
   }, [user?.photoURL]);
+
+  //북마크 구독
+  useEffect(() => {
+    if (!user?.uid) return;
+
+    const bookmarksRef = collection(db, "users", user.uid, "bookmarks");
+    const q = query(bookmarksRef, orderBy("createdAt", "desc"));
+
+    const unsub = onSnapshot(q, (snapshot) => {
+      const data = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      setMyBookmarks(data);
+    });
+
+    return () => unsub();
+  }, [user?.uid]);
+
+  //핀 구독
+  useEffect(() => {
+    if (!user?.uid) return;
+
+    // Firestore 컬렉션 실시간 구독
+    const pinsRef = collection(db, "users", user.uid, "pins");
+    const b = query(pinsRef, orderBy("createdAt", "desc")); // 최신순 정렬
+
+    const unsubscribe = onSnapshot(
+      b,
+      (snapshot) => {
+        const pinData = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setMyPins(pinData);
+      },
+      (error) => {
+        console.error("실시간 구독 에러:", error);
+      },
+    );
+
+    // 컴포넌트 언마운트 시 구독 해제
+    return () => unsubscribe();
+  }, [user?.uid]);
 
   //팔로잉 팔로워 구독
   useEffect(() => {

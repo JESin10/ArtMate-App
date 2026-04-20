@@ -25,6 +25,7 @@ import {
   increment,
   serverTimestamp,
   getDoc,
+  onSnapshot,
 } from "firebase/firestore";
 import { db } from "../../../firebase";
 import Map from "../../screens/places/Map";
@@ -42,10 +43,7 @@ export default function ArtworkInfoModal({ visible, onClose, seq, artwork }) {
     subscribeReviews,
   } = useArtStore();
   const [filled, setFilled] = useState(false);
-  const { user, setUser } = useContext(AuthContext);
-  // const [detailArtwork, setDetailArtwork] = useState([]);
-  // const [loading, setLoading] = useState(false);
-  // const [reviews, setReviews] = useState([]);
+  const { user } = useContext(AuthContext);
 
   //해당 작품에 대한 리뷰
   useEffect(() => {
@@ -56,27 +54,47 @@ export default function ArtworkInfoModal({ visible, onClose, seq, artwork }) {
   }, [seq]);
 
   // Modal 열릴 때 북마크 여부 가져오기
+  // useEffect(() => {
+  //   if (!visible || !user || !seq) return;
+
+  //   const checkBookmark = async () => {
+  //     try {
+  //       const bookmarkRef = doc(
+  //         db,
+  //         "users",
+  //         user.uid,
+  //         "bookmarks",
+  //         String(seq),
+  //       );
+  //       const snap = await getDoc(bookmarkRef);
+  //       setFilled(snap.exists());
+  //     } catch (err) {
+  //       console.error("Bookmark check error:", err);
+  //       setFilled(false);
+  //     }
+  //   };
+
+  //   checkBookmark();
+  // }, [visible, user?.uid, seq]);
+
+  // 북마크 실시간 구독
   useEffect(() => {
-    if (!visible || !user || !seq) return;
+    if (!visible || !user?.uid || !seq) return;
 
-    const checkBookmark = async () => {
-      try {
-        const bookmarkRef = doc(
-          db,
-          "users",
-          user.uid,
-          "bookmarks",
-          String(seq),
-        );
-        const snap = await getDoc(bookmarkRef);
+    const bookmarkRef = doc(db, "users", user.uid, "bookmarks", String(seq));
+
+    const unsubscribe = onSnapshot(
+      bookmarkRef,
+      (snap) => {
         setFilled(snap.exists());
-      } catch (err) {
-        console.error("Bookmark check error:", err);
+      },
+      (error) => {
+        console.error("북마크 구독 오류:", error);
         setFilled(false);
-      }
-    };
+      },
+    );
 
-    checkBookmark();
+    return () => unsubscribe();
   }, [visible, user?.uid, seq]);
 
   //태그 텍스트 적용
@@ -107,21 +125,6 @@ export default function ArtworkInfoModal({ visible, onClose, seq, artwork }) {
 
     return String(dateStr) ?? "";
   };
-
-  // const getDetailArtwork = async (seq) => {
-  //   setLoading(true);
-  //   try {
-  //     const xmlText = await fetchDetailArtwork(seq);
-  //     const detail = parseItems(xmlText);
-
-  //     setDetailArtwork(detail[0] || null);
-  //   } catch (error) {
-  //     console.error(error);
-  //     setDetailArtwork([]);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
   //링크 열기
   const openLink = async (rawUrl) => {
