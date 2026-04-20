@@ -1,7 +1,7 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useContext } from "react";
 import Artworks from "../../screens/Artworks";
-import Home from "../../screens/Home";
+import Home from "../home/Home";
 import HomeIcon from "../../assets/icons/Menubar_home-filled.svg";
 import HomeLineIcon from "../../assets/icons/Menubar_home.svg";
 import ArtworksIcon from "../../assets/icons/Menubar_image-filled.svg";

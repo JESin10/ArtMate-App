@@ -11,13 +11,13 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useState, useEffect, useRef, useContext } from "react";
-import ArtworkInfoModal from "../components/modals/ArtworkInfoModal";
-import BackwardIcon from "../assets/icons/backward.svg";
-import ForwardIcon from "../assets/icons/forward.svg";
-import Mainlogo from "../assets/icons/logo-main.svg";
-import PlaceIcon from "../assets/icons/Menubar_gallery.svg";
-import { AuthContext } from "../store/context";
-import SearchBar from "../components/search/SearchBar";
+import ArtworkInfoModal from "../../components/modals/ArtworkInfoModal";
+import BackwardIcon from "../../assets/icons/backward.svg";
+import ForwardIcon from "../../assets/icons/forward.svg";
+import Mainlogo from "../../assets/icons/logo-main.svg";
+import PlaceIcon from "../../assets/icons/Menubar_gallery.svg";
+import { AuthContext } from "../../store/context";
+import SearchBar from "../../components/search/SearchBar";
 import {
   doc,
   setDoc,
@@ -33,13 +33,13 @@ import {
   addDoc,
   query,
 } from "firebase/firestore";
-import { db } from "../../firebase";
-import { fetchArtwork, fetchDetailArtwork } from "../services/artService";
-import { useArtStore } from "../store/useArtStore";
-import { parseItems } from "../utils/xmlParser";
-import { useUserStore } from "../store/useUserStore";
-import useRecommendArtworks from "../hooks/useRecommendArtworks";
-import useRecentArtworks from "../hooks/useRecentArtworks";
+import { db } from "../../../firebase";
+import { fetchArtwork, fetchDetailArtwork } from "../../services/artService";
+import { useArtStore } from "../../store/useArtStore";
+import { parseItems } from "../../utils/xmlParser";
+import { useUserStore } from "../../store/useUserStore";
+import useRecommendArtworks from "../../hooks/useRecommendArtworks";
+import useRecentArtworks from "../../hooks/useRecentArtworks";
 
 export default function Home({ navigation }) {
   const { user } = useContext(AuthContext);
