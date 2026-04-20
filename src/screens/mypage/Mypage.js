@@ -35,21 +35,31 @@ import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { signOut } from "firebase/auth";
 import Toast from "react-native-toast-message";
 import NotificationModal from "../../components/notify/NotificationModal";
+import { useUserStore } from "../../store/useUserStore";
 
 export default function Mypage({ navigation }) {
+  const {
+    followingMap,
+    followerMap,
+    setFollowerMap,
+    setFollowingMap,
+    myReviews,
+    myComments,
+    unreadCount,
+    setMyReviews,
+    setMyComments,
+    setUnreadCount,
+    clearUserStore,
+    myLikeRV,
+    setMyLikeRV,
+  } = useUserStore();
   const { user, setUser } = useContext(AuthContext);
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState(user?.displayName || "");
-  const [myReviews, setMyReviews] = useState([]);
-  const [myLikeRV, setMyLikeRV] = useState([]);
-  const [myComments, setMyComments] = useState([]);
   const [profileImage, setProfileImage] = useState(null);
-  const [followingMap, setFollowingMap] = useState({});
-  const [followerMap, setFollowerMap] = useState({});
   const followerCnt = Object.keys(followerMap).length;
   const followingCnt = Object.keys(followingMap).length;
   const [showNotificationModal, setShowNotificationModal] = useState(false);
-  const [unreadCount, setUnreadCount] = useState(0);
   const isFirstLoad = useRef(true);
 
   //프로필 이미지
@@ -89,7 +99,7 @@ export default function Mypage({ navigation }) {
       unsubscribeFollowers();
       unsubscribeFollowing();
     };
-  }, [user]);
+  }, [user, setFollowerMap, setFollowingMap]);
 
   //리뷰, 좋아요, 댓글 실시간 구독
   useEffect(() => {
@@ -137,7 +147,7 @@ export default function Mypage({ navigation }) {
       L_unsubscribe();
       C_unsubscribe();
     };
-  }, [user]);
+  }, [user, setFollowerMap, setFollowingMap]);
 
   //알림 구독
   useEffect(() => {
@@ -218,8 +228,8 @@ export default function Mypage({ navigation }) {
   const userLogout = async () => {
     try {
       await signOut(auth);
+      clearUserStore();
       setUser(null);
-      console.log("로그아웃 성공");
       navigation.navigate("Bottom", { screen: "Home" });
     } catch (error) {
       console.error("로그아웃 실패:", error);
@@ -367,8 +377,10 @@ export default function Mypage({ navigation }) {
                       </Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                      onPress={() => setIsEditing(false)}
-                      setEditedName={user?.displayName}
+                      onPress={() => {
+                        setEditedName(user?.displayName || "");
+                        setIsEditing(false);
+                      }}
                     >
                       <Text style={{ color: "#fff", fontWeight: "bold" }}>
                         취소

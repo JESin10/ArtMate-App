@@ -26,7 +26,7 @@ import useSearch from "../../hooks/useSearch";
 import * as ImagePicker from "expo-image-picker";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "../../../firebase";
-import { useReviewUpload } from "../../hooks/useReviewUpload";
+import { reviewService } from "../../services/reviewService";
 
 export default function ReviewModal({
   visible,
@@ -56,7 +56,7 @@ export default function ReviewModal({
   const [selectedArtwork, setSelectedArtwork] = useState(null);
   const { results, loading } = useSearch(searchKeyword);
   const artworkId = selectedArtwork?.id;
-  const { isLoading, addReview } = useReviewUpload(user?.uid, artworkId);
+  const { isLoading, addReview } = reviewService(user?.uid, artworkId);
 
   // console.log(isEditing);
   const handleConfirm = (date) => {

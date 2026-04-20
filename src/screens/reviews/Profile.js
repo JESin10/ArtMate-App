@@ -17,6 +17,7 @@ import {
   deleteDoc,
   doc,
   getDocs,
+  addDoc,
   increment,
   onSnapshot,
   query,
@@ -32,9 +33,7 @@ import SearchBar from "../../components/search/SearchBar";
 export default function Profile({ route, navigation }) {
   const { user, setUser } = useContext(AuthContext);
   const [followingMap, setFollowingMap] = useState({});
-  const [followerMap, setFollowerMap] = useState({});
-  const [selectedUser, setSelectedUser] = useState([]);
-  const [reviewMap, setReviewMap] = useState({});
+  const [selectedUser, setSelectedUser] = useState(null);
   const [showAllImages, setShowAllImages] = useState(false);
   const [review, setReview] = useState([]);
   const { userId } = route.params;

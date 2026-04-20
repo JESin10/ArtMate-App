@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   ImageBackground,
 } from "react-native";
+import { Alert } from "react-native";
 import { useContext, useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import BackwardIcon from "../../assets/icons/backward.svg";
@@ -28,17 +29,17 @@ import {
 import { db } from "../../../firebase";
 import SearchBar from "../../components/search/SearchBar";
 import { useRoute } from "@react-navigation/native";
+import { useUserStore } from "../../store/useUserStore";
 
 export default function FollowList({ navigation }) {
-  const { user, setUser } = useContext(AuthContext);
-  const [followingMap, setFollowingMap] = useState({});
-  const [followerMap, setFollowerMap] = useState({});
+  const { user } = useContext(AuthContext);
+  const { followingMap } = useUserStore();
   const [followingList, setFollowingList] = useState([]);
   const [followerList, setFollowerList] = useState([]);
   const route = useRoute();
   const initialTab = route.params?.tab || "followers";
   const [tab, setTab] = useState(initialTab);
-  const isMe = followingList.uid === user.uid;
+  // const isMe = followingList.uid === user.uid;
   const now = Timestamp.now();
   const expireAt = Timestamp.fromMillis(
     now.toMillis() + 7 * 24 * 60 * 60 * 1000,
@@ -49,38 +50,6 @@ export default function FollowList({ navigation }) {
       setTab(route.params.tab);
     }
   }, [route.params?.tab]);
-
-  //팔로잉 팔로워 구독
-  useEffect(() => {
-    if (!user) return;
-
-    // 팔로워 구독
-    const followersRef = collection(db, "users", user.uid, "followers");
-    const unsubscribeFollowers = onSnapshot(followersRef, (snapshot) => {
-      const follower = {};
-      // 컬렉션 문서 개수 = 팔로워 수
-      snapshot.docs.forEach((doc) => {
-        follower[doc.id] = true;
-      });
-      setFollowerMap(follower);
-    });
-
-    // 팔로잉 구독
-    const followingRef = collection(db, "users", user.uid, "following");
-    const unsubscribeFollowing = onSnapshot(followingRef, (snapshot) => {
-      const following = {};
-      snapshot.docs.forEach((doc) => {
-        following[doc.id] = true;
-      });
-      setFollowingMap(following);
-    });
-
-    // 언마운트 시 구독 해제
-    return () => {
-      unsubscribeFollowers();
-      unsubscribeFollowing();
-    };
-  }, [user]);
 
   //follower가져오기
   useEffect(() => {
@@ -267,7 +236,7 @@ export default function FollowList({ navigation }) {
                   />
                   <Text>{follower.displayName}</Text>
                 </View>
-                {!isMe && (
+                {follower.uid !== user.uid && (
                   <TouchableOpacity
                     style={{
                       backgroundColor: followingMap[follower.uid]
@@ -299,7 +268,7 @@ export default function FollowList({ navigation }) {
                   />
                   <Text>{following.displayName}</Text>
                 </View>
-                {!isMe && (
+                {following.uid !== user.uid && (
                   <TouchableOpacity
                     style={{
                       backgroundColor: followingMap[following.uid]

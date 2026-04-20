@@ -40,32 +40,47 @@ import SearchBar from "../../components/search/SearchBar";
 import { Dimensions } from "react-native";
 import ImageSlider from "../../components/Slider/ImageSlider";
 import ArtworkInfoModal from "../../components/modals/ArtworkInfoModal";
+import { useReviewStore } from "../../store/useReviewStore";
 
 export default function Review({ route, navigation }) {
-  const { user, setUser } = useContext(AuthContext);
-  const [loading, setLoading] = useState(false);
-  const [showModal, setShowModal] = useState(false);
-  const [showCmtModal, setShowCmtModal] = useState(false);
-  const [selectedReview, setSelectedReview] = useState(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [likedMap, setLikedMap] = useState({});
+  const {
+    reviews,
+    setReviews,
+    likedMap,
+    setLikedMap,
+    loading,
+    setLoading,
+    sortType,
+    setSortType,
+    selectedReview,
+    setSelectedReview,
+    showModal,
+    setShowModal,
+    showCmtModal,
+    setShowCmtModal,
+    isEditing,
+    setIsEditing,
+    showArtworkModal,
+    setShowArtworkModal,
+    setSelectedArtworkId,
+    selectedArtworkId,
+    followingMap,
+    setFollowingMap,
+  } = useReviewStore();
+
+  const { user } = useContext(AuthContext);
   const [expandedMap, setExpandedMap] = useState({});
-  const [reviews, setReviews] = useState([]);
-  const [sortType, setSortType] = useState("like");
   const timerRef = useRef(null);
-  const [showArtworkModal, setShowArtworkModal] = useState(false);
   const flatListRef = useRef(null);
   const now = Timestamp.now();
   const expireAt = Timestamp.fromMillis(
     now.toMillis() + 7 * 24 * 60 * 60 * 1000,
   );
-  const [followingMap, setFollowingMap] = useState({});
   const onRefresh = React.useCallback(() => {
     setLoading(true);
-    // 정렬 초기화
     setSortType("like");
-    // 혹시 모를 상태 초기화 (선택)
     setSelectedReview(null);
+    setSelectedArtworkId(null);
     setShowModal(false);
     setShowCmtModal(false);
 
@@ -78,7 +93,14 @@ export default function Review({ route, navigation }) {
       setLoading(false);
       timerRef.current = null;
     }, 800);
-  }, []);
+  }, [
+    setLoading,
+    setSortType,
+    setSelectedReview,
+    setShowModal,
+    setShowCmtModal,
+    setSelectedArtworkId,
+  ]);
 
   // 새로고침 타이머 정리용
   useEffect(() => {
@@ -479,7 +501,9 @@ export default function Review({ route, navigation }) {
               <TouchableOpacity
                 onPress={() => {
                   setShowArtworkModal(true);
-                  setSelectedReview(review.artworkId);
+                  setSelectedArtworkId(review.artworkId);
+
+                  // setSelectedReview(review.artworkId);
                 }}
               >
                 <Text style={{ marginVertical: 14, fontWeight: "bold" }}>
@@ -591,9 +615,9 @@ export default function Review({ route, navigation }) {
         visible={showArtworkModal}
         onClose={() => {
           setShowArtworkModal(false);
-          setSelectedReview([]);
+          setSelectedArtworkId(null);
         }}
-        seq={selectedReview}
+        seq={selectedArtworkId}
         artwork={reviews}
       />
       <CommentModal
