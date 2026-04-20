@@ -9,14 +9,15 @@ import { AuthContext } from "../../store/context";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../../firebase";
 import SearchBar from "../../components/search/SearchBar";
+import { useUserStore } from "../../store/useUserStore";
 
 export default function AllMap({ route, navigation }) {
   const markers = route?.params?.markers ?? [];
   const mapRef = useRef(null);
+  const { myPins, setMyPins } = useUserStore();
   const [latDelta, setLatDelta] = useState(0.1);
   const [lngDelta, setLngDelta] = useState(0.1);
   const [region, setRegion] = useState(initialRegion);
-  const [myPins, setMyPins] = useState([]);
   const { user } = useContext(AuthContext);
   const [filter, setFilter] = useState("all"); // all | artwork | place | my
   const filteredMarkers = markers.filter((item) => {
@@ -89,8 +90,6 @@ export default function AllMap({ route, navigation }) {
 
     checkBookmark();
   }, [user?.uid]);
-
-  // console.log("myPins:", myPins);
 
   const zoomIn = () => {
     setRegion((prev) => ({
