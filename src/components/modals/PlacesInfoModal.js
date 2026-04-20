@@ -30,6 +30,7 @@ import {
 import { db } from "../../../firebase";
 import { fetchDetailPlace } from "../../services/placeService";
 import { parseItems } from "../../utils/xmlParser";
+import {usePlaceStore} from '../../store/usePlaceStore'
 
 export default function PlacesInfoModal({
   visible,
@@ -37,27 +38,9 @@ export default function PlacesInfoModal({
   //detail
   seq,
 }) {
-  const [city, setCity] = useState("");
-  const [detail, setDetail] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const { user, setUser } = useContext(AuthContext);
-  const [filled, setFilled] = useState(false);
-  const getProvinceFromAddress = (addr) => {
-    if (!addr) return "";
-    const first = String(addr).trim().split(/\s+/)[0];
-
-    // Normalize common forms
-    if (/서울/.test(first)) return "서울시";
-    if (/경기/.test(first)) return "경기도";
-    if (/^(부산|대구|광주|대전|울산|인천|세종)/.test(first)) {
-      // convert '부산광역시' -> '부산시', '서울특별시' handled above
-      return first.replace(/(광역시|특별시)$/, "시");
-    }
-    if (/도$/.test(first)) return first; // e.g., '강원도', '전라북도'
-    if (/시$/.test(first)) return first; // e.g., '수원시'
-
-    return first;
-  };
+const { loading, detail, getDetailPlace } = usePlaceStore();
+  const { user } = useContext(AuthContext);
+  const [filled, setFilled] = useState(false); 
 
   useEffect(() => {
     if (seq && visible) {
@@ -83,29 +66,12 @@ export default function PlacesInfoModal({
     checkBookmark();
   }, [visible, user?.uid, seq]);
 
-  const getDetailPlace = async (seq) => {
-    setLoading(true);
-    try {
-      const xmlText = await fetchDetailPlace(seq);
-      const item = parseItems(xmlText)[0] || null;
-
-      setDetail(item);
-      setLoading(false);
-    } catch (error) {
-      console.error("상세 정보 오류:", error);
-    }
-
-    // setLoading(false);
-  };
-
   const openLink = async (rawUrl) => {
     if (!rawUrl) {
       Alert.alert("알림", "유효한 링크가 없습니다.");
       return;
     }
     let url = String(rawUrl).replace("http", "https");
-    // if (!/^https?:\/\//i.test(url)) url = `https://${url}`;
-    console.log("url:", url);
 
     try {
       const supported = await Linking.canOpenURL(url);
@@ -132,7 +98,6 @@ export default function PlacesInfoModal({
     return decode(plain);
   };
 
-  // console.log(detail);
   //장소 북마크
   const BookmarkHandler = async () => {
     if (!user) {

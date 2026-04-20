@@ -14,38 +14,39 @@ import ReloadIcon from "../../assets/icons/reload.svg";
 import Mainlogo from "../../assets/icons/logo-main.svg";
 import SearchBar from "../../components/search/SearchBar";
 import usePlaces from "../../hooks/usePlaces";
+import {useArtStore} from'../../store/useArtStore'
 
 export default function PlacesScreen({ navigation }) {
-  const {
-    gallery,
-    artworks,
-    details,
-    loading,
-    isFetchingMore,
-    loadMore,
-    fetchPlaces,
-    userLocation,
-  } = usePlaces();
+const {
+  gallery,
+  details,
+  loading,
+  isFetchingMore,
+  loadMore,
+  fetchPlaces,
+  userLocation,
+} = usePlaces();
+const artworks = useArtStore((state) => state.artworks);
   const [showPopup, setShowPopup] = useState(false);
   const [selectedPlace, setSelectedPlace] = useState(null);
   const flatListRef = useRef(null);
   const renderItem = useCallback(
-    ({ item }) => {
-      const detail = details[item.seq];
+  ({ item }) => {
+    const detail = details?.[item.seq] ?? null;
 
-      return (
-        <PlaceItem
-          item={item}
-          detail={detail}
-          onPress={() => {
-            setSelectedPlace(item);
-            setShowPopup(true);
-          }}
-        />
-      );
-    },
-    [details],
-  );
+    return (
+      <PlaceItem
+        item={item}
+        detail={detail}
+        onPress={() => {
+          setSelectedPlace(item);
+          setShowPopup(true);
+        }}
+      />
+    );
+  },
+  [details]
+);
 
   const getCoords = (detail, item) => {
     const tryNum = (v) => {
