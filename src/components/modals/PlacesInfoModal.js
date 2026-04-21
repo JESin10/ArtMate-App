@@ -30,7 +30,7 @@ import {
 import { db } from "../../../firebase";
 import { fetchDetailPlace } from "../../services/placeService";
 import { parseItems } from "../../utils/xmlParser";
-import {usePlaceStore} from '../../store/usePlaceStore'
+import { usePlaceStore } from "../../store/usePlaceStore";
 
 export default function PlacesInfoModal({
   visible,
@@ -38,9 +38,9 @@ export default function PlacesInfoModal({
   //detail
   seq,
 }) {
-const { loading, detail, getDetailPlace } = usePlaceStore();
+  const { loading, detail, getDetailPlace } = usePlaceStore();
   const { user } = useContext(AuthContext);
-  const [filled, setFilled] = useState(false); 
+  const [filled, setFilled] = useState(false);
 
   useEffect(() => {
     if (seq && visible) {
@@ -414,11 +414,5 @@ const styles = StyleSheet.create({
     height: "100%",
     justifyContent: "center",
     alignItems: "center",
-  },
-  linkIcon: {
-    flexDirection: "row",
-    textAlign: "center",
-    alignItems: "center",
-    justifyContent: "center",
   },
 });

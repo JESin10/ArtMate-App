@@ -17,6 +17,7 @@ export const parseDateSafe = (dateStr) => {
   return isNaN(d.getTime()) ? null : d;
 };
 
+  // 날짜 문자열을 'YYYY년 M월 D일' 형식으로 변환
 export const formatDate = (dateStr) => {
   if (!dateStr) return "";
 

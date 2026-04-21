@@ -1,76 +1,47 @@
 import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  ImageBackground,
+  collection,
+  deleteDoc,
+  getDocs,
+  onSnapshot,
+  query,
+  Timestamp,
+  where,
+} from "firebase/firestore";
+import { useContext, useEffect, useRef, useState } from "react";
+import {
   FlatList,
   Image,
-  Alert,
+  ImageBackground,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useState, useEffect, useRef, useContext } from "react";
-import ArtworkInfoModal from "../../components/modals/ArtworkInfoModal";
+import { db } from "../../../firebase";
 import BackwardIcon from "../../assets/icons/backward.svg";
 import ForwardIcon from "../../assets/icons/forward.svg";
 import Mainlogo from "../../assets/icons/logo-main.svg";
 import PlaceIcon from "../../assets/icons/Menubar_gallery.svg";
-import { AuthContext } from "../../store/context";
+import ArtworkInfoModal from "../../components/modals/ArtworkInfoModal";
 import SearchBar from "../../components/search/SearchBar";
-import {
-  doc,
-  setDoc,
-  collection,
-  getDocs,
-  onSnapshot,
-  deleteDoc,
-  updateDoc,
-  increment,
-  serverTimestamp,
-  Timestamp,
-  where,
-  addDoc,
-  query,
-} from "firebase/firestore";
-import { db } from "../../../firebase";
-import { fetchArtwork, fetchDetailArtwork } from "../../services/artService";
-import { useArtStore } from "../../store/useArtStore";
-import { parseItems } from "../../utils/xmlParser";
-import { useUserStore } from "../../store/useUserStore";
-import useRecommendArtworks from "../../hooks/useRecommendArtworks";
 import useRecentArtworks from "../../hooks/useRecentArtworks";
+import useRecommendArtworks from "../../hooks/useRecommendArtworks";
+import { fetchArtwork } from "../../services/artService";
+import { FollowUser } from "../../services/followService";
+import { AuthContext } from "../../store/context";
+import { useArtStore } from "../../store/useArtStore";
+import { useUserStore } from "../../store/useUserStore";
+import { computeEndedArtworks, groupByPlace } from "../../utils/artwork";
+import { formatDate, parseDateSafe } from "../../utils/date";
+import { parseItems } from "../../utils/xmlParser";
 
 export default function Home({ navigation }) {
   const { user } = useContext(AuthContext);
-  const { artworks, setArtworks, detailArtwork, setDetailArtwork, setLoading } =
-    useArtStore();
-  const parseDateSafe = (dateStr) => {
-    if (!dateStr) return null;
+  const { artworks, setArtworks, setDetailArtwork, setLoading } = useArtStore();
 
-    const s = String(dateStr).trim();
-
-    // 20281231 같은 숫자형 날짜 처리
-    if (/^\d{8}$/.test(s)) {
-      const year = s.slice(0, 4);
-      const month = s.slice(4, 6);
-      const day = s.slice(6, 8);
-      return new Date(`${year}-${month}-${day}`);
-    }
-
-    // 일반 날짜 처리
-    const normalized = s.replace(/\./g, "-").slice(0, 10);
-    const d = new Date(normalized);
-
-    return isNaN(d.getTime()) ? null : d;
-  };
-  const {
-    followingMap,
-    setFollowingMap,
-    followerMap,
-    setFollowerMap,
-    setBookmarks,
-  } = useUserStore();
+  const { followingMap, setFollowingMap, setFollowerMap } = useUserStore();
   const {
     recentPage,
     setRecentPage,
@@ -94,10 +65,8 @@ export default function Home({ navigation }) {
   const CARD_WIDTH = 310;
   const ITEM_SPACING = 12;
   const ITEM_SIZE = CARD_WIDTH + ITEM_SPACING;
-
-  const now = Timestamp.now();
   const expireAt = Timestamp.fromMillis(
-    now.toMillis() + 7 * 24 * 60 * 60 * 1000,
+    Timestamp.now().toMillis() + 7 * 24 * 60 * 60 * 1000,
   );
 
   useEffect(() => {
@@ -192,85 +161,14 @@ export default function Home({ navigation }) {
     }
   });
 
-  // 날짜 문자열을 'YYYY년 M월 D일' 형식으로 변환
-  const Dateformat = (dateStr) => {
-    if (dateStr == null) return "";
-    const s = String(dateStr).trim();
-
-    // 'YYYYMMDD' 형태
-    if (/^\d{8}$/.test(s)) {
-      const year = s.slice(0, 4);
-      const month = String(parseInt(s.slice(4, 6), 10));
-      const day = String(parseInt(s.slice(6, 8), 10));
-      return `${year}년 ${month}월 ${day}일`;
-    }
-
-    return String(dateStr) ?? "";
+  // 오픈모달
+  const openArtwork = (item) => {
+    setSelectedArtwork(item);
+    handleModalOpen(item?.seq);
   };
-
-  // artworks 배열을 받아 DP_START 기준으로 현재 날짜와 가까운 순으로 정렬하여 설정
-  const computeRecentArtworks = (artworks) => {
-    const today = new Date(); // 현재 날짜
-
-    return artworks
-      .map((artwork) => {
-        const start = parseDateSafe(artwork.startDate) || today; // startDate를 Date 객체로 변환
-        return { ...artwork, start }; // 변환된 startDate를 추가
-      })
-      .sort((a, b) => {
-        const aDiff = Math.abs(a.start.getTime() - today.getTime()); // 오늘과의 차이 계산 (타임스탬프 사용)
-        const bDiff = Math.abs(b.start.getTime() - today.getTime());
-        return aDiff - bDiff; // 차이가 작은 순으로 정렬
-      });
-  };
-
-  // artworks 배열을 받아 DP_END 기준으로 현재 날짜와 가까운 순으로 정렬하여 설정
-  const computeEndedArtworks = (items) => {
-    const today = new Date();
-    const mapped = items
-      .map((it) => ({
-        raw: it,
-        end: parseDateSafe(it.endDate) || today, // 기본값으로 오늘 날짜 설정
-      }))
-      .filter((x) => x.end !== null); // 종료일 없는 항목은 제외 (필요시 포함)
-
-    mapped.sort((a, b) => {
-      const aFuture = a.end >= today;
-      const bFuture = b.end >= today;
-      if (aFuture !== bFuture) return aFuture ? -1 : 1; // 곧 종료되는(미래 종료) 항목 우선
-      const aDiff = Math.abs(a.end - today);
-      const bDiff = Math.abs(b.end - today);
-      return aDiff - bDiff;
-    });
-
-    return mapped.map((m) => m.raw);
-  };
-
-  // place로 묶기
-  const groupByPlace = (items) => {
-    return items.reduce((acc, item) => {
-      const key = item.place;
-      if (!acc[key]) acc[key] = [];
-      acc[key].push(item);
-      return acc;
-    }, {});
-  };
-  const placeGroups = groupByPlace(artworks);
 
   const getMyFollowing = async () => {
-    if (!user?.uid) return []; // 안전 체크
-
-    const snapshot = await getDocs(
-      collection(db, "users", user?.uid, "following"),
-    );
-
-    const followingIds = [];
-
-    snapshot.forEach((doc) => {
-      followingIds.push(doc.id);
-    });
-
-    return followingIds;
+    if (!user?.uid) return [];
   };
 
   //유저 랜덤 추천
@@ -307,69 +205,6 @@ export default function Home({ navigation }) {
     }
   };
 
-  // 팔로우, 언팔로우
-  const FollowUser = async (targetUser) => {
-    if (!user) {
-      Alert.alert("로그인이 필요합니다.");
-      return;
-    }
-
-    const targetUserId = targetUser.id;
-    const followingRef = doc(db, "users", user.uid, "following", targetUserId);
-    const followerRef = doc(db, "users", targetUserId, "followers", user.uid);
-
-    try {
-      if (followingMap[targetUserId]) {
-        // 언팔로우
-        await deleteDoc(followingRef);
-        await deleteDoc(followerRef);
-        await updateDoc(doc(db, "users", user.uid), {
-          followingCnt: increment(-1),
-        });
-        await updateDoc(doc(db, "users", targetUserId), {
-          followerCnt: increment(-1),
-        });
-        await deleteFollowNotification(targetUserId);
-      } else {
-        // 팔로우
-        await setDoc(followingRef, {
-          displayName: targetUser.displayName,
-          photoURL: targetUser.photoURL || null,
-          createdAt: serverTimestamp(),
-        });
-
-        await setDoc(followerRef, {
-          displayName: user.displayName,
-          photoURL: user.photoURL || null,
-          createdAt: serverTimestamp(),
-        });
-
-        await updateDoc(doc(db, "users", user.uid), {
-          followingCnt: increment(1),
-        });
-
-        await updateDoc(doc(db, "users", targetUserId), {
-          followerCnt: increment(1),
-        });
-        //상대에게 팔로우 알림
-        if (user.uid !== targetUserId) {
-          await addDoc(collection(db, "users", targetUserId, "notifications"), {
-            type: "follow",
-            fromUserId: user.uid,
-            fromUserName: user.displayName,
-            fromUserPhoto: user.photoURL,
-            createdAt: serverTimestamp(),
-            expireAt: expireAt,
-            isRead: false,
-          });
-        }
-      }
-    } catch (error) {
-      console.error("팔로우 토글 실패:", error);
-      Alert.alert("팔로우/언팔로우 실패. 다시 시도해주세요.");
-    }
-  };
-
   //언팔로우시 알림 삭제
   const deleteFollowNotification = async (targetUserId) => {
     const q = query(
@@ -402,7 +237,7 @@ export default function Home({ navigation }) {
             <Mainlogo width={150} height={50} />
           </TouchableOpacity>
           <SearchBar />
-          <View style={styles.recommandContainer}>
+          <View style={styles.recommendContainer}>
             <View style={styles.subTitle}>
               {user ? (
                 <>
@@ -415,7 +250,7 @@ export default function Home({ navigation }) {
                   <Text style={styles.pageTitle}>당신을 위한 추천 전시</Text>
                 </>
               )}
-              <View style={styles.recommandFactor}>
+              <View style={styles.recommendFactor}>
                 <FlatList
                   ref={flatListRef}
                   data={recommendedArtworks}
@@ -423,19 +258,18 @@ export default function Home({ navigation }) {
                   pagingEnabled={false}
                   showsHorizontalScrollIndicator={false}
                   keyExtractor={(item, index) => String(item.seq ?? index)}
-                  contentContainerStyle={styles.recommandList}
+                  contentContainerStyle={styles.recommendList}
                   renderItem={({ item }) => (
                     <TouchableOpacity
-                      style={styles.recommandCard}
+                      style={styles.recommendCard}
                       activeOpacity={0.8}
                       onPress={() => {
-                        setSelectedArtwork(item);
-                        handleModalOpen(item?.seq);
+                        openArtwork(item);
                       }}
                     >
                       <ImageBackground
                         source={{ uri: item.thumbnail }}
-                        style={styles.recommandImage}
+                        style={styles.recommendImage}
                         imageStyle={styles.MainbackgroundImage}
                         resizeMethod="cover"
                       />
@@ -448,15 +282,15 @@ export default function Home({ navigation }) {
                           borderBottomRightRadius: 10,
                         }}
                       >
-                        <Text numberOfLines={1} style={styles.recommandPart}>
+                        <Text numberOfLines={1} style={styles.recommendPart}>
                           {item.place}
                         </Text>
-                        <Text numberOfLines={1} style={styles.recommandTitle}>
+                        <Text numberOfLines={1} style={styles.recommendTitle}>
                           {item.title}
                         </Text>
                         <Text style={styles.DescStyle}>
-                          {Dateformat(item.startDate)} ~
-                          {Dateformat(item.endDate)}
+                          {formatDate(item.startDate)} ~
+                          {formatDate(item.endDate)}
                         </Text>
                       </View>
                     </TouchableOpacity>
@@ -512,8 +346,7 @@ export default function Home({ navigation }) {
                         key={artwork.seq ?? index}
                         style={ImgStyle}
                         onPress={() => {
-                          setSelectedArtwork(artwork);
-                          handleModalOpen(artwork?.seq);
+                          openArtwork(artwork);
                         }}
                       >
                         <ImageBackground
@@ -619,22 +452,20 @@ export default function Home({ navigation }) {
                     <TouchableOpacity
                       style={styles.followBtn}
                       onPress={async () => {
-                        await FollowUser(u);
-                        // 선택적으로 로컬 UI 반영
-                        setRecommendedUsers((prev) =>
-                          prev.map((userItem) =>
-                            userItem.id === u.id
-                              ? {
-                                  ...userItem,
-                                  followerCnt: userItem.followerCnt + 1,
-                                }
-                              : userItem,
-                          ),
-                        );
+                        try {
+                          await FollowUser({
+                            user,
+                            targetUser: u,
+                            isFollowing: !!followingMap[u.id],
+                            expireAt,
+                          });
+                        } catch (error) {
+                          console.log(error);
+                        }
                       }}
                     >
                       <Text style={{ color: "white", fontSize: 12 }}>
-                        팔로우
+                        {followingMap[u.id] ? "팔로잉" : "팔로우"}
                       </Text>
                     </TouchableOpacity>
                   )}
@@ -651,8 +482,7 @@ export default function Home({ navigation }) {
                     key={index}
                     style={styles.endedContentsContainer}
                     onPress={() => {
-                      setSelectedArtwork(endedartwork);
-                      handleModalOpen(endedartwork?.seq);
+                      openArtwork(endedartwork);
                     }}
                   >
                     <ImageBackground
@@ -668,7 +498,7 @@ export default function Home({ navigation }) {
                           fontSize: 10,
                         }}
                       >
-                        {Dateformat(endedartwork?.endDate)}까지 만날 수 있는
+                        {formatDate(endedartwork?.endDate)}까지 만날 수 있는
                         전시!
                       </Text>
                       <Text style={styles.endedNamecStyle} numberOfLines={3}>
@@ -696,7 +526,7 @@ export default function Home({ navigation }) {
               <Text style={styles.pageTitle}>전시장별 전시모음</Text>
             </View>
             <View style={styles.artInPlaceContents}>
-              {Object.entries(placeGroups)
+              {Object.entries(groupByPlace(artworks))
                 .slice(0, 5)
                 .map(([place, items]) => (
                   <View key={place} style={{ flexDirection: "column" }}>
@@ -731,8 +561,7 @@ export default function Home({ navigation }) {
                               marginTop: 8,
                             }}
                             onPress={() => {
-                              setSelectedArtwork(item);
-                              handleModalOpen(item?.seq);
+                              openArtwork(item);
                             }}
                           >
                             {/* <ImageBackground
@@ -826,14 +655,14 @@ const styles = StyleSheet.create({
     borderColor: "black",
     borderWidth: 1,
   },
-  recommandFactor: {
+  recommendFactor: {
     width: "100%",
     shadowColor: "#000",
     shadowOffset: { width: 1, height: 4 },
     shadowOpacity: 0.5,
     shadowRadius: 4,
   },
-  recommandContainer: {
+  recommendContainer: {
     width: "100%",
     alignItems: "center",
     display: "flex",
@@ -843,10 +672,10 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     backgroundColor: "transparent",
   },
-  recommandList: {
+  recommendList: {
     paddingVertical: 8,
   },
-  recommandCard: {
+  recommendCard: {
     width: 310,
     marginRight: 12,
     borderRadius: 10,
@@ -854,17 +683,16 @@ const styles = StyleSheet.create({
     padding: 10,
     overflow: "hidden",
   },
-  recommandImage: {
+  recommendImage: {
     width: "100%",
     height: 450,
     borderRadius: 8,
   },
-  recommandPart: {
+  recommendPart: {
     fontSize: 12,
     color: "gray",
-    color: "#fff",
   },
-  recommandTitle: {
+  recommendTitle: {
     fontSize: 16,
     fontWeight: "bold",
     marginVertical: 8,
