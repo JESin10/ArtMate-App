@@ -1,12 +1,4 @@
-import {
-  collection,
-  deleteDoc,
-  getDocs,
-  onSnapshot,
-  query,
-  Timestamp,
-  where,
-} from "firebase/firestore";
+import { collection, onSnapshot, Timestamp } from "firebase/firestore";
 import { useContext, useEffect, useRef, useState } from "react";
 import {
   FlatList,
@@ -30,6 +22,7 @@ import useRecentArtworks from "../../hooks/useRecentArtworks";
 import useRecommendArtworks from "../../hooks/useRecommendArtworks";
 import { fetchArtwork } from "../../services/artService";
 import { FollowUser } from "../../services/followService";
+import { getRecommendedUsers } from "../../services/userService";
 import { AuthContext } from "../../store/context";
 import { useArtStore } from "../../store/useArtStore";
 import { useUserStore } from "../../store/useUserStore";
@@ -103,8 +96,13 @@ export default function Home({ navigation }) {
 
   //추천게정불러오기
   useEffect(() => {
-    getRecommendedUsers();
-  }, []);
+    const loadUsers = async () => {
+      const users = await getRecommendedUsers(user?.uid);
+      setRecommendedUsers(users);
+    };
+
+    loadUsers();
+  }, [user]);
 
   // artworks가 바뀔 때마다 recent/ended 계산
   useEffect(() => {
@@ -165,59 +163,6 @@ export default function Home({ navigation }) {
   const openArtwork = (item) => {
     setSelectedArtwork(item);
     handleModalOpen(item?.seq);
-  };
-
-  const getMyFollowing = async () => {
-    if (!user?.uid) return [];
-  };
-
-  //유저 랜덤 추천
-  const getRecommendedUsers = async () => {
-    try {
-      const myFollowing = (await getMyFollowing()) || [];
-      const querySnapshot = await getDocs(collection(db, "users"));
-      const users = [];
-
-      querySnapshot.forEach((doc) => {
-        users.push({
-          id: doc.id,
-          ...doc.data(),
-        });
-      });
-
-      // 현재 로그인 유저 제외
-      const filtered = users.filter((u) => u.id !== user?.uid);
-
-      // 랜덤 섞기
-      const shuffled = filtered.sort(() => 0.5 - Math.random());
-
-      // 5명 추천
-      const randomUsers = shuffled.slice(0, 5);
-
-      //팔로우 여부
-      const usersWithFollowState = randomUsers.map((u) => ({
-        ...u,
-        isFollowing: myFollowing.includes(u.id),
-      }));
-      setRecommendedUsers(usersWithFollowState);
-    } catch (error) {
-      console.error("추천 유저 불러오기 오류:", error);
-    }
-  };
-
-  //언팔로우시 알림 삭제
-  const deleteFollowNotification = async (targetUserId) => {
-    const q = query(
-      collection(db, "users", targetUserId, "notifications"),
-      where("type", "==", "follow"),
-      where("fromUserId", "==", user.uid),
-    );
-
-    const snapshot = await getDocs(q);
-
-    snapshot.forEach(async (docSnap) => {
-      await deleteDoc(docSnap.ref);
-    });
   };
 
   return (

@@ -1,16 +1,4 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ImageBackground,
-} from "react-native";
-import { Alert } from "react-native";
-import { useContext, useEffect, useState } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
-import BackwardIcon from "../../assets/icons/backward.svg";
-import Mainlogo from "../../assets/icons/logo-main.svg";
-import { AuthContext } from "../../store/context";
+import { useRoute } from "@react-navigation/native";
 import {
   addDoc,
   collection,
@@ -26,9 +14,21 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
+import { useContext, useEffect, useState } from "react";
+import {
+  Alert,
+  ImageBackground,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { db } from "../../../firebase";
+import BackwardIcon from "../../assets/icons/backward.svg";
+import Mainlogo from "../../assets/icons/logo-main.svg";
 import SearchBar from "../../components/search/SearchBar";
-import { useRoute } from "@react-navigation/native";
+import { AuthContext } from "../../store/context";
 import { useUserStore } from "../../store/useUserStore";
 
 export default function FollowList({ navigation }) {
@@ -225,7 +225,7 @@ export default function FollowList({ navigation }) {
 
           {/* 리스트 */}
           {tab === "followers" &&
-            followerList.map((follower) => (
+            followerList?.map((follower) => (
               <View key={follower.uid} style={styles.followContainer}>
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
                   <ImageBackground
@@ -257,7 +257,7 @@ export default function FollowList({ navigation }) {
             ))}
 
           {tab === "followings" &&
-            followingList.map((following) => (
+            followingList?.map((following) => (
               <View key={following.uid} style={styles.followContainer}>
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
                   <ImageBackground
