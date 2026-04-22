@@ -1,7 +1,7 @@
 import js from "@eslint/js";
-import globals from "globals";
 import pluginReact from "eslint-plugin-react";
 import { defineConfig } from "eslint/config";
+import globals from "globals";
 
 export default defineConfig([
   {
@@ -19,10 +19,8 @@ export default defineConfig([
       "@typescript-eslint/no-unused-vars": "off",
       "@javascript-eslint/no-unused-vars": "off",
       "react/prop-types": "off",
-      // "react/jsx-uses-react": "off",
-      "editor.codeActionsOnSave": {
-        "source.fixAll.eslint": true,
-      },
+      "react/jsx-uses-react": "off",
+      "react/react-in-jsx-scope": "off",
     },
   },
 ]);

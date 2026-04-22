@@ -1,23 +1,9 @@
 import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  StyleSheet,
-  ImageBackground,
-  FlatList,
-} from "react-native";
-import React, { useContext, useEffect, useState } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
-import BackwardIcon from "../../assets/icons/backward.svg";
-import Mainlogo from "../../assets/icons/logo-main.svg";
-import { AuthContext } from "../../store/context";
-import {
+  addDoc,
   collection,
   deleteDoc,
   doc,
   getDocs,
-  addDoc,
   increment,
   onSnapshot,
   query,
@@ -27,8 +13,22 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
+import { useContext, useEffect, useState } from "react";
+import {
+  Alert,
+  FlatList,
+  ImageBackground,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { db } from "../../../firebase";
+import BackwardIcon from "../../assets/icons/backward.svg";
+import Mainlogo from "../../assets/icons/logo-main.svg";
 import SearchBar from "../../components/search/SearchBar";
+import { AuthContext } from "../../store/context";
 
 export default function Profile({ route, navigation }) {
   const { user, setUser } = useContext(AuthContext);
@@ -252,7 +252,7 @@ export default function Profile({ route, navigation }) {
               }}
             >
               <ImageBackground
-                source={{ uri: selectedUser.photoURL }}
+                source={{ uri: selectedUser?.photoURL }}
                 style={styles.imageBackground}
                 imageStyle={styles.tumbnail}
               />

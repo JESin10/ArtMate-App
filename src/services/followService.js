@@ -1,14 +1,15 @@
 import {
-  doc,
-  setDoc,
-  deleteDoc,
-  updateDoc,
-  increment,
   addDoc,
   collection,
-  serverTimestamp,
-  where,
+  deleteDoc,
+  doc,
   getDocs,
+  increment,
+  query,
+  serverTimestamp,
+  setDoc,
+  updateDoc,
+  where,
 } from "firebase/firestore";
 import { db } from "../../firebase";
 

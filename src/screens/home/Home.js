@@ -2,7 +2,6 @@ import { collection, onSnapshot, Timestamp } from "firebase/firestore";
 import { useContext, useEffect, useRef, useState } from "react";
 import {
   FlatList,
-  Image,
   ImageBackground,
   ScrollView,
   StyleSheet,
@@ -16,12 +15,15 @@ import BackwardIcon from "../../assets/icons/backward.svg";
 import ForwardIcon from "../../assets/icons/forward.svg";
 import Mainlogo from "../../assets/icons/logo-main.svg";
 import PlaceIcon from "../../assets/icons/Menubar_gallery.svg";
+import ArtworkCard from "../../components/artwork/ArtworkCard";
+import RecentArtworkCard from "../../components/artwork/RecentArtworkCard";
+import SectionTitle from "../../components/common/SectionTitle";
 import ArtworkInfoModal from "../../components/modals/ArtworkInfoModal";
 import SearchBar from "../../components/search/SearchBar";
+import UserCard from "../../components/users/UserCard";
 import useRecentArtworks from "../../hooks/useRecentArtworks";
 import useRecommendArtworks from "../../hooks/useRecommendArtworks";
 import { fetchArtwork } from "../../services/artService";
-import { FollowUser } from "../../services/followService";
 import { getRecommendedUsers } from "../../services/userService";
 import { AuthContext } from "../../store/context";
 import { useArtStore } from "../../store/useArtStore";
@@ -145,11 +147,6 @@ export default function Home({ navigation }) {
     setLoading(false);
   };
 
-  const handleModalOpen = (seq) => {
-    if (!seq) return;
-    setShowModal(true);
-  };
-
   // ViewableItems 변경시 인덱스 동기화
   const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 });
   const onViewableItemsChanged = useRef(({ viewableItems }) => {
@@ -161,8 +158,10 @@ export default function Home({ navigation }) {
 
   // 오픈모달
   const openArtwork = (item) => {
+    if (!item) return;
+
     setSelectedArtwork(item);
-    handleModalOpen(item?.seq);
+    setShowModal(true);
   };
 
   return (
@@ -183,7 +182,7 @@ export default function Home({ navigation }) {
           </TouchableOpacity>
           <SearchBar />
           <View style={styles.recommendContainer}>
-            <View style={styles.subTitle}>
+            <View>
               {user ? (
                 <>
                   <Text style={styles.pageTitle}>
@@ -192,7 +191,7 @@ export default function Home({ navigation }) {
                 </>
               ) : (
                 <>
-                  <Text style={styles.pageTitle}>당신을 위한 추천 전시</Text>
+                  <SectionTitle title="당신을 위한 추천 전시" />
                 </>
               )}
               <View style={styles.recommendFactor}>
@@ -205,40 +204,7 @@ export default function Home({ navigation }) {
                   keyExtractor={(item, index) => String(item.seq ?? index)}
                   contentContainerStyle={styles.recommendList}
                   renderItem={({ item }) => (
-                    <TouchableOpacity
-                      style={styles.recommendCard}
-                      activeOpacity={0.8}
-                      onPress={() => {
-                        openArtwork(item);
-                      }}
-                    >
-                      <ImageBackground
-                        source={{ uri: item.thumbnail }}
-                        style={styles.recommendImage}
-                        imageStyle={styles.MainbackgroundImage}
-                        resizeMethod="cover"
-                      />
-                      <View
-                        style={{
-                          flexDirection: "column",
-                          backgroundColor: "#608D00",
-                          padding: 8,
-                          borderBottomLeftRadius: 10,
-                          borderBottomRightRadius: 10,
-                        }}
-                      >
-                        <Text numberOfLines={1} style={styles.recommendPart}>
-                          {item.place}
-                        </Text>
-                        <Text numberOfLines={1} style={styles.recommendTitle}>
-                          {item.title}
-                        </Text>
-                        <Text style={styles.DescStyle}>
-                          {formatDate(item.startDate)} ~
-                          {formatDate(item.endDate)}
-                        </Text>
-                      </View>
-                    </TouchableOpacity>
+                    <ArtworkCard item={item} openArtwork={openArtwork} />
                   )}
                   onViewableItemsChanged={onViewableItemsChanged.current}
                   viewabilityConfig={viewConfigRef.current}
@@ -265,9 +231,7 @@ export default function Home({ navigation }) {
             </View>
           </View>
           <View style={styles.recentContainer}>
-            <View style={styles.subTitle}>
-              <Text style={styles.pageTitle}>금주의 최신 전시모음</Text>
-            </View>
+            <SectionTitle title="금주의 최신 전시모음" />
             <View style={styles.recentContents}>
               {filledRecent
                 .slice(
@@ -275,39 +239,15 @@ export default function Home({ navigation }) {
                   recentPage * RECENT_PER_PAGE + RECENT_PER_PAGE,
                 )
                 .map((artwork, index) => {
-                  const recentNum = index % 4;
-                  const ImgStyle =
-                    recentNum === 0
-                      ? styles.recentImagesS
-                      : recentNum === 1
-                        ? styles.recentImagesL
-                        : recentNum === 2
-                          ? styles.recentImagesL
-                          : styles.recentImagesS;
+                  const variant =
+                    index % 4 === 0 || index % 4 === 3 ? "S" : "L";
 
-                  if (artwork) {
-                    return (
-                      <TouchableOpacity
-                        key={artwork.seq ?? index}
-                        style={ImgStyle}
-                        onPress={() => {
-                          openArtwork(artwork);
-                        }}
-                      >
-                        <ImageBackground
-                          source={{ uri: artwork.thumbnail }}
-                          style={styles.imageBackground}
-                          imageStyle={styles.backgroundImage}
-                        />
-                      </TouchableOpacity>
-                    );
-                  }
-
-                  // Placeholder: green empty tile when no artwork
                   return (
-                    <View
-                      key={"empty-" + index}
-                      style={[ImgStyle, styles.recentPlaceholder]}
+                    <RecentArtworkCard
+                      key={artwork?.seq ?? index}
+                      artwork={artwork}
+                      variant={variant}
+                      onPress={() => openArtwork(artwork)}
                     />
                   );
                 })}
@@ -342,118 +282,57 @@ export default function Home({ navigation }) {
               </TouchableOpacity>
             </View>
           </View>
+          <SectionTitle title="추천 계정" />
           <View style={styles.userRecommendContainer}>
-            <View style={styles.subTitle}>
-              <Text style={styles.pageTitle}>추천 계정</Text>
-            </View>
-
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               {recommendedUsers.map((u, index) => (
-                <View key={u.id} style={styles.userCard}>
-                  <TouchableOpacity
-                    style={styles.userAvatar}
-                    onPress={() => {
-                      navigation.navigate("Review", {
-                        screen: "ReviewMain",
-                      });
-
-                      setTimeout(() => {
-                        navigation.navigate("Review", {
-                          screen: "Profile",
-                          params: { userId: u.uid },
-                        });
-                      }, 0);
-                    }}
-                  >
-                    {u.photoURL && (
-                      <Image
-                        source={{ uri: u.photoURL }}
-                        style={{ width: 60, height: 60, borderRadius: 30 }}
-                      />
-                    )}
-                  </TouchableOpacity>
-
-                  <Text style={styles.userName}>{u.displayName}</Text>
-
-                  {u.bio && (
-                    <Text numberOfLines={1} style={styles.userDesc}>
-                      {u.bio}
-                    </Text>
-                  )}
-
-                  {!user ? (
-                    <View style={{ height: 20, marginTop: 10 }}>
-                      <Text style={{ color: "black", fontSize: 12 }}>
-                        팔로워 {u.followerCnt}명
-                      </Text>
-                    </View>
-                  ) : followingMap[u.id] ? (
-                    <View style={{ height: 20, marginTop: 10 }}>
-                      <Text style={{ color: "black", fontSize: 12 }}>
-                        팔로워 {u.followerCnt + 1}명 {/* 실시간 반영용 */}
-                      </Text>
-                    </View>
-                  ) : (
-                    <TouchableOpacity
-                      style={styles.followBtn}
-                      onPress={async () => {
-                        try {
-                          await FollowUser({
-                            user,
-                            targetUser: u,
-                            isFollowing: !!followingMap[u.id],
-                            expireAt,
-                          });
-                        } catch (error) {
-                          console.log(error);
-                        }
-                      }}
-                    >
-                      <Text style={{ color: "white", fontSize: 12 }}>
-                        {followingMap[u.id] ? "팔로잉" : "팔로우"}
-                      </Text>
-                    </TouchableOpacity>
-                  )}
-                </View>
+                <UserCard
+                  key={u.id}
+                  u={u}
+                  user={user}
+                  followingMap={followingMap}
+                  expireAt={expireAt}
+                  navigation={navigation}
+                />
               ))}
             </ScrollView>
           </View>
           <View style={styles.endedContainer}>
-            <View style={styles.subTitle}>
-              <Text style={styles.pageTitle}>종료예정 전시모음</Text>
-              {endedArtworks.slice(0, 3).map((endedartwork, index) => {
-                return (
-                  <TouchableOpacity
-                    key={index}
-                    style={styles.endedContentsContainer}
-                    onPress={() => {
-                      openArtwork(endedartwork);
-                    }}
-                  >
-                    <ImageBackground
-                      source={{ uri: endedartwork.thumbnail }}
-                      style={styles.endedImages}
-                      imageStyle={styles.backgroundImage}
-                    />
-                    <View style={styles.endedContents}>
-                      <Text
-                        style={{
-                          color: "gray",
-                          marginBottom: 5,
-                          fontSize: 10,
-                        }}
-                      >
-                        {formatDate(endedartwork?.endDate)}까지 만날 수 있는
-                        전시!
-                      </Text>
-                      <Text style={styles.endedNamecStyle} numberOfLines={3}>
-                        {endedartwork.title}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
+            {/* <View style={styles.subTitle}> */}
+            {/* <Text style={styles.pageTitle}>종료예정 전시모음</Text> */}
+            <SectionTitle title="종료예정 전시모음" />
+            {endedArtworks.slice(0, 3).map((endedartwork, index) => {
+              return (
+                <TouchableOpacity
+                  key={index}
+                  style={styles.endedContentsContainer}
+                  onPress={() => {
+                    openArtwork(endedartwork);
+                  }}
+                >
+                  <ImageBackground
+                    source={{ uri: endedartwork.thumbnail }}
+                    style={styles.endedImages}
+                    imageStyle={styles.backgroundImage}
+                  />
+                  <View style={styles.endedContents}>
+                    <Text
+                      style={{
+                        color: "gray",
+                        marginBottom: 5,
+                        fontSize: 10,
+                      }}
+                    >
+                      {formatDate(endedartwork?.endDate)}까지 만날 수 있는 전시!
+                    </Text>
+                    <Text style={styles.endedNamecStyle} numberOfLines={3}>
+                      {endedartwork.title}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
+            {/* </View> */}
 
             <ArtworkInfoModal
               visible={showModal}
@@ -467,9 +346,10 @@ export default function Home({ navigation }) {
             />
           </View>
           <View style={styles.artInPlaceContainer}>
-            <View style={styles.subTitle}>
+            {/* <View style={styles.subTitle}>
               <Text style={styles.pageTitle}>전시장별 전시모음</Text>
-            </View>
+            </View> */}
+            <SectionTitle title="전시장별 전시모음" />
             <View style={styles.artInPlaceContents}>
               {Object.entries(groupByPlace(artworks))
                 .slice(0, 5)
@@ -581,16 +461,6 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingLeft: 10,
   },
-
-  DescStyle: {
-    fontSize: 10,
-    color: "#fff",
-    marginVertical: 4,
-  },
-  MainbackgroundImage: {
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-  },
   backgroundImage: {
     borderRadius: 10,
   },
@@ -619,29 +489,6 @@ const styles = StyleSheet.create({
   },
   recommendList: {
     paddingVertical: 8,
-  },
-  recommendCard: {
-    width: 310,
-    marginRight: 12,
-    borderRadius: 10,
-    backgroundColor: "transparent",
-    padding: 10,
-    overflow: "hidden",
-  },
-  recommendImage: {
-    width: "100%",
-    height: 450,
-    borderRadius: 8,
-  },
-  recommendPart: {
-    fontSize: 12,
-    color: "gray",
-  },
-  recommendTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginVertical: 8,
-    color: "#fff",
   },
   dotsContainer: {
     flexDirection: "row",
@@ -678,7 +525,6 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: "row",
     flexWrap: "wrap",
-    flexDirection: "row",
     justifyContent: "spce-between",
   },
   recentImagesS: {
@@ -763,7 +609,6 @@ const styles = StyleSheet.create({
     fontSize: "13",
     flexWrap: "wrap",
     display: "flex",
-    width: "auto",
     fontWeight: "bold",
   },
   endedContainer: {
@@ -806,8 +651,9 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   userRecommendContainer: {
-    width: "100%",
+    width: "90%",
     marginBottom: 20,
+    marginHorizontal: "auto",
   },
 
   userCard: {
