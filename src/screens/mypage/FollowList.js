@@ -1,22 +1,7 @@
 import { useRoute } from "@react-navigation/native";
-import {
-  addDoc,
-  collection,
-  deleteDoc,
-  doc,
-  getDocs,
-  increment,
-  onSnapshot,
-  query,
-  serverTimestamp,
-  setDoc,
-  Timestamp,
-  updateDoc,
-  where,
-} from "firebase/firestore";
+import { collection, onSnapshot, Timestamp } from "firebase/firestore";
 import { useContext, useEffect, useState } from "react";
 import {
-  Alert,
   ImageBackground,
   StyleSheet,
   Text,
@@ -28,6 +13,7 @@ import { db } from "../../../firebase";
 import BackwardIcon from "../../assets/icons/backward.svg";
 import Mainlogo from "../../assets/icons/logo-main.svg";
 import SearchBar from "../../components/search/SearchBar";
+import { FollowUser } from "../../services/followService";
 import { AuthContext } from "../../store/context";
 import { useUserStore } from "../../store/useUserStore";
 
@@ -82,76 +68,6 @@ export default function FollowList({ navigation }) {
 
     return () => unsubscribe();
   }, [user]);
-
-  //팔로우 언팔로우
-  const FollowUser = async (targetUser) => {
-    const targetUserId = targetUser.uid;
-
-    const followingRef = doc(db, "users", user.uid, "following", targetUserId);
-    const followerRef = doc(db, "users", targetUserId, "followers", user.uid);
-
-    try {
-      if (followingMap[targetUserId]) {
-        // 언팔로우
-        await deleteDoc(followingRef);
-        await deleteDoc(followerRef);
-        await deleteFollowNotification(targetUserId);
-        await updateDoc(doc(db, "users", user.uid), {
-          followingCnt: increment(-1),
-        });
-        await updateDoc(doc(db, "users", targetUserId), {
-          followerCnt: increment(-1),
-        });
-      } else {
-        // 팔로우
-        await setDoc(followingRef, {
-          displayName: targetUser.displayName,
-          photoURL: targetUser.photoURL || null,
-          createdAt: serverTimestamp(),
-        });
-        await setDoc(followerRef, {
-          displayName: user.displayName,
-          photoURL: user.photoURL || null,
-          createdAt: serverTimestamp(),
-        });
-        await updateDoc(doc(db, "users", user.uid), {
-          followingCnt: increment(1),
-        });
-        await updateDoc(doc(db, "users", targetUserId), {
-          followerCnt: increment(1),
-        });
-        if (user.uid !== targetUserId) {
-          await addDoc(collection(db, "users", targetUserId, "notifications"), {
-            type: "follow",
-            fromUserId: user.uid,
-            createdAt: serverTimestamp(),
-            fromUserName: user.displayName,
-            fromUserPhoto: user.photoURL,
-            isRead: false,
-            expireAt: expireAt,
-          });
-        }
-      }
-    } catch (error) {
-      console.error("팔로우 토글 실패:", error);
-      Alert.alert("팔로우/언팔로우 실패. 다시 시도해주세요.");
-    }
-  };
-
-  //언팔로우시 알림 삭제
-  const deleteFollowNotification = async (targetUserId) => {
-    const q = query(
-      collection(db, "users", targetUserId, "notifications"),
-      where("type", "==", "follow"),
-      where("fromUserId", "==", user.uid),
-    );
-
-    const snapshot = await getDocs(q);
-
-    snapshot.forEach(async (docSnap) => {
-      await deleteDoc(docSnap.ref);
-    });
-  };
 
   return (
     <SafeAreaView
@@ -246,7 +162,18 @@ export default function FollowList({ navigation }) {
                       paddingVertical: 6,
                       borderRadius: 10,
                     }}
-                    onPress={() => FollowUser(follower)}
+                    onPress={() =>
+                      FollowUser({
+                        user,
+                        targetUser: {
+                          id: follower.uid,
+                          displayName: follower.displayName,
+                          photoURL: follower.photoURL,
+                        },
+                        isFollowing: !!followingMap[follower.uid],
+                        expireAt,
+                      })
+                    }
                   >
                     <Text style={{ color: "white" }}>
                       {followingMap[follower.uid] ? "언팔로우" : "팔로우"}
@@ -278,7 +205,18 @@ export default function FollowList({ navigation }) {
                       paddingVertical: 6,
                       borderRadius: 10,
                     }}
-                    onPress={() => FollowUser(following)}
+                    onPress={() =>
+                      FollowUser({
+                        user,
+                        targetUser: {
+                          id: following.uid,
+                          displayName: following.displayName,
+                          photoURL: following.photoURL,
+                        },
+                        isFollowing: !!followingMap[following.uid],
+                        expireAt,
+                      })
+                    }
                   >
                     <Text style={{ color: "white" }}>
                       {followingMap[following.uid] ? "언팔로우" : "팔로우"}

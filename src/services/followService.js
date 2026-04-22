@@ -27,6 +27,8 @@ export const FollowUser = async ({
   if (isFollowing) {
     await deleteDoc(followingRef);
     await deleteDoc(followerRef);
+    console.log(1);
+    await deleteFollowNotification(targetUserId, user.uid);
 
     await updateDoc(doc(db, "users", user.uid), {
       followingCnt: increment(-1),

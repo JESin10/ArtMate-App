@@ -1,20 +1,20 @@
+import { collection, getDocs } from "firebase/firestore";
+import { useCallback, useContext, useEffect, useState } from "react";
 import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
   FlatList,
   ImageBackground,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import { useContext, useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { db } from "../../../firebase";
 import BackwardIcon from "../../assets/icons/backward.svg";
 import Mainlogo from "../../assets/icons/logo-main.svg";
-import { AuthContext } from "../../store/context";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "../../../firebase";
-import SearchBar from "../../components/search/SearchBar";
 import ArtworkInfoModal from "../../components/modals/ArtworkInfoModal";
+import SearchBar from "../../components/search/SearchBar";
+import { AuthContext } from "../../store/context";
 
 export default function History({ navigation }) {
   const [myhistory, setMyHistory] = useState([]);
@@ -50,10 +50,10 @@ export default function History({ navigation }) {
     }
   };
 
-  const handleModalOpen = (item) => {
+  const handleModalOpen = useCallback((item) => {
     setSelectedArtwork(item);
     setShowArtworkModal(true);
-  };
+  }, []);
 
   return (
     <SafeAreaView
