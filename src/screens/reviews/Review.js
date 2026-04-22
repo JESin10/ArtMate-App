@@ -324,7 +324,11 @@ export default function Review({ route, navigation }) {
         <FlatList
           ref={flatListRef}
           data={reviews}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => item.seq}
+          initialNumToRender={5}
+          windowSize={7}
+          maxToRenderPerBatch={5}
+          removeClippedSubviews={true}
           contentContainerStyle={styles.reviewsContainer}
           renderItem={({ item: review }) => (
             <View style={styles.reviewFactor}>

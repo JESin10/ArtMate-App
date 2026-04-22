@@ -1,26 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 export default function useRecommendArtworks(artworks, parseDateSafe) {
-  const [recommendedArtworks, setRecommendedArtworks] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const flatListRef = useRef(null);
 
-  const getRandomItems = (array, count) => {
-    const shuffled = [...array];
-
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-
-    return shuffled.slice(0, count);
-  };
-
-  useEffect(() => {
-    if (!artworks || artworks.length === 0) {
-      setRecommendedArtworks([]);
-      return;
-    }
+  const recommendedArtworks = useMemo(() => {
+    if (!artworks?.length) return [];
 
     const today = new Date();
 
@@ -29,14 +14,20 @@ export default function useRecommendArtworks(artworks, parseDateSafe) {
       return end && end >= today;
     });
 
-    const withThumbnail = active.filter(
-      (item) => item.thumbnail && item.thumbnail.startsWith("http"),
+    const withThumbnail = active.filter((item) =>
+      item.thumbnail?.startsWith("http"),
     );
 
-    setRecommendedArtworks(getRandomItems(withThumbnail, 5));
-  }, [artworks]);
+    // 🔥 랜덤 셔플
+    const shuffled = [...withThumbnail];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
 
-  // 자동 슬라이드
+    return shuffled.slice(0, 5);
+  }, [artworks, parseDateSafe]);
+
   useEffect(() => {
     if (recommendedArtworks.length === 0) return;
 

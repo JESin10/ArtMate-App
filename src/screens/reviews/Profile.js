@@ -391,7 +391,7 @@ export default function Profile({ route, navigation }) {
               <View style={{ flexDirection: "row" }}>
                 <FlatList
                   data={reviewPreview}
-                  keyExtractor={(item, index) => index.toString()}
+                  keyExtractor={(item) => item.seq}
                   horizontal
                   showsHorizontalScrollIndicator={false}
                   renderItem={({ item }) => (

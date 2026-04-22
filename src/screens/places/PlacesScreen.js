@@ -1,52 +1,52 @@
 import { useCallback, useRef, useState } from "react";
 import {
-  View,
-  Text,
-  TouchableOpacity,
   ActivityIndicator,
   FlatList,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import PlaceItem from "../../components/places/PlaceItem";
-import PlacesInfoModal from "../../components/modals/PlacesInfoModal";
 import MapIcon from "../../assets/icons/location.svg";
-import ReloadIcon from "../../assets/icons/reload.svg";
 import Mainlogo from "../../assets/icons/logo-main.svg";
+import ReloadIcon from "../../assets/icons/reload.svg";
+import PlacesInfoModal from "../../components/modals/PlacesInfoModal";
+import PlaceItem from "../../components/places/PlaceItem";
 import SearchBar from "../../components/search/SearchBar";
 import usePlaces from "../../hooks/usePlaces";
-import {useArtStore} from'../../store/useArtStore'
+import { useArtStore } from "../../store/useArtStore";
 
 export default function PlacesScreen({ navigation }) {
-const {
-  gallery,
-  details,
-  loading,
-  isFetchingMore,
-  loadMore,
-  fetchPlaces,
-  userLocation,
-} = usePlaces();
-const artworks = useArtStore((state) => state.artworks);
+  const {
+    gallery,
+    details,
+    loading,
+    isFetchingMore,
+    loadMore,
+    fetchPlaces,
+    userLocation,
+  } = usePlaces();
+  const artworks = useArtStore((state) => state.artworks);
   const [showPopup, setShowPopup] = useState(false);
   const [selectedPlace, setSelectedPlace] = useState(null);
   const flatListRef = useRef(null);
   const renderItem = useCallback(
-  ({ item }) => {
-    const detail = details?.[item.seq] ?? null;
+    ({ item }) => {
+      const detail = details?.[item.seq] ?? null;
 
-    return (
-      <PlaceItem
-        item={item}
-        detail={detail}
-        onPress={() => {
-          setSelectedPlace(item);
-          setShowPopup(true);
-        }}
-      />
-    );
-  },
-  [details]
-);
+      return (
+        <PlaceItem
+          item={item}
+          detail={detail}
+          onPress={() => {
+            setSelectedPlace(item);
+            setShowPopup(true);
+          }}
+        />
+      );
+    },
+    [details],
+  );
 
   const getCoords = (detail, item) => {
     const tryNum = (v) => {
@@ -159,7 +159,7 @@ const artworks = useArtStore((state) => state.artworks);
           ref={flatListRef}
           data={gallery}
           renderItem={renderItem}
-          keyExtractor={(item) => item.seq?.toString()}
+          keyExtractor={(item) => item.seq}
           onEndReached={loadMore}
           onEndReachedThreshold={0.5}
           initialNumToRender={10}

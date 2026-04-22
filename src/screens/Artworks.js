@@ -1,25 +1,29 @@
 import {
-  View,
-  Text,
-  ScrollView,
-  StyleSheet,
-  TextInput,
-  ImageBackground,
-  Button,
+  collection,
+  doc,
+  getDoc,
+  onSnapshot,
+  orderBy,
+  query,
+} from "firebase/firestore";
+import { useEffect, useMemo, useRef, useState } from "react";
+import {
   ActivityIndicator,
-  TouchableOpacity,
   FlatList,
+  ImageBackground,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import { db } from "../../firebase.js";
+import FilterIcon from "../assets/icons/filter.svg";
+import Mainlogo from "../assets/icons/logo-main.svg";
+import ReloadIcon from "../assets/icons/reload.svg";
 import ArtworkFilter from "../components/filter/ArtworkFilter.js";
 import ArtworkInfoModal from "../components/modals/ArtworkInfoModal";
-import FilterIcon from "../assets/icons/filter.svg";
-import ReloadIcon from "../assets/icons/reload.svg";
-import Mainlogo from "../assets/icons/logo-main.svg";
 import SearchBar from "../components/search/SearchBar.js";
-import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
-import { db } from "../../firebase.js";
 import { fetchArtwork } from "../services/artService.js";
 import { useArtStore } from "../store/useArtStore.js";
 import { parseItems } from "../utils/xmlParser.js";
@@ -341,7 +345,7 @@ export default function Artworks({ navigation }) {
         <FlatList
           ref={flatListRef}
           data={displayedArtworks}
-          keyExtractor={(item, index) => `${item.DP_SEQ}-${index}`}
+          keyExtractor={(item) => item.DP_SEQ}
           numColumns={2}
           onEndReached={loadMore}
           onEndReachedThreshold={0.5}

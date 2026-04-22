@@ -201,7 +201,7 @@ export default function Home({ navigation }) {
                   horizontal
                   pagingEnabled={false}
                   showsHorizontalScrollIndicator={false}
-                  keyExtractor={(item, index) => String(item.seq ?? index)}
+                  keyExtractor={(item) => item.seq}
                   contentContainerStyle={styles.recommendList}
                   renderItem={({ item }) => (
                     <ArtworkCard item={item} openArtwork={openArtwork} />
