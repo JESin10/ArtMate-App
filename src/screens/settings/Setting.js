@@ -48,7 +48,9 @@ export default function Setting({ navigation }) {
       await signOut(auth);
       setUser(null);
       navigation.navigate("Bottom", { screen: "Home" });
-    } catch (error) {}
+    } catch (error) {
+      console.error("로그아웃 실패:", error);
+    }
   };
 
   // Firestore 데이터 삭제
