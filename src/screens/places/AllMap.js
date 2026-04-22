@@ -1,15 +1,16 @@
-import { Text, View, TouchableOpacity, StyleSheet, Alert } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import MapView, { Marker } from "react-native-maps";
-import Mainlogo from "../../assets/icons/logo-main.svg";
-import ListIcon from "../../assets/icons/list.svg";
-import { useState, useRef, useEffect, useContext } from "react";
 import * as Location from "expo-location";
-import { AuthContext } from "../../store/context";
 import { collection, getDocs } from "firebase/firestore";
+import { useContext, useEffect, useRef, useState } from "react";
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import MapView, { Marker } from "react-native-maps";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { db } from "../../../firebase";
+import ListIcon from "../../assets/icons/list.svg";
+import Mainlogo from "../../assets/icons/logo-main.svg";
 import SearchBar from "../../components/search/SearchBar";
+import { AuthContext } from "../../store/context";
 import { useUserStore } from "../../store/useUserStore";
+import { colors } from "../../styles/colors";
 
 export default function AllMap({ route, navigation }) {
   const markers = route?.params?.markers ?? [];
@@ -251,14 +252,14 @@ export default function AllMap({ route, navigation }) {
 const styles = StyleSheet.create({
   container: { flex: 1, height: "90%" },
   searchbar: {
-    borderColor: "black",
+    borderColor: colors.black,
     borderWidth: 1,
     borderRadius: 10,
     width: "100%",
     padding: 10,
     marginHorizontal: "auto",
     marginVertical: 15,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: colors.lightGray,
     alignItems: "center",
   },
   closeBtn: {
@@ -266,11 +267,11 @@ const styles = StyleSheet.create({
     top: 20,
     right: 20,
     zIndex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: colors.white,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 6,
-    borderColor: "#000",
+    borderColor: colors.black,
     borderWidth: 1,
   },
   listBtn: {
@@ -280,11 +281,11 @@ const styles = StyleSheet.create({
     top: 30,
     right: 20,
     zIndex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: colors.white,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 13,
-    borderColor: "#ccccccff",
+    borderColor: colors.lightGray,
     borderWidth: 1,
   },
   zoomInBtn: {
@@ -296,10 +297,10 @@ const styles = StyleSheet.create({
     top: 20,
     left: 20,
     zIndex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: colors.white,
     borderTopRightRadius: 13,
     borderTopLeftRadius: 13,
-    borderColor: "#ccccccff",
+    borderColor: colors.lightGray,
     borderBottomWidth: 0,
     borderTopWidth: 1,
     borderLeftWidth: 1,
@@ -314,10 +315,10 @@ const styles = StyleSheet.create({
     top: 60,
     left: 20,
     zIndex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: colors.white,
     borderBottomRightRadius: 13,
     borderBottomLeftRadius: 13,
-    borderColor: "#ccccccff",
+    borderColor: colors.lightGray,
     borderWidth: 1,
   },
   zoomInText: {
@@ -328,7 +329,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     fontSize: 20,
   },
-  closeText: { color: "#000", fontWeight: "bold" },
+  closeText: { color: colors.black, fontWeight: "bold" },
   filterContainer: {
     flexDirection: "row",
     justifyContent: "space-around",
@@ -337,14 +338,14 @@ const styles = StyleSheet.create({
   filterBtn: {
     paddingVertical: 8,
     paddingHorizontal: 15,
-    backgroundColor: "#eee",
+    backgroundColor: colors.white,
     borderRadius: 20,
   },
   activeFilterBtn: {
-    backgroundColor: "#608D00", // 클릭된 버튼 색
+    backgroundColor: colors.primary, // 클릭된 버튼 색
   },
   activeFilterText: {
-    color: "#fff", // 클릭된 버튼 텍스트 색
+    color: colors.white, // 클릭된 버튼 텍스트 색
     fontWeight: "bold",
   },
 });

@@ -1,22 +1,8 @@
-import {
-  View,
-  Text,
-  ScrollView,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  Alert,
-  Image,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useState } from "react";
-import Mainlogo from "../../assets/icons/logo-main.svg";
-import MainSlogun from "../../assets/images/slogan.svg";
+import * as ImagePicker from "expo-image-picker";
 import {
   createUserWithEmailAndPassword,
   fetchSignInMethodsForEmail,
 } from "firebase/auth";
-import { auth, db, storage } from "../../../firebase";
 import {
   collection,
   doc,
@@ -25,8 +11,23 @@ import {
   setDoc,
   where,
 } from "firebase/firestore";
-import * as ImagePicker from "expo-image-picker";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { useState } from "react";
+import {
+  Alert,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { auth, db, storage } from "../../../firebase";
+import Mainlogo from "../../assets/icons/logo-main.svg";
+import MainSlogun from "../../assets/images/slogan.svg";
+import { colors } from "../../styles/colors";
 
 export default function Signup({ navigation }) {
   const [name, setName] = useState("");
@@ -87,7 +88,7 @@ export default function Signup({ navigation }) {
 
     // 비밀번호 조건 체크 (8자 이상, 문자+숫자+특수문자)
     const passwordRegex =
-      /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+~`|}{[\]:;?><,./\-]).{8,}$/;
+      /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+~`|}{[\]:;?><,./-]).{8,}$/;
     if (!passwordRegex.test(password)) {
       Alert.alert(
         "비밀번호 조건 오류",
@@ -170,7 +171,7 @@ export default function Signup({ navigation }) {
                 source={{ uri: profileImage }}
                 style={styles.profileImage}
               />
-              <Text style={{ color: "#608D00", marginTop: 5 }}>
+              <Text style={{ color: colors.primary, marginTop: 5 }}>
                 프로필 사진 선택
               </Text>
             </TouchableOpacity>
@@ -320,40 +321,40 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#fff",
+    backgroundColor: colors.white,
   },
   input: {
     width: 300,
     height: 45,
-    backgroundColor: "white",
-    borderColor: "#608D00",
+    backgroundColor: colors.white,
+    borderColor: colors.primary,
     borderWidth: 1,
     borderRadius: 30,
     padding: 10,
     marginBottom: 10,
     textAlign: "center",
-    placeholderTextColor: "#6F6F6F",
+    placeholderTextColor: colors.placeholder,
     fontSize: 12,
   },
   EmailInput: {
     width: 240,
     height: 45,
-    backgroundColor: "white",
-    borderColor: "#608D00",
+    backgroundColor: colors.white,
+    borderColor: colors.primary,
     borderWidth: 1,
     borderRadius: 30,
     padding: 10,
     marginBottom: 10,
     textAlign: "center",
-    placeholderTextColor: "#6F6F6F",
+    placeholderTextColor: colors.placeholder,
     fontSize: 12,
     marginRight: 10,
   },
   EmailCheckBtn: {
     width: 50,
     height: 45,
-    backgroundColor: "#608D00",
-    borderColor: "#608D00",
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
     borderWidth: 1,
     borderRadius: 25,
     marginBottom: 10,
@@ -370,9 +371,7 @@ const styles = StyleSheet.create({
   button: {
     width: 300,
     height: 45,
-
-    height: "auto",
-    backgroundColor: "#608D00",
+    backgroundColor: colors.primary,
     borderRadius: 30,
     margin: 10,
     alignItems: "center",
@@ -394,7 +393,7 @@ const styles = StyleSheet.create({
   decoLine: {
     width: "80%",
     justifyContent: "center",
-    borderBottomColor: "#A8A8A8",
+    borderBottomColor: colors.gray,
     borderBottomWidth: 1,
     marginTop: 10,
     marginBottom: 40,
@@ -419,6 +418,6 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: "#eee",
+    backgroundColor: colors.lightGray,
   },
 });

@@ -1,38 +1,36 @@
 import {
-  Modal,
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  ScrollView,
+  deleteDoc,
+  doc,
+  increment,
+  onSnapshot,
+  serverTimestamp,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
+import { decode } from "html-entities"; // 추가: HTML 엔티티 디코드
+import { useContext, useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
   ImageBackground,
   Linking,
-  Alert,
-  ActivityIndicator,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import React, { useContext, useEffect, useState } from "react";
-import { decode } from "html-entities"; // 추가: HTML 엔티티 디코드
-import BookmarkIcon from "../../assets/icons/bookmark.svg";
-import FilledBookmarkIcon from "../../assets/icons/bookmark-filled.svg";
-import ShareIcon from "../../assets/icons/share.svg";
-import InfoIcon from "../../assets/icons/info.svg";
-import { AuthContext } from "../../store/context";
-import {
-  doc,
-  setDoc,
-  deleteDoc,
-  updateDoc,
-  increment,
-  serverTimestamp,
-  getDoc,
-  onSnapshot,
-} from "firebase/firestore";
 import { db } from "../../../firebase";
+import FilledBookmarkIcon from "../../assets/icons/bookmark-filled.svg";
+import BookmarkIcon from "../../assets/icons/bookmark.svg";
+import InfoIcon from "../../assets/icons/info.svg";
+import ShareIcon from "../../assets/icons/share.svg";
 import Map from "../../screens/places/Map";
-import ReviewImageSlider from "../Slider/ReviewImageSlider";
-import { fetchDetailArtwork } from "../../services/artService";
-import { parseItems } from "../../utils/xmlParser";
+import { AuthContext } from "../../store/context";
 import { useArtStore } from "../../store/useArtStore";
+import { colors } from "../../styles/colors";
+import ReviewImageSlider from "../Slider/ReviewImageSlider";
 
 export default function ArtworkInfoModal({ visible, onClose, seq, artwork }) {
   const {
@@ -99,7 +97,7 @@ export default function ArtworkInfoModal({ visible, onClose, seq, artwork }) {
       return `${year}년 ${month}월 ${day}일`;
     }
 
-    return String(dateStr) ?? "";
+    return String(dateStr)?.trim() || "";
   };
 
   //링크 열기
@@ -237,7 +235,11 @@ export default function ArtworkInfoModal({ visible, onClose, seq, artwork }) {
               </TouchableOpacity>
               {filled ? (
                 <TouchableOpacity onPress={() => BookmarkHandler()}>
-                  <FilledBookmarkIcon width={24} height={24} fill="#608D00" />
+                  <FilledBookmarkIcon
+                    width={24}
+                    height={24}
+                    fill={colors.primary}
+                  />
                 </TouchableOpacity>
               ) : (
                 <TouchableOpacity onPress={() => BookmarkHandler()}>

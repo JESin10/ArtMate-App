@@ -1,36 +1,35 @@
 import {
-  Modal,
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  ImageBackground,
-  ScrollView,
-  Linking,
-  Alert,
-  ActivityIndicator,
-} from "react-native";
-import InfoIcon from "../../assets/icons/info.svg";
-import React, { useContext, useEffect, useState } from "react";
-import BookmarkIcon from "../../assets/icons/bookmark.svg";
-import FilledBookmarkIcon from "../../assets/icons/bookmark-filled.svg";
-import ShareIcon from "../../assets/icons/share.svg";
-import { decode } from "html-entities";
-import Map from "../../screens/places/Map";
-import { AuthContext } from "../../store/context";
-import {
-  doc,
-  setDoc,
   deleteDoc,
-  updateDoc,
+  doc,
+  getDoc,
   increment,
   serverTimestamp,
-  getDoc,
+  setDoc,
+  updateDoc,
 } from "firebase/firestore";
+import { decode } from "html-entities";
+import { useContext, useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  ImageBackground,
+  Linking,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { db } from "../../../firebase";
-import { fetchDetailPlace } from "../../services/placeService";
-import { parseItems } from "../../utils/xmlParser";
+import FilledBookmarkIcon from "../../assets/icons/bookmark-filled.svg";
+import BookmarkIcon from "../../assets/icons/bookmark.svg";
+import InfoIcon from "../../assets/icons/info.svg";
+import ShareIcon from "../../assets/icons/share.svg";
+import Map from "../../screens/places/Map";
+import { AuthContext } from "../../store/context";
 import { usePlaceStore } from "../../store/usePlaceStore";
+import { colors } from "../../styles/colors";
 
 export default function PlacesInfoModal({
   visible,
@@ -218,7 +217,11 @@ export default function PlacesInfoModal({
                 </TouchableOpacity>
                 {filled ? (
                   <TouchableOpacity onPress={() => BookmarkHandler()}>
-                    <FilledBookmarkIcon width={24} height={24} fill="#608D00" />
+                    <FilledBookmarkIcon
+                      width={24}
+                      height={24}
+                      fill={colors.primary}
+                    />
                   </TouchableOpacity>
                 ) : (
                   <TouchableOpacity onPress={() => BookmarkHandler()}>

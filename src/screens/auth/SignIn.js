@@ -1,23 +1,22 @@
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { useContext, useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  TextInput,
   ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import React, { useState, useContext, useEffect } from "react";
+import { auth, db } from "../../../firebase";
 import Mainlogo from "../../assets/icons/logo-main.svg";
 import MainSlogun from "../../assets/images/slogan.svg";
-import { doc, getDoc } from "firebase/firestore";
-import { auth, db } from "../../../firebase";
-import { AuthContext } from "../../store/context";
-import { signInWithEmailAndPassword } from "firebase/auth";
 import { useKakaoLogin } from "../../hooks/useKakaoLogin";
+import { AuthContext } from "../../store/context";
 
-import * as WebBrowser from "expo-web-browser";
-import * as AuthSession from "expo-auth-session";
+import { colors } from "../../styles/colors";
 
 // WebBrowser.maybeCompleteAuthSession();
 
@@ -213,21 +212,21 @@ export default function SignIn({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: colors.white,
     alignItems: "center",
     justifyContent: "center",
   },
   input: {
     width: 300,
     height: 45,
-    backgroundColor: "white",
-    borderColor: "#608D00",
+    backgroundColor: colors.white,
+    borderColor: colors.primary,
     borderWidth: 1,
     borderRadius: 30,
     padding: 10,
     marginBottom: 10,
     textAlign: "center",
-    placeholderTextColor: "#6F6F6F",
+    placeholderTextColor: colors.placeholder,
   },
   inputContainer: {
     width: "100%",
@@ -238,9 +237,7 @@ const styles = StyleSheet.create({
   button: {
     width: 300,
     height: 45,
-
-    height: "auto",
-    backgroundColor: "#608D00",
+    backgroundColor: colors.primary,
     borderRadius: 30,
     margin: 10,
     alignItems: "center",
@@ -259,7 +256,7 @@ const styles = StyleSheet.create({
   decoLine: {
     width: "80%",
     justifyContent: "center",
-    borderBottomColor: "#A8A8A8",
+    borderBottomColor: colors.gray,
     borderBottomWidth: 1,
     marginTop: 30,
     marginBottom: 40,
@@ -273,7 +270,7 @@ const styles = StyleSheet.create({
     marginHorizontal: "auto",
   },
   findFactor: {
-    color: "gray",
+    color: colors.gray,
     fontSize: 10,
     fontWeight: "semibold",
     marginBottom: 20,

@@ -1,13 +1,14 @@
-import { View, Text, TouchableOpacity, Alert, StyleSheet } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import BackwardIcon from "../../assets/icons/backward.svg";
-import { useContext } from "react";
-import { AuthContext } from "../../store/context";
 import { deleteUser, sendPasswordResetEmail, signOut } from "firebase/auth";
 import { collection, deleteDoc, doc, getDocs } from "firebase/firestore";
+import { useContext } from "react";
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { auth, db } from "../../../firebase";
+import BackwardIcon from "../../assets/icons/backward.svg";
 import Mainlogo from "../../assets/icons/logo-main.svg";
 import MainSlogun from "../../assets/images/slogan.svg";
+import { AuthContext } from "../../store/context";
+import { colors } from "../../styles/colors";
 
 export default function Setting({ navigation }) {
   const { user, setUser } = useContext(AuthContext);
@@ -223,13 +224,13 @@ const styles = StyleSheet.create({
     flexDirection: "horizontal",
     // paddingTop: 40,
     paddingBottom: 0,
-    backgroundColor: "#608D00",
+    backgroundColor: colors.primary,
   },
   userSettingFactor: {
-    backgroundColor: "#fff",
+    backgroundColor: colors.white,
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: "#d9d9d9",
+    borderBottomColor: colors.lightGray,
   },
   QASetting: {
     width: "100%",
@@ -238,12 +239,12 @@ const styles = StyleSheet.create({
     verticalAlign: "center",
     paddingTop: 40,
     paddingBottom: 0,
-    backgroundColor: "#608D00",
+    backgroundColor: colors.primary,
   },
   QAFactor: {
-    backgroundColor: "#fff",
+    backgroundColor: colors.white,
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: "#d9d9d9",
+    borderBottomColor: colors.lightGray,
   },
 });

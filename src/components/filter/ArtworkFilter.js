@@ -1,13 +1,14 @@
+import { useEffect, useState } from "react";
 import {
-  View,
-  Text,
   Modal,
-  StyleSheet,
-  TouchableOpacity,
   ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import { useState, useEffect } from "react";
 import { useArtStore } from "../../store/useArtStore";
+import { colors } from "../../styles/colors";
 
 export default function ArtworkFilter({
   visible,
@@ -279,7 +280,7 @@ const styles = StyleSheet.create({
     color: "black",
   },
   line: {
-    borderBottomColor: "#608D00",
+    borderBottomColor: colors.primary,
     borderWidth: 0.5,
     borderColor: "transparent",
     padding: 10,
@@ -290,17 +291,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderRadius: 15,
     borderWidth: 1,
-    borderColor: "#608D00",
+    borderColor: colors.primary,
     marginRight: 8,
     marginBottom: 8,
-    backgroundColor: "#fff",
+    backgroundColor: colors.white,
   },
   partButtonActive: {
-    backgroundColor: "#608D00",
-    borderColor: "#608D00",
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
-  partText: { color: "#333" },
-  partTextActive: { color: "#fff" },
+  partText: { color: colors.text },
+  partTextActive: { color: colors.white },
   filterContainer: {
     width: "100%",
     height: "auto",
@@ -319,14 +320,14 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingVertical: 20,
     borderColor: "transparent",
-    borderTopColor: "#608D00",
+    borderTopColor: colors.primary,
   },
   cancelBtn: {
     marginRight: 12,
-    color: "#608D00",
+    color: colors.primary,
     borderWidth: 1,
     borderRadius: 20,
-    borderColor: "#608D00",
+    borderColor: colors.primary,
     textAlign: "center",
     lineHeight: 32,
     height: 35,
@@ -338,9 +339,9 @@ const styles = StyleSheet.create({
   },
   selectBtn: {
     marginRight: 12,
-    backgroundColor: "#608D00",
+    backgroundColor: colors.primary,
     borderRadius: 20,
-    borderColor: "#608D00",
+    borderColor: colors.primary,
     borderWidth: 1,
     textAlign: "center",
     lineHeight: 32,

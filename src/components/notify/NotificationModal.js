@@ -1,26 +1,27 @@
 import {
-  FlatList,
-  StyleSheet,
-  View,
-  Text,
-  TouchableOpacity,
-  Modal,
-  Dimensions,
-  Animated,
-} from "react-native";
-import { useEffect, useState, useContext, useRef } from "react";
-import {
   collection,
-  onSnapshot,
-  query,
-  orderBy,
   doc,
+  onSnapshot,
+  orderBy,
+  query,
   updateDoc,
 } from "firebase/firestore";
-import NotificationItem from "./NotificationItem";
+import { useContext, useEffect, useRef, useState } from "react";
+import {
+  Animated,
+  Dimensions,
+  FlatList,
+  Modal,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { db } from "../../../firebase";
 import { AuthContext } from "../../store/context";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { colors } from "../../styles/colors";
+import NotificationItem from "./NotificationItem";
 
 const screenHeight = Dimensions.get("window").height;
 
@@ -153,22 +154,15 @@ const styles = StyleSheet.create({
     width: "100%",
     flexDirection: "horizontal",
     paddingBottom: 0,
-    backgroundColor: "#608D00",
+    backgroundColor: colors.primary,
   },
-  // modalOverlay: {
-  //   flex: 1,
-  //   backgroundColor: "rgba(0,0,0,0.5)",
-  //   justifyContent: "flex-start",
-  // },
   modalContainer: {
     height: "50%",
     width: "60%",
-    backgroundColor: "#fff",
-    // borderTopLeftRadius: 20,
-    // borderTopRightRadius: 20,
+    backgroundColor: colors.white,
     borderRadius: 20,
     padding: 24,
-    shadowColor: "#000",
+    shadowColor: colors.black,
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -181,7 +175,7 @@ const styles = StyleSheet.create({
   },
   closeBtn: {
     width: "40",
-    backgroundColor: "#608D00",
+    backgroundColor: colors.primary,
     padding: 10,
     borderRadius: 10,
     alignItems: "center",

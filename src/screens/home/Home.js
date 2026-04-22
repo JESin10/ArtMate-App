@@ -28,6 +28,7 @@ import { getRecommendedUsers } from "../../services/userService";
 import { AuthContext } from "../../store/context";
 import { useArtStore } from "../../store/useArtStore";
 import { useUserStore } from "../../store/useUserStore";
+import { colors } from "../../styles/colors";
 import { computeEndedArtworks, groupByPlace } from "../../utils/artwork";
 import { formatDate, parseDateSafe } from "../../utils/date";
 import { parseItems } from "../../utils/xmlParser";
@@ -358,7 +359,7 @@ export default function Home({ navigation }) {
                     <View
                       style={{ flexDirection: "row", alignItems: "center" }}
                     >
-                      <PlaceIcon width={24} height={24} fill="#608D00" />
+                      <PlaceIcon width={24} height={24} fill={colors.primary} />
                       <Text
                         style={{
                           fontWeight: "bold",
@@ -397,10 +398,10 @@ export default function Home({ navigation }) {
                             /> */}
                             <View
                               style={{
-                                backgroundColor: "#608D00",
+                                backgroundColor: colors.primary,
                                 borderWidth: 1,
                                 borderRadius: 12,
-                                borderColor: "#608D00",
+                                borderColor: colors.primary,
                                 paddingHorizontal: 8,
                                 paddingVertical: 4,
                               }}
@@ -443,14 +444,14 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   searchbar: {
-    borderColor: "black",
+    borderColor: colors.black,
     borderWidth: 1,
     borderRadius: 10,
     width: "100%",
     padding: 10,
     marginVertical: 15,
     marginHorizontal: "auto",
-    backgroundColor: "#f5f5f5",
+    backgroundColor: colors.white,
     alignItems: "center",
   },
   subTitle: {
@@ -467,12 +468,12 @@ const styles = StyleSheet.create({
   artistImages: {
     width: "100%",
     height: 100,
-    borderColor: "black",
+    borderColor: colors.black,
     borderWidth: 1,
   },
   recommendFactor: {
     width: "100%",
-    shadowColor: "#000",
+    shadowColor: colors.black,
     shadowOffset: { width: 1, height: 4 },
     shadowOpacity: 0.5,
     shadowRadius: 4,
@@ -501,14 +502,14 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: "#ccc",
+    backgroundColor: colors.lightGray,
     marginHorizontal: 6,
   },
   activeDot: {
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: "#333",
+    backgroundColor: colors.black,
   },
   recentContainer: {
     width: "100%",
@@ -533,7 +534,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 10,
-    backgroundColor: "white",
+    backgroundColor: colors.white,
     margin: 5,
   },
   recentImagesL: {
@@ -543,7 +544,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     margin: 5,
     borderRadius: 10,
-    backgroundColor: "white",
+    backgroundColor: colors.white,
   },
   recentPlaceholder: {
     justifyContent: "center",
@@ -558,7 +559,7 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     alignItems: "center",
     justifyContent: "center",
-    borderColor: "#5f5f5fff",
+    borderColor: colors.gray,
     borderWidth: 1,
     borderRadius: 20,
   },
@@ -605,7 +606,7 @@ const styles = StyleSheet.create({
   endedNamecStyle: {
     marginVertical: 2,
     width: "50%",
-    color: "#000",
+    color: colors.black,
     fontSize: "13",
     flexWrap: "wrap",
     display: "flex",
@@ -624,7 +625,7 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "center",
     flexDirection: "column",
-    backgroundColor: "#D9D9D9",
+    backgroundColor: colors.lightGray,
     height: "auto",
   },
   artInPlaceContents: {
@@ -660,10 +661,10 @@ const styles = StyleSheet.create({
     width: 110,
     marginRight: 12,
     alignItems: "center",
-    backgroundColor: "#fff",
+    backgroundColor: colors.white,
     borderRadius: 10,
     padding: 10,
-    shadowColor: "#000",
+    shadowColor: colors.black,
     shadowOpacity: 0.1,
     shadowRadius: 3,
   },
@@ -672,7 +673,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: "#ddd",
+    backgroundColor: colors.lightGray,
     marginBottom: 6,
     overflow: "hidden",
   },
@@ -684,11 +685,11 @@ const styles = StyleSheet.create({
 
   userDesc: {
     fontSize: 10,
-    color: "gray",
+    color: colors.gray,
     marginBottom: 6,
   },
   followBtn: {
-    backgroundColor: "#608D00",
+    backgroundColor: colors.primary,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 6,

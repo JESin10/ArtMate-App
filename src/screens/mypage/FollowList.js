@@ -16,6 +16,7 @@ import SearchBar from "../../components/search/SearchBar";
 import { FollowUser } from "../../services/followService";
 import { AuthContext } from "../../store/context";
 import { useUserStore } from "../../store/useUserStore";
+import { colors } from "../../styles/colors";
 
 export default function FollowList({ navigation }) {
   const { user } = useContext(AuthContext);
@@ -156,8 +157,8 @@ export default function FollowList({ navigation }) {
                   <TouchableOpacity
                     style={{
                       backgroundColor: followingMap[follower.uid]
-                        ? "#ccc"
-                        : "#608D00",
+                        ? colors.lightGray
+                        : colors.primary,
                       paddingHorizontal: 12,
                       paddingVertical: 6,
                       borderRadius: 10,
@@ -199,8 +200,8 @@ export default function FollowList({ navigation }) {
                   <TouchableOpacity
                     style={{
                       backgroundColor: followingMap[following.uid]
-                        ? "#ccc"
-                        : "#608D00",
+                        ? colors.lightGray
+                        : colors.primary,
                       paddingHorizontal: 12,
                       paddingVertical: 6,
                       borderRadius: 10,
@@ -245,18 +246,18 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   btnFactor: {
-    backgroundColor: "#608D00",
+    backgroundColor: colors.primary,
     width: "50%",
     padding: 10,
     justifyContent: "center",
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     borderWidth: 0.3,
-    borderColor: "#d9d9d9",
+    borderColor: colors.lightGray,
   },
   followContainer: {
     borderWidth: 1,
-    borderColor: "#608D00",
+    borderColor: colors.primary,
     borderRadius: 10,
     padding: 10,
     margin: 10,
@@ -272,7 +273,7 @@ const styles = StyleSheet.create({
   },
   profileImage: {
     borderRadius: 100,
-    borderColor: "#608D00",
+    borderColor: colors.primary,
     borderWidth: 1,
   },
 });

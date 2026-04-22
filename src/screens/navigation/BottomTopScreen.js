@@ -17,6 +17,7 @@ import PlacesScreen from "../places/PlacesScreen";
 import ReviewStack from "../reviews/ReviewStack";
 import MyPageStack from "../mypage/MyPageStack";
 import AuthStack from "../auth/AuthStack";
+import { colors } from "../../styles/colors";
 
 export default function BottomTopScreen() {
   const Tab = createBottomTabNavigator();
@@ -30,10 +31,10 @@ export default function BottomTopScreen() {
         tabBarStyle: {
           height: 80,
           paddingTop: 10,
-          backgroundColor: "#608D00",
+          backgroundColor: colors.primary,
         },
-        tabBarActiveTintColor: "#fff",
-        tabBarInactiveTintColor: "#fff",
+        tabBarActiveTintColor: colors.white,
+        tabBarInactiveTintColor: colors.white,
         tabBarIcon: ({ focused, size, color }) => {
           if (route.name === "Home") {
             return focused ? (

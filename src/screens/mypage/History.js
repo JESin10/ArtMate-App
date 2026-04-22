@@ -15,6 +15,7 @@ import Mainlogo from "../../assets/icons/logo-main.svg";
 import ArtworkInfoModal from "../../components/modals/ArtworkInfoModal";
 import SearchBar from "../../components/search/SearchBar";
 import { AuthContext } from "../../store/context";
+import { colors } from "../../styles/colors";
 
 export default function History({ navigation }) {
   const [myhistory, setMyHistory] = useState([]);
@@ -162,7 +163,7 @@ const styles = StyleSheet.create({
   historyContainer: {
     width: "100%",
     borderWidth: 1,
-    borderColor: "#608D00",
+    borderColor: colors.primary,
     borderRadius: 10,
     padding: 8,
     flexDirection: "row",
@@ -172,7 +173,7 @@ const styles = StyleSheet.create({
   artworkTumbnail: {
     width: 130,
     height: 180,
-    borderColor: "black",
+    borderColor: colors.primary,
     borderwidth: 1,
     marginHorizontal: "auto",
     marginVertical: 10,
@@ -189,11 +190,11 @@ const styles = StyleSheet.create({
     marginVertical: 2,
     marginHorizontal: 10,
     fontSize: 10,
-    color: "#a0a0a0",
+    color: colors.placeholder,
   },
   content: {
     margin: 10,
     fontSize: 12,
-    color: "#6b6b6b",
+    color: colors.text,
   },
 });

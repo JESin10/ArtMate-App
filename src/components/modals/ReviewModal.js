@@ -1,32 +1,32 @@
-import {
-  View,
-  Text,
-  Modal,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  TextInput,
-  Alert,
-  Image,
-} from "react-native";
-import { useContext, useEffect, useState } from "react";
-import DateTimePickerModal from "react-native-modal-datetime-picker";
+import { useRoute } from "@react-navigation/native";
+import * as ImagePicker from "expo-image-picker";
 import {
   collection,
+  doc,
   getDoc,
   serverTimestamp,
   setDoc,
-  doc,
   updateDoc,
 } from "firebase/firestore";
-import { db } from "../../../firebase";
-import { AuthContext } from "../../store/context";
-import { useRoute } from "@react-navigation/native";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { useContext, useEffect, useState } from "react";
+import {
+  Alert,
+  Image,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
+import { db, storage } from "../../../firebase";
 import useSearch from "../../hooks/useSearch";
-import * as ImagePicker from "expo-image-picker";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { storage } from "../../../firebase";
 import { reviewService } from "../../services/reviewService";
+import { AuthContext } from "../../store/context";
+import { colors } from "../../styles/colors";
 
 export default function ReviewModal({
   visible,
@@ -345,7 +345,7 @@ export default function ReviewModal({
                   <Text style={{ fontSize: 14, fontWeight: "bold" }}>
                     사진 업로드
                   </Text>
-                  <Text style={{ fontSize: 14, color: "#608D00" }}>
+                  <Text style={{ fontSize: 14, color: colors.primary }}>
                     ({image.length}/3)
                   </Text>
                 </TouchableOpacity>
@@ -365,7 +365,7 @@ export default function ReviewModal({
                   <Text style={{ fontSize: 14, fontWeight: "bold" }}>
                     방문 날짜
                   </Text>
-                  <Text style={{ fontSize: 14, color: "#608D00" }}>
+                  <Text style={{ fontSize: 14, color: colors.primary }}>
                     {visitedDate.toISOString().split("T")[0]}
                   </Text>
                 </View>
@@ -387,7 +387,7 @@ export default function ReviewModal({
                       <Text
                         style={{
                           fontSize: 20,
-                          color: i <= rating ? "#608D00" : "gray",
+                          color: i <= rating ? colors.primary : colors.gray,
                         }}
                       >
                         ★
@@ -455,7 +455,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     flexDirection: "column",
     alignItems: "center",
-    backgroundColor: "#608D00",
+    backgroundColor: colors.primary,
     borderRadius: 20,
     borderColor: "transparent",
   },
@@ -469,7 +469,7 @@ const styles = StyleSheet.create({
   titleInput: {
     width: "90%",
     borderWidth: 2,
-    backgroundColor: "white",
+    backgroundColor: colors.white,
     borderColor: "transparent",
     borderRadius: 10,
     margin: 10,
@@ -479,7 +479,7 @@ const styles = StyleSheet.create({
     width: "90%",
     height: 300,
     borderWidth: 2,
-    backgroundColor: "white",
+    backgroundColor: colors.white,
     borderColor: "transparent",
     borderRadius: 10,
     margin: 10,
@@ -491,7 +491,7 @@ const styles = StyleSheet.create({
     width: "100%",
     marginTop: 10,
     padding: 10,
-    backgroundColor: "#eee",
+    backgroundColor: colors.lightGray,
     alignItems: "center",
     borderRadius: 10,
     justifyContent: "space-between",
@@ -501,7 +501,7 @@ const styles = StyleSheet.create({
     width: "90%",
     marginVertical: 10,
     padding: 10,
-    backgroundColor: "#eee",
+    backgroundColor: colors.lightGray,
     alignItems: "center",
     borderRadius: 10,
   },
@@ -509,17 +509,17 @@ const styles = StyleSheet.create({
     width: "90%",
     marginVertical: 10,
     padding: 10,
-    backgroundColor: "#eee",
+    backgroundColor: colors.lightGray,
     alignItems: "center",
     borderRadius: 10,
     justifyContent: "space-between",
     flexDirection: "row",
   },
   reviewSubBtn: {
-    borderColor: "white",
+    borderColor: colors.white,
     borderWidth: 2,
     borderRadius: 10,
-    backgroundColor: "#608D00",
+    backgroundColor: colors.primary,
     width: "90%",
     padding: 10,
     marginVertical: 22,
@@ -527,7 +527,7 @@ const styles = StyleSheet.create({
   reviewSubBtnText: {
     fontWeight: "bold",
     fontSize: 20,
-    color: "white",
+    color: colors.white,
     textAlign: "center",
     justifyContent: "center",
   },

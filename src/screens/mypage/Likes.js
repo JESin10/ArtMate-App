@@ -1,19 +1,20 @@
+import { collection, doc, getDoc, getDocs } from "firebase/firestore";
+import { useContext, useEffect, useState } from "react";
 import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
   FlatList,
   ImageBackground,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import { useContext, useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { db } from "../../../firebase";
 import BackwardIcon from "../../assets/icons/backward.svg";
 import Mainlogo from "../../assets/icons/logo-main.svg";
-import { AuthContext } from "../../store/context";
-import { collection, doc, getDoc, getDocs } from "firebase/firestore";
-import { db } from "../../../firebase";
 import SearchBar from "../../components/search/SearchBar";
+import { AuthContext } from "../../store/context";
+import { colors } from "../../styles/colors";
 
 export default function Likes({ navigation }) {
   const [myLikes, setMyLikes] = useState([]);
@@ -57,8 +58,6 @@ export default function Likes({ navigation }) {
       console.error("북마크 불러오기 에러:", error);
     }
   };
-
-  console.log(myLikes[0]);
 
   return (
     <SafeAreaView
@@ -154,9 +153,9 @@ const styles = StyleSheet.create({
   reviewCard: {
     margin: 12,
     padding: 12,
-    backgroundColor: "#fff",
+    backgroundColor: colors.white,
     borderRadius: 8,
-    borderColor: "#608D00",
+    borderColor: colors.primary,
     borderWidth: 1,
   },
   title: {
@@ -164,7 +163,7 @@ const styles = StyleSheet.create({
     marginVertical: 12,
   },
   content: {
-    color: "#333",
+    color: colors.text,
     marginBottom: 14,
   },
   profileTumbnail: {
@@ -175,7 +174,7 @@ const styles = StyleSheet.create({
   },
   profileImage: {
     borderRadius: 100,
-    borderColor: "#608D00",
+    borderColor: colors.primary,
     borderWidth: 1,
   },
 });

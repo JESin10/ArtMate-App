@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { colors } from "../../styles/colors";
 import { formatDate } from "../../utils/date";
 
 export default function ArtworkCard({ item, openArtwork }) {
@@ -40,7 +41,7 @@ export default function ArtworkCard({ item, openArtwork }) {
 const styles = StyleSheet.create({
   container: {
     flexDirection: "column",
-    backgroundColor: "#608D00",
+    backgroundColor: colors.primary,
     padding: 8,
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
@@ -66,15 +67,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     marginVertical: 8,
-    color: "#fff",
+    color: colors.white,
   },
   recommendPart: {
     fontSize: 12,
-    color: "gray",
+    color: colors.gray,
   },
   DescStyle: {
     fontSize: 10,
-    color: "#fff",
+    color: colors.white,
     marginVertical: 4,
   },
 });

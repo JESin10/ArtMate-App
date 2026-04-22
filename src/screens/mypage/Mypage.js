@@ -1,41 +1,42 @@
-import { useState, useContext, useEffect, useRef } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  ScrollView,
-  ImageBackground,
-  Alert,
-  Pressable,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import LikeIcon from "../../assets/icons/heart.svg";
-import BookMarkIcon from "../../assets/icons/bookmark.svg";
-import ListIcon from "../../assets/icons/receipt.svg";
-import AlertIcon from "../../assets/icons/alert.svg";
-import SettingIcon from "../../assets/icons/setting.svg";
-import ShareIcon from "../../assets/icons/share.svg";
-import EditIcon from "../../assets/icons/edit.svg";
-import { AuthContext } from "../../store/context";
+import * as ImagePicker from "expo-image-picker";
+import { signOut } from "firebase/auth";
 import {
   collection,
+  collectionGroup,
   doc,
+  onSnapshot,
+  orderBy,
   query,
   updateDoc,
-  orderBy,
-  onSnapshot,
   where,
-  collectionGroup,
 } from "firebase/firestore";
-import { auth, db, storage } from "../../../firebase";
-import * as ImagePicker from "expo-image-picker";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { signOut } from "firebase/auth";
+import { useContext, useEffect, useRef, useState } from "react";
+import {
+  Alert,
+  ImageBackground,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
+import { auth, db, storage } from "../../../firebase";
+import AlertIcon from "../../assets/icons/alert.svg";
+import BookMarkIcon from "../../assets/icons/bookmark.svg";
+import EditIcon from "../../assets/icons/edit.svg";
+import LikeIcon from "../../assets/icons/heart.svg";
+import ListIcon from "../../assets/icons/receipt.svg";
+import SettingIcon from "../../assets/icons/setting.svg";
+import ShareIcon from "../../assets/icons/share.svg";
 import NotificationModal from "../../components/notify/NotificationModal";
+import { AuthContext } from "../../store/context";
 import { useUserStore } from "../../store/useUserStore";
+import { colors } from "../../styles/colors";
 
 export default function Mypage({ navigation }) {
   const {
@@ -676,7 +677,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#333",
+    color: colors.text,
   },
   subTitle: {
     fontSize: 15,
@@ -694,8 +695,8 @@ const styles = StyleSheet.create({
   myInfoContainer: {
     width: "90%",
     height: "auto",
-    borderColor: "#608D00",
-    backgroundColor: "#608D00",
+    borderColor: colors.primary,
+    backgroundColor: colors.primary,
     borderWidth: 1,
     borderRadius: 20,
     flexDirection: "horizontal",
@@ -703,7 +704,7 @@ const styles = StyleSheet.create({
     padding: 15,
     marginVertical: 10,
     marginHorizontal: "auto",
-    shadowColor: "#000",
+    shadowColor: colors.black,
     shadowOffset: { width: 1, height: 4 },
     shadowOpacity: 0.5,
     shadowRadius: 4,
@@ -713,9 +714,6 @@ const styles = StyleSheet.create({
   accContainer: {
     width: "100%",
     height: "auto",
-    // borderColor: "red",
-    // borderWidth: 3,
-    // borderRadius: 10,
     padding: 10,
     justifyContent: "beetween",
     flexDirection: "row",
@@ -724,9 +722,6 @@ const styles = StyleSheet.create({
   myAccInfo: {
     width: "100%",
     height: "auto",
-    // borderColor: "orange",
-    // borderWidth: 1,
-    // borderRadius: 10,
     marginBottom: 15,
     marginLeft: 5,
     justifyContent: "space-around",
@@ -737,13 +732,12 @@ const styles = StyleSheet.create({
   myFollowInfo: {
     width: "100%",
     height: "auto",
-    // backgroundColor: "skyblue",
     marginVertical: 10,
     paddingVertical: 10,
     alignItems: "center",
     justifyContent: "space-around",
     flexDirection: "row",
-    shadowColor: "#000",
+    shadowColor: colors.black,
     shadowOffset: { width: 1, height: 2 },
     shadowOpacity: 0.5,
     shadowRadius: 2,
@@ -751,10 +745,6 @@ const styles = StyleSheet.create({
   myActivity: {
     width: "100%",
     height: "auto",
-    // borderColor: "blue",
-    // borderWidth: 1,
-    // borderRadius: 10,
-    // backgroundColor: "gray",
     padding: 10,
     marginVertical: 10,
     justifyContent: "space-around",
@@ -764,7 +754,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 100,
-    shadowColor: "#000",
+    shadowColor: colors.black,
     shadowOffset: { width: 1, height: 4 },
     shadowOpacity: 0.5,
     shadowRadius: 4,
@@ -775,9 +765,6 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     justifyContent: "center",
     alignItems: "center",
-
-    // borderColor: "hotpink",
-    // borderWidth: 3,
     overflow: "hidden",
   },
   tumbnail: {
@@ -789,13 +776,11 @@ const styles = StyleSheet.create({
     width: "90%",
     height: "auto",
     marginVertical: 30,
-    // backgroundColor: "pink",
-    // borderWidth: 1,
   },
   reviewTumblnail: {
     width: 110,
     height: 130,
-    borderColor: "black",
+    borderColor: colors.black,
     borderwidth: 1,
     margin: 3,
   },
@@ -816,7 +801,7 @@ const styles = StyleSheet.create({
   },
   loginBtnWrapper: {
     marginTop: 20,
-    borderColor: "#608D00",
+    borderColor: colors.primary,
     borderWidth: 2,
     width: 300,
     height: 45,
@@ -827,22 +812,22 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
   },
   loginBtnPressedWrapper: {
-    backgroundColor: "#608D00",
+    backgroundColor: colors.primary,
   },
   loginBtnText: {
     textAlign: "center",
     lineHeight: 45,
     fontSize: 14,
     fontWeight: "bold",
-    color: "#608D00",
+    color: colors.primary,
   },
   loginBtnPressedText: {
-    color: "#fff",
+    color: colors.white,
   },
   signupBtnWrapper: {
     marginTop: 10,
     marginBottom: 30,
-    borderColor: "#608D00",
+    borderColor: colors.primary,
     borderWidth: 2,
     width: 300,
     height: 45,
@@ -853,22 +838,22 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
   },
   signupBtnPressedWrapper: {
-    backgroundColor: "#608D00",
+    backgroundColor: colors.primary,
   },
   signupBtnText: {
     textAlign: "center",
     lineHeight: 45,
     fontSize: 14,
     fontWeight: "bold",
-    color: "#608D00",
+    color: colors.primary,
   },
   signupBtnPressedText: {
-    color: "#fff",
+    color: colors.white,
   },
   logoutBtnWrapper: {
     marginTop: 20,
     marginBottom: 30,
-    borderColor: "#608D00",
+    borderColor: colors.primary,
     borderWidth: 2,
     width: 300,
     height: 45,
@@ -876,7 +861,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginHorizontal: "auto",
-    backgroundColor: "#608D00",
+    backgroundColor: colors.primary,
   },
   logoutBtnPressedWrapper: {
     backgroundColor: "transparent",
@@ -889,13 +874,13 @@ const styles = StyleSheet.create({
     color: "white",
   },
   logoutBtnPressedText: {
-    color: "#608D00",
+    color: colors.primary,
   },
   badge: {
     position: "absolute",
     top: -5,
     right: -5,
-    backgroundColor: "red",
+    backgroundColor: colors.red,
     borderRadius: 10,
     minWidth: 18,
     height: 18,
@@ -905,7 +890,7 @@ const styles = StyleSheet.create({
   },
 
   badgeText: {
-    color: "#fff",
+    color: colors.white,
     fontSize: 10,
     fontWeight: "bold",
   },

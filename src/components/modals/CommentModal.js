@@ -1,36 +1,31 @@
 import {
-  View,
-  Text,
-  Modal,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  TextInput,
-  Alert,
-  Button,
-  ImageBackground,
-} from "react-native";
-import React, { useContext, useEffect, useState } from "react";
-import DateTimePickerModal from "react-native-modal-datetime-picker";
-import {
   addDoc,
   collection,
-  serverTimestamp,
-  setDoc,
-  increment,
-  getDoc,
-  doc,
-  updateDoc,
-  getDocs,
-  collectionGroup,
-  onSnapshot,
-  query,
-  where,
-  orderBy,
   deleteDoc,
+  doc,
+  getDoc,
+  increment,
+  onSnapshot,
+  orderBy,
+  query,
+  serverTimestamp,
+  updateDoc,
 } from "firebase/firestore";
+import { useContext, useEffect, useState } from "react";
+import {
+  Alert,
+  ImageBackground,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { db } from "../../../firebase";
 import { AuthContext } from "../../store/context";
+import { colors } from "../../styles/colors";
 
 export default function CommentModal({ visible, onClose, reviewId }) {
   const { user } = useContext(AuthContext);
@@ -159,7 +154,7 @@ export default function CommentModal({ visible, onClose, reviewId }) {
           >
             <Text
               style={{
-                color: "#608D00",
+                color: colors.primary,
                 padding: 10,
                 fontSize: 16,
                 fontWeight: "bold",
@@ -325,7 +320,7 @@ const styles = StyleSheet.create({
   cmtBtn: {
     width: 40,
     height: 40,
-    backgroundColor: "#608D00",
+    backgroundColor: colors.primary,
     borderRadius: 20,
     marginLeft: 5,
     justifyContent: "center",

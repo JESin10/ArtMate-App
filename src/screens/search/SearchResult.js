@@ -1,21 +1,22 @@
+import { useFocusEffect, useRoute } from "@react-navigation/native";
+import React, { useState } from "react";
 import {
-  View,
-  Text,
-  FlatList,
   ActivityIndicator,
-  TouchableOpacity,
+  FlatList,
   Keyboard,
   StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useFocusEffect, useRoute } from "@react-navigation/native";
-import useSearch from "../../hooks/useSearch";
 import BackwardIcon from "../../assets/icons/backward.svg";
-import SearchBar from "../../components/search/SearchBar";
 import Mainlogo from "../../assets/icons/logo-main.svg";
-import React, { useState } from "react";
-import PlacesInfoModal from "../../components/modals/PlacesInfoModal";
 import ArtworkInfoModal from "../../components/modals/ArtworkInfoModal";
+import PlacesInfoModal from "../../components/modals/PlacesInfoModal";
+import SearchBar from "../../components/search/SearchBar";
+import useSearch from "../../hooks/useSearch";
+import { colors } from "../../styles/colors";
 
 export default function SearchResult({ navigation }) {
   const route = useRoute();
@@ -144,7 +145,7 @@ export default function SearchResult({ navigation }) {
                     navigation.push("SearchResult", { keyword: word })
                   }
                 >
-                  <Text style={{ color: "#608D00" }}>{word}</Text>
+                  <Text style={{ color: colors.primary }}>{word}</Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -206,8 +207,8 @@ const styles = StyleSheet.create({
     marginRight: 12,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: "#608D00",
-    backgroundColor: "#608D00",
+    borderColor: colors.primary,
+    backgroundColor: colors.primary,
     textAlign: "center",
     margin: "auto",
     padding: 4,
@@ -221,7 +222,7 @@ const styles = StyleSheet.create({
   },
   popularKeywordContainer: {
     borderWidth: 1,
-    borderColor: "#608D00",
+    borderColor: colors.primary,
     borderRadius: 20,
     backgroundColor: "transparent",
     margin: 8,

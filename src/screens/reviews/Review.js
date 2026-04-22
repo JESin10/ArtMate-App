@@ -42,6 +42,7 @@ import SearchBar from "../../components/search/SearchBar";
 import { FollowUser } from "../../services/followService";
 import { AuthContext } from "../../store/context";
 import { useReviewStore } from "../../store/useReviewStore";
+import { colors } from "../../styles/colors";
 
 export default function Review({ route, navigation }) {
   const {
@@ -289,7 +290,7 @@ export default function Review({ route, navigation }) {
                   styles.filterFactor,
                   sortType === "like" && {
                     fontWeight: "bold",
-                    color: "#608D00",
+                    color: colors.primary,
                   },
                 ]}
               >
@@ -303,7 +304,7 @@ export default function Review({ route, navigation }) {
                   styles.filterFactor,
                   sortType === "recent" && {
                     fontWeight: "bold",
-                    color: "#608D00",
+                    color: colors.primary,
                   },
                 ]}
               >
@@ -412,7 +413,7 @@ export default function Review({ route, navigation }) {
                         justifyContent: "center",
                       }}
                     >
-                      <Text style={{ color: "#608D00" }}>수정</Text>
+                      <Text style={{ color: colors.primary }}>수정</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
@@ -464,7 +465,7 @@ export default function Review({ route, navigation }) {
                     >
                       <Text
                         style={{
-                          color: "#608D00",
+                          color: colors.primary,
                           marginTop: 4,
                           fontWeight: "bold",
                           textAlign: "right",
@@ -581,14 +582,14 @@ export default function Review({ route, navigation }) {
 const { width } = Dimensions.get("window");
 const styles = StyleSheet.create({
   searchbar: {
-    borderColor: "black",
+    borderColor: colors.black,
     borderWidth: 1,
     borderRadius: 10,
     width: "100%",
     padding: 10,
     marginHorizontal: "auto",
     marginVertical: 15,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: colors.white,
     alignItems: "center",
   },
   topFactorContainer: {
@@ -603,7 +604,7 @@ const styles = StyleSheet.create({
   },
   pageTitle: {
     fontSize: 22,
-    color: "black",
+    color: colors.black,
     fontWeight: "bold",
   },
   filterContianer: {
@@ -616,32 +617,24 @@ const styles = StyleSheet.create({
   filterFactor: {
     marginRight: 10,
     fontSize: 12,
-    color: "black",
+    color: colors.black,
     fontWeight: "semi-bold",
   },
   reviewsContainer: {
     width: "95%",
     borderWidth: 1,
     borderRadius: 10,
-    borderColor: "#608D00",
+    borderColor: colors.primary,
     padding: 20,
     marginTop: 20,
     margin: "auto",
   },
   reviewFactor: {
-    // borderWidth: 1,
-    // borderColor: "blue",
     marginBottom: 50,
     width: "100%",
     flexDirection: "column",
   },
   reviewTumblnail: {
-    // width: "100%",
-    // height: 270,
-    // borderColor: "black",
-    // borderwidth: 1,
-    // padding: 10,
-    // margin: 10,
     width: width * 0.9,
     height: 270,
   },
@@ -653,7 +646,7 @@ const styles = StyleSheet.create({
   },
   ProfileImage: {
     borderRadius: 100,
-    borderColor: "#608D00",
+    borderColor: colors.primary,
     borderWidth: 1,
   },
   profileContainer: {
@@ -663,19 +656,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "flex-start",
     padding: 10,
-    // borderWidth: 1,
-    // borderColor: "green",
   },
   reviewTextContainer: {
     padding: 10,
-    // borderWidth: 1,
-    // borderColor: "purple",
   },
   reviewDescStyle: {
     fontSize: 12,
-    color: "#333",
+    color: colors.gray300,
     marginVertical: 3,
-    // rowGap: "120px",
     lineHeight: 20,
   },
   reactionContainer: {
@@ -683,9 +671,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "flex-start",
     padding: 10,
-    borderTopColor: "#000",
+    borderTopColor: colors.black,
     borderTopWidth: 1,
-    // borderWidth: 1,
     margin: "auto",
   },
   overlay: {
@@ -709,16 +696,13 @@ const styles = StyleSheet.create({
     position: "absolute",
     zIndex: 999,
     bottom: 20,
-    // left: 100,
     right: 20,
-    // borderColor: "black",
-    // borderWidth: ,
     borderRadius: 100,
 
     alignItems: "center",
     width: 50,
     height: 50,
-    backgroundColor: "#608D00",
+    backgroundColor: colors.primary,
     pointerEvents: "box-none",
   },
   ReviewBtnInner: {
@@ -738,35 +722,35 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: "#ccc",
+    backgroundColor: colors.lightGray,
     marginHorizontal: 4,
   },
 
   activeIndicator: {
-    backgroundColor: "#000",
+    backgroundColor: colors.black,
   },
   followBtn: {
     marginLeft: 10,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 6,
-    backgroundColor: "#608D00",
+    backgroundColor: colors.primary,
   },
   unfollowBtn: {
     marginLeft: 10,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 6,
-    backgroundColor: "white",
+    backgroundColor: colors.white,
     borderWidth: 1,
-    borderColor: "#608D00",
+    borderColor: colors.primary,
   },
   followBtnText: {
-    color: "#fff",
+    color: colors.white,
     fontWeight: "bold",
   },
   unfollowBtnText: {
-    color: "#608D00",
+    color: colors.primary,
     fontWeight: "bold",
   },
 });

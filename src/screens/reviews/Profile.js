@@ -23,6 +23,7 @@ import SearchBar from "../../components/search/SearchBar";
 import { FollowUser } from "../../services/followService";
 import { AuthContext } from "../../store/context";
 import { useUserStore } from "../../store/useUserStore";
+import { colors } from "../../styles/colors";
 
 export default function Profile({ route, navigation }) {
   const { user, setUser } = useContext(AuthContext);
@@ -325,7 +326,7 @@ export default function Profile({ route, navigation }) {
                 style={{
                   fontSize: 14,
                   fontWeight: "light",
-                  color: "#608D00",
+                  color: colors.primary,
                   marginLeft: 5,
                 }}
               >
@@ -349,7 +350,7 @@ export default function Profile({ route, navigation }) {
                   <TouchableOpacity
                     onPress={() => setShowAllImages((prev) => !prev)}
                   >
-                    <Text style={{ color: "#608D00", marginTop: 10 }}>
+                    <Text style={{ color: colors.primary, marginTop: 10 }}>
                       {showAllImages ? "접기" : "더보기"}
                     </Text>
                   </TouchableOpacity>
@@ -379,7 +380,7 @@ export default function Profile({ route, navigation }) {
                 style={{
                   fontSize: 14,
                   fontWeight: "light",
-                  color: "#608D00",
+                  color: colors.primary,
                   marginLeft: 5,
                 }}
               >
@@ -449,8 +450,6 @@ const styles = StyleSheet.create({
   myInfoContainer: {
     width: "90%",
     height: "auto",
-    // borderWidth: 1,
-    // alignItems: "left",
     flexDirection: "column",
     paddingVertical: 15,
     marginVertical: 15,
@@ -464,7 +463,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     overflow: "hidden",
     borderWidth: 1,
-    borderColor: "#9b9b9b",
+    borderColor: colors.lightGray,
   },
   tumbnail: {
     width: 80,
@@ -473,7 +472,6 @@ const styles = StyleSheet.create({
   },
   profileContainer: {
     width: "100%",
-    // borderWidth: 1,
     flexDirection: "row",
     margin: "auto",
     justifyContent: "sp",
@@ -484,24 +482,24 @@ const styles = StyleSheet.create({
     marginLeft: 30,
     paddingVertical: 5,
     borderRadius: 20,
-    backgroundColor: "#608D00",
+    backgroundColor: colors.primary,
   },
   unfollowBtn: {
     width: "80%",
     marginLeft: 30,
     paddingVertical: 5,
     borderRadius: 20,
-    backgroundColor: "white",
+    backgroundColor: colors.white,
     borderWidth: 1,
-    borderColor: "#608D00",
+    borderColor: colors.primary,
   },
   followBtnText: {
-    color: "#fff",
+    color: colors.white,
     fontWeight: "bold",
     textAlign: "center",
   },
   unfollowBtnText: {
-    color: "#608D00",
+    color: colors.primary,
     fontWeight: "bold",
     textAlign: "center",
   },

@@ -1,20 +1,21 @@
+import { sendPasswordResetEmail } from "firebase/auth";
+import { collection, getDocs, query, where } from "firebase/firestore";
+import { useContext, useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  TextInput,
-  ScrollView,
   Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useState, useContext } from "react";
+import { auth, db } from "../../../firebase";
 import Mainlogo from "../../assets/icons/logo-main.svg";
 import MainSlogun from "../../assets/images/slogan.svg";
-import { collection, getDocs, query, where } from "firebase/firestore";
-import { sendPasswordResetEmail } from "firebase/auth";
 import { AuthContext } from "../../store/context";
-import { auth, db } from "../../../firebase";
+import { colors } from "../../styles/colors";
 
 export default function AccFind({ navigation }) {
   const [userId, setUserId] = useState("");
@@ -189,21 +190,21 @@ export default function AccFind({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: colors.white,
     alignItems: "center",
     justifyContent: "center",
   },
   input: {
     width: 300,
     height: 45,
-    backgroundColor: "white",
-    borderColor: "#608D00",
+    backgroundColor: colors.white,
+    borderColor: colors.primary,
     borderWidth: 1,
     borderRadius: 30,
     padding: 10,
     marginBottom: 10,
     textAlign: "center",
-    placeholderTextColor: "#6F6F6F",
+    placeholderTextColor: colors.placeholder,
   },
   inputContainer: {
     width: "100%",
@@ -214,9 +215,7 @@ const styles = StyleSheet.create({
   button: {
     width: 300,
     height: 45,
-
-    height: "auto",
-    backgroundColor: "#608D00",
+    backgroundColor: colors.primary,
     borderRadius: 30,
     margin: 10,
     alignItems: "center",
@@ -235,7 +234,7 @@ const styles = StyleSheet.create({
   decoLine: {
     width: "80%",
     justifyContent: "center",
-    borderBottomColor: "#A8A8A8",
+    borderBottomColor: colors.gray,
     borderBottomWidth: 1,
     marginTop: 30,
     marginBottom: 40,

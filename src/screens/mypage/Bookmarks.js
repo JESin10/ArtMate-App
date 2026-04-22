@@ -1,22 +1,21 @@
+import { useContext, useState } from "react";
 import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
   FlatList,
   ImageBackground,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import { useContext, useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import BackwardIcon from "../../assets/icons/backward.svg";
 import Mainlogo from "../../assets/icons/logo-main.svg";
-import { AuthContext } from "../../store/context";
-import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
-import { db } from "../../../firebase";
 import ArtworkInfoModal from "../../components/modals/ArtworkInfoModal";
 import PlacesInfoModal from "../../components/modals/PlacesInfoModal";
 import SearchBar from "../../components/search/SearchBar";
+import { AuthContext } from "../../store/context";
 import { useUserStore } from "../../store/useUserStore";
+import { colors } from "../../styles/colors";
 
 export default function Bookmarks({ navigation }) {
   const { user } = useContext(AuthContext);
@@ -260,14 +259,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   btnFactor: {
-    backgroundColor: "#608D00",
+    backgroundColor: colors.primary,
     width: "50%",
     padding: 10,
     justifyContent: "center",
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     borderWidth: 0.3,
-    borderColor: "#d9d9d9",
+    borderColor: colors.gray,
   },
   bookmarksContainer: {
     flex: 1,
@@ -275,14 +274,14 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginHorizontal: "auto",
     flexDirection: "column",
-    backgroundColor: "#fff",
+    backgroundColor: colors.white,
     paddingVertical: 10,
     paddingHorizontal: 5,
   },
   bookmarkData: {
     width: "44%",
     borderWidth: 1,
-    borderColor: "#608D00",
+    borderColor: colors.primary,
     borderRadius: 10,
     padding: 8,
     margin: 10,
@@ -292,7 +291,7 @@ const styles = StyleSheet.create({
   artworkTumbnail: {
     width: 110,
     height: 130,
-    borderColor: "black",
+    borderColor: colors.black,
     borderwidth: 1,
     marginHorizontal: "auto",
     marginVertical: 10,

@@ -1,5 +1,6 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { FollowUser } from "../../services/followService";
+import { colors } from "../../styles/colors";
 
 export default function UserCard({
   u,
@@ -83,10 +84,10 @@ const styles = StyleSheet.create({
     width: 110,
     marginRight: 12,
     alignItems: "center",
-    backgroundColor: "#fff",
+    backgroundColor: colors.white,
     borderRadius: 10,
     padding: 10,
-    shadowColor: "#000",
+    shadowColor: colors.black,
     shadowOpacity: 0.1,
     shadowRadius: 3,
   },
@@ -94,7 +95,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: "#ddd",
+    backgroundColor: colors.lightGray,
     marginBottom: 6,
     overflow: "hidden",
   },
@@ -105,11 +106,11 @@ const styles = StyleSheet.create({
 
   userDesc: {
     fontSize: 10,
-    color: "gray",
+    color: colors.gray,
     marginBottom: 6,
   },
   followBtn: {
-    backgroundColor: "#608D00",
+    backgroundColor: colors.primary,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 6,
