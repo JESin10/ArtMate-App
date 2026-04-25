@@ -167,7 +167,7 @@ export default function ArtworkInfoModal({ visible, onClose, seq, artwork }) {
         );
 
         setFilled(true);
-        Alert.alert("북마크", "북마크에 추가되었습니다.");
+        Alert.alert("안내", "북마크에 추가되었습니다.");
       } else {
         // 북마크 삭제
         await deleteDoc(bookmarkRef);
@@ -176,7 +176,7 @@ export default function ArtworkInfoModal({ visible, onClose, seq, artwork }) {
         });
 
         setFilled(false);
-        Alert.alert("북마크", "북마크에서 제거되었습니다.");
+        Alert.alert("안내", "북마크에서 제거되었습니다.");
       }
     } catch (error) {
       console.error("BookmarkHandler error", error);
@@ -228,7 +228,7 @@ export default function ArtworkInfoModal({ visible, onClose, seq, artwork }) {
               <TouchableOpacity
                 style={{ marginHorizontal: 12 }}
                 onPress={() =>
-                  Alert.alert("공유하기", "공유하기 기능은 곧 업데이트됩니다.")
+                  Alert.alert("안내", "공유하기 기능은 곧 업데이트됩니다.")
                 }
               >
                 <ShareIcon width={24} height={24} />

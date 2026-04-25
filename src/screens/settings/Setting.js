@@ -32,13 +32,9 @@ export default function Setting({ navigation }) {
     try {
       // Firebase Auth에서 비밀번호 재설정 이메일 발송
       await sendPasswordResetEmail(auth, user.email);
-      Alert.alert(
-        "비밀번호 재설정",
-        "입력한 이메일로 비밀번호 재설정 링크를 보냈습니다.",
-      );
+      Alert.alert("안내", "입력한 이메일로 비밀번호 재설정 링크를 보냈습니다.");
     } catch (error) {
-      console.error("비밀번호 재설정 오류:", error);
-      Alert.alert("오류", error.message || "오류가 발생했습니다.");
+      Alert.alert("오류", "오류가 발생했습니다.");
     }
   };
 
@@ -49,7 +45,7 @@ export default function Setting({ navigation }) {
       setUser(null);
       navigation.navigate("Bottom", { screen: "Home" });
     } catch (error) {
-      console.error("로그아웃 실패:", error);
+      Alert.alert("오류", "로그아웃에 실패했습니다.");
     }
   };
 
@@ -87,7 +83,7 @@ export default function Setting({ navigation }) {
       const currentUser = auth.currentUser;
 
       if (!currentUser) {
-        alert("유저 정보를 찾을 수 없습니다.");
+        Alert.alert("안내", "유저 정보를 찾을 수 없습니다.");
         return;
       }
 
@@ -107,9 +103,9 @@ export default function Setting({ navigation }) {
       console.error("계정 삭제 실패:", error);
 
       if (error.code === "auth/requires-recent-login") {
-        alert("보안을 위해 다시 로그인 후 시도해주세요.");
+        Alert.alert("안내", "보안을 위해 다시 로그인 후 시도해주세요.");
       } else {
-        alert("계정 삭제 실패");
+        Alert.alert("오류", "계정 삭제 실패");
       }
     }
   };
@@ -187,7 +183,7 @@ export default function Setting({ navigation }) {
           <Text style={styles.QAFactor}>의견보내기</Text>
           <TouchableOpacity
             onPress={() => {
-              Alert.alert("Version", "Ver1.0.2");
+              Alert.alert("Version", "Ver1.0.5");
             }}
           >
             <Text style={styles.QAFactor}>버전정보</Text>

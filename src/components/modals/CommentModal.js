@@ -129,8 +129,7 @@ export default function CommentModal({ visible, onClose, reviewId }) {
       await deleteDoc(doc(db, "reviews", reviewId, "comments", cmtId));
       await deleteDoc(doc(db, "users", userId, "comments", cmtId));
     } catch (error) {
-      console.error("댓글 삭제 에러:", error);
-      Alert.alert("댓글 삭제에 실패했습니다. 다시 시도해주세요.");
+      Alert.alert("오류", "댓글 삭제에 실패했습니다. 다시 시도해주세요.");
     }
   };
 

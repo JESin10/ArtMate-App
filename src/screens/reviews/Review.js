@@ -182,17 +182,16 @@ export default function Review({ route, navigation }) {
       await deleteDoc(doc(db, "reviews", reviewId));
       await deleteDoc(doc(db, "users", userId, "reviews", reviewId));
 
-      Alert.alert("리뷰가 삭제되었습니다.");
+      Alert.alert("안내", "리뷰가 삭제되었습니다.");
     } catch (error) {
-      console.error("리뷰 삭제 에러:", error);
-      Alert.alert("리뷰 삭제에 실패했습니다. 다시 시도해주세요.");
+      Alert.alert("오류", "리뷰 삭제에 실패했습니다. 다시 시도해주세요.");
     }
   };
 
   //토글 좋아요
   const toggleLike = async (reviewUserId, reviewId) => {
     if (!user) {
-      Alert.alert("로그인 후 이용 가능합니다");
+      Alert.alert("안내", "로그인 후 이용 가능합니다");
       return;
     }
 

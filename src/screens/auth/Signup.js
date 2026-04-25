@@ -40,7 +40,7 @@ export default function Signup({ navigation }) {
   const pickImage = async () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
-      alert("사진 접근 권한이 필요합니다.");
+      Alert.alert("안내", "사진 접근 권한이 필요합니다.");
       return;
     }
 
@@ -66,15 +66,14 @@ export default function Signup({ navigation }) {
       const querySnapshot = await getDocs(q);
 
       if (!querySnapshot.empty) {
-        Alert.alert("이메일 확인", "이미 가입된 이메일입니다.");
+        Alert.alert("안내", "이미 가입된 이메일입니다.");
         return false; // 중복
       } else {
-        Alert.alert("이메일 확인", "가입 가능한 이메일입니다.");
+        Alert.alert("안내", "가입 가능한 이메일입니다.");
         return true; // 사용 가능
       }
     } catch (error) {
-      console.error("이메일 중복 확인 오류:", error);
-      Alert.alert("이메일 확인 실패", error.message || String(error));
+      Alert.alert("오류", "이메일 확인에 실패했습니다.");
       return false;
     }
   };
@@ -82,7 +81,7 @@ export default function Signup({ navigation }) {
   const onSignup = async () => {
     // 필수 입력 체크
     if (!email || !password || !passwordCheck || !name) {
-      Alert.alert("입력 오류", "모든 필드를 입력해주세요.");
+      Alert.alert("안내", "모든 필드를 입력해주세요.");
       return;
     }
 
@@ -91,7 +90,7 @@ export default function Signup({ navigation }) {
       /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+~`|}{[\]:;?><,./-]).{8,}$/;
     if (!passwordRegex.test(password)) {
       Alert.alert(
-        "비밀번호 조건 오류",
+        "안내",
         "비밀번호는 8자 이상이며, 문자, 숫자, 특수문자를 포함해야 합니다.",
       );
       return;
@@ -99,7 +98,7 @@ export default function Signup({ navigation }) {
 
     // 비밀번호 확인
     if (password !== passwordCheck) {
-      Alert.alert("비밀번호 불일치", "비밀번호가 일치하지 않습니다.");
+      Alert.alert("안내", "비밀번호가 일치하지 않습니다.");
       return;
     }
 
@@ -107,7 +106,7 @@ export default function Signup({ navigation }) {
       // 이미 가입된 이메일인지 체크
       const methods = await fetchSignInMethodsForEmail(auth, email);
       if (methods.length > 0) {
-        Alert.alert("가입 오류", "이미 가입된 이메일입니다.");
+        Alert.alert("안내", "이미 가입된 이메일입니다.");
         return;
       }
 
@@ -138,10 +137,10 @@ export default function Signup({ navigation }) {
         photoURL,
       });
 
-      Alert.alert("회원가입 성공", "회원가입이 완료되었습니다.");
+      Alert.alert("안내", "회원가입이 완료되었습니다.");
       navigation.navigate("Login");
     } catch (error) {
-      Alert.alert("회원가입 실패", error.message || String(error));
+      Alert.alert("오류", error.message || String(error));
     }
   };
 

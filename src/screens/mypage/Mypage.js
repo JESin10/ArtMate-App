@@ -230,16 +230,16 @@ export default function Mypage({ navigation }) {
 
   const showAlertWithChoices = () => {
     Alert.alert(
-      "Choose an Option",
-      "Please select one of the following:",
+      "안내",
+      "공유 방법을 선택해주세요",
       [
         {
           text: "SNSshare",
-          onPress: () => Alert.alert("Shared to SNS"),
+          onPress: () => Alert.alert("안내", "SNS에 공유되었습니다."),
         },
         {
           text: "LinkShare",
-          onPress: () => Alert.alert("Link Copied"),
+          onPress: () => Alert.alert("안내", "링크가 복사되었습니다."),
         },
         {
           text: "Cancel",
@@ -265,10 +265,10 @@ export default function Mypage({ navigation }) {
         displayName: editedName,
         photoURL: profileImage,
       }));
-      Alert.alert("프로필이 수정되었습니다");
+      Alert.alert("안내", "프로필이 수정되었습니다");
       setIsEditing(false);
     } catch (error) {
-      Alert.alert("수정 실패", "다시 시도해주세요");
+      Alert.alert("오류", "프로필 수정에 실패하였습니다");
     }
   };
 
@@ -289,7 +289,7 @@ export default function Mypage({ navigation }) {
     const permissionResult =
       await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permissionResult.granted) {
-      alert("사진 접근 권한이 필요합니다.");
+      Alert.alert("안내", "사진 접근 권한이 필요합니다.");
       return;
     }
 

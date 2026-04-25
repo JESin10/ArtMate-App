@@ -18,16 +18,7 @@ export default function AllMap({ route, navigation }) {
   const { myPins, setMyPins } = useUserStore();
   const [latDelta, setLatDelta] = useState(0.1);
   const [lngDelta, setLngDelta] = useState(0.1);
-  const [region, setRegion] = useState(initialRegion);
-  const { user } = useContext(AuthContext);
-  const [filter, setFilter] = useState("all"); // all | artwork | place | my
-  const filteredMarkers = markers.filter((item) => {
-    if (filter === "artwork") return item.type === "artwork";
-    if (filter === "place") return item.type !== "artwork";
-    return true;
-  });
-
-  const initialRegion =
+  const [region, setRegion] = useState(
     markers.length > 0
       ? {
           latitude: markers[0].latitude,
@@ -40,7 +31,15 @@ export default function AllMap({ route, navigation }) {
           longitude: 126.98032998,
           latitudeDelta: latDelta,
           longitudeDelta: lngDelta,
-        };
+        },
+  );
+  const { user } = useContext(AuthContext);
+  const [filter, setFilter] = useState("all"); // all | artwork | place | my
+  const filteredMarkers = markers.filter((item) => {
+    if (filter === "artwork") return item.type === "artwork";
+    if (filter === "place") return item.type !== "artwork";
+    return true;
+  });
 
   useEffect(() => {
     const getCurrentLocation = async () => {
@@ -156,7 +155,7 @@ export default function AllMap({ route, navigation }) {
           onPress={() => {
             if (!user) {
               Alert.alert(
-                "로그인 필요",
+                "안내",
                 "내 장소 기능은 로그인 후 사용할 수 있습니다.",
                 [{ text: "확인" }],
               );

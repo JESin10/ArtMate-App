@@ -145,7 +145,7 @@ export default function PlacesInfoModal({
         );
 
         setFilled(true);
-        Alert.alert("북마크", "북마크에 추가되었습니다.");
+        Alert.alert("안내", "북마크에 추가되었습니다.");
       } else {
         // 북마크 삭제
         await deleteDoc(bookmarkRef);
@@ -154,7 +154,7 @@ export default function PlacesInfoModal({
         });
 
         setFilled(false);
-        Alert.alert("북마크", "북마크에서 제거되었습니다.");
+        Alert.alert("안내", "북마크에서 제거되었습니다.");
       }
     } catch (error) {
       console.error("BookmarkHandler error", error);

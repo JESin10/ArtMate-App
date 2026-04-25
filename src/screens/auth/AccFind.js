@@ -25,7 +25,7 @@ export default function AccFind({ navigation }) {
 
   const findPassword = async () => {
     if (!userId) {
-      Alert.alert("입력 오류", "비밀번호를 찾을 이메일을 입력해주세요.");
+      Alert.alert("안내", "비밀번호를 찾을 이메일을 입력해주세요.");
       return;
     }
 
@@ -36,18 +36,14 @@ export default function AccFind({ navigation }) {
       const querySnapshot = await getDocs(q);
 
       if (querySnapshot.empty) {
-        Alert.alert("찾기 실패", "등록되지 않은 이메일입니다.");
+        Alert.alert("안내", "등록되지 않은 이메일입니다.");
         return;
       }
 
       // Firebase Auth에서 비밀번호 재설정 이메일 발송
       await sendPasswordResetEmail(auth, userId);
-      Alert.alert(
-        "비밀번호 재설정",
-        "입력한 이메일로 비밀번호 재설정 링크를 보냈습니다.",
-      );
+      Alert.alert("안내", "입력한 이메일로 비밀번호 재설정 링크를 보냈습니다.");
     } catch (error) {
-      console.error("비밀번호 재설정 오류:", error);
       Alert.alert("오류", error.message || "오류가 발생했습니다.");
     }
   };

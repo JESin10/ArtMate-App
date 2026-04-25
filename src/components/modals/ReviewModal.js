@@ -94,7 +94,7 @@ export default function ReviewModal({
 
   const pickImage = async () => {
     if (image.length >= 3) {
-      Alert.alert("이미지는 최대 3장까지 가능합니다.");
+      Alert.alert("안내", "이미지는 최대 3장까지 가능합니다.");
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -163,7 +163,7 @@ export default function ReviewModal({
 
       await setDoc(userReviewRef, updateData, { merge: true });
 
-      Alert.alert("리뷰 수정 완료!");
+      Alert.alert("안내", "리뷰 수정 완료!");
       onClose();
     } catch (error) {
       console.error("리뷰 수정 실패:", error);
@@ -191,12 +191,12 @@ export default function ReviewModal({
 
   const handleSubmit = async () => {
     if (!selectedArtwork) {
-      alert("전시를 선택해주세요.");
+      Alert.alert("안내", "전시를 선택해주세요.");
       return;
     }
 
     if (!user?.uid) {
-      alert("로그인이 필요합니다.");
+      Alert.alert("안내", "로그인이 필요합니다.");
       return;
     }
 
@@ -211,11 +211,10 @@ export default function ReviewModal({
         photoURL: user.photoURL,
       });
 
-      alert("리뷰 작성 완료!");
+      Alert.alert("안내", "리뷰 작성 완료!");
       handleClose();
     } catch (err) {
-      console.error("리뷰 작성 실패:", err);
-      alert("리뷰 작성 실패");
+      Alert.alert("오류", "리뷰 작성 실패");
     }
   };
 

@@ -60,7 +60,6 @@ export default function SignIn({ navigation }) {
           createdAt: userData.createdAt,
         });
       }
-      // Alert.alert("로그인 성공", "로그인이 완료되었습니다.");
       navigation.navigate("Bottom", { screen: "Home" });
     } catch (error) {
       console.log(error);

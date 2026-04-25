@@ -1,8 +1,8 @@
+import * as AuthSession from "expo-auth-session";
+import * as WebBrowser from "expo-web-browser";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useEffect } from "react";
 import { Alert } from "react-native";
-import * as WebBrowser from "expo-web-browser";
-import * as AuthSession from "expo-auth-session";
-import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 
 WebBrowser.maybeCompleteAuthSession();
@@ -91,7 +91,7 @@ export const useKakaoLogin = ({ setUser, navigation }) => {
         navigation.navigate("Bottom", { screen: "Home" });
       } catch (error) {
         console.log(error);
-        Alert.alert("카카오 로그인 실패");
+        Alert.alert("오류", "카카오 로그인 실패");
       }
     };
 
