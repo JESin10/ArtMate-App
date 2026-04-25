@@ -26,6 +26,7 @@ import {
 import { db } from "../../../firebase";
 import { AuthContext } from "../../store/context";
 import { colors } from "../../styles/colors";
+import { fontSize, radius, spacing } from "../../styles/theme";
 
 export default function CommentModal({ visible, onClose, reviewId }) {
   const { user } = useContext(AuthContext);
@@ -154,8 +155,8 @@ export default function CommentModal({ visible, onClose, reviewId }) {
             <Text
               style={{
                 color: colors.primary,
-                padding: 10,
-                fontSize: 16,
+                padding: spacing.sm,
+                fontSize: fontSize.md,
                 fontWeight: "bold",
               }}
             >
@@ -268,41 +269,39 @@ const styles = StyleSheet.create({
     bottom: 0,
   },
   ModalContainer: {
-    backgroundColor: "#fff",
-    padding: 32,
+    backgroundColor: colors.white,
+    padding: spacing.xxxl,
     minHeight: 300,
     maxHeight: "80%",
-    // height: "80%",
     overflow: "scroll",
     flex: 1,
     flexDirection: "column",
   },
   ModalContent: {
-    paddingBottom: 20,
+    paddingBottom: spacing.xl,
     height: "90%",
-    top: 20,
-    // backgroundColor: "gray",
+    top: spacing.xl,
   },
   allcommentContainer: {
     width: "100%",
     height: "90%",
-    backgroundColor: "white",
-    padding: 10,
+    backgroundColor: colors.white,
+    padding: spacing.sm,
   },
   inputContainer: {
     width: "100%",
-    padding: 10,
+    padding: spacing.sm,
     flexDirection: "row",
     alignItems: "center",
   },
 
   inputFactorContainer: {
     width: "100%",
-    backgroundColor: "#fff",
-    padding: 10,
+    backgroundColor: colors.white,
+    padding: spacing.sm,
     flexDirection: "row",
     alignItems: "center",
-    shadowColor: "#000",
+    shadowColor: colors.black,
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -311,23 +310,23 @@ const styles = StyleSheet.create({
     width: "85%",
     height: 40,
     borderWidth: 1,
-    borderColor: "lightgrey",
-    borderRadius: 20,
-    paddingHorizontal: 12,
-    backgroundColor: "white",
+    borderColor: colors.lightGray,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.sm,
+    backgroundColor: colors.white,
   },
   cmtBtn: {
     width: 40,
     height: 40,
     backgroundColor: colors.primary,
-    borderRadius: 20,
+    borderRadius: radius.sm,
     marginLeft: 5,
     justifyContent: "center",
     alignItems: "center",
   },
   cmtContainer: {
     flexDirection: "column",
-    marginVertical: 10,
+    marginVertical: spacing.sm,
   },
   cmtLineContainer: {
     flexDirection: "row",
@@ -351,17 +350,15 @@ const styles = StyleSheet.create({
   cmtText: {
     width: "85%",
     height: 40,
-    paddingHorizontal: 10,
+    paddingHorizontal: spacing.sm,
     justifyContent: "center",
     textAlignVertical: "center",
   },
   cmtTime: {
     width: "50%",
     height: 20,
-    fontSize: 10,
-    color: "grey",
-    marginTop: 10,
-    // justifyContent: "flex-end",
-    // textAlign: "right",
+    fontSize: fontSize.xs,
+    color: colors.gray,
+    marginTop: spacing.sm,
   },
 });

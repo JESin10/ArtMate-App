@@ -16,6 +16,7 @@ import SearchBar from "../../components/search/SearchBar";
 import { AuthContext } from "../../store/context";
 import { useUserStore } from "../../store/useUserStore";
 import { colors } from "../../styles/colors";
+import { fontSize, spacing } from "../../styles/theme";
 
 export default function Bookmarks({ navigation }) {
   const { user } = useContext(AuthContext);
@@ -97,7 +98,7 @@ export default function Bookmarks({ navigation }) {
         paddingBottom: 60,
       }}
     >
-      <View style={{ paddingBottom: 80, padding: 10 }}>
+      <View style={{ paddingBottom: 80, padding: spacing.sm }}>
         <TouchableOpacity style={{ alignItems: "center" }}>
           <Mainlogo
             width={150}
@@ -110,15 +111,15 @@ export default function Bookmarks({ navigation }) {
         <View style={styles.settingFactorContainer}>
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <TouchableOpacity
-              style={{ margin: 8 }}
+              style={{ margin: spacing.xs }}
               onPress={() => navigation.goBack()}
             >
-              <BackwardIcon width={32} height={32} fill="#000" />
+              <BackwardIcon width={32} height={32} fill={colors.black} />
             </TouchableOpacity>
             <Text
               style={{
-                fontSize: 22,
-                color: "black",
+                fontSize: fontSize.xl,
+                color: colors.black,
                 fontWeight: "bold",
               }}
             >
@@ -132,7 +133,7 @@ export default function Bookmarks({ navigation }) {
             >
               <Text
                 style={{
-                  color: tab === "artwork" ? "white" : "#a9a9a9",
+                  color: tab === "artwork" ? colors.white : colors.lightGray,
                   textAlign: "center",
                   fontWeight: tab === "artwork" ? "bold" : "semibold",
                 }}
@@ -147,7 +148,7 @@ export default function Bookmarks({ navigation }) {
             >
               <Text
                 style={{
-                  color: tab === "place" ? "white" : "#a9a9a9",
+                  color: tab === "place" ? colors.white : colors.lightGray,
                   textAlign: "center",
                   fontWeight: tab === "place" ? "bold" : "semibold",
                 }}
@@ -176,8 +177,8 @@ export default function Bookmarks({ navigation }) {
                       />
                       <Text
                         style={{
-                          margin: 10,
-                          fontSize: 12,
+                          margin: spacing.sm,
+                          fontSize: fontSize.sm,
                           fontWeight: "bold",
                           textAlign: "center",
                         }}
@@ -209,8 +210,8 @@ export default function Bookmarks({ navigation }) {
                       />
                       <Text
                         style={{
-                          margin: 10,
-                          fontSize: 12,
+                          margin: spacing.sm,
+                          fontSize: fontSize.sm,
                           fontWeight: "bold",
                           textAlign: "center",
                         }}
@@ -254,17 +255,17 @@ const styles = StyleSheet.create({
   btnContainer: {
     width: "95%",
     marginHorizontal: "auto",
-    marginTop: 20,
+    marginTop: spacing.xl,
     justifyContent: "center",
     flexDirection: "row",
   },
   btnFactor: {
     backgroundColor: colors.primary,
     width: "50%",
-    padding: 10,
+    padding: spacing.sm,
     justifyContent: "center",
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    borderTopLeftRadius: spacing.xl,
+    borderTopRightRadius: spacing.xl,
     borderWidth: 0.3,
     borderColor: colors.gray,
   },
@@ -275,16 +276,16 @@ const styles = StyleSheet.create({
     marginHorizontal: "auto",
     flexDirection: "column",
     backgroundColor: colors.white,
-    paddingVertical: 10,
-    paddingHorizontal: 5,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.xs,
   },
   bookmarkData: {
     width: "44%",
     borderWidth: 1,
     borderColor: colors.primary,
-    borderRadius: 10,
-    padding: 8,
-    margin: 10,
+    borderRadius: spacing.sm,
+    padding: spacing.xs,
+    margin: spacing.sm,
     flexDirection: "column",
     flex: 1,
   },
@@ -294,9 +295,9 @@ const styles = StyleSheet.create({
     borderColor: colors.black,
     borderwidth: 1,
     marginHorizontal: "auto",
-    marginVertical: 10,
+    marginVertical: spacing.sm,
   },
   artworkImage: {
-    borderRadius: 10,
+    borderRadius: spacing.sm,
   },
 });

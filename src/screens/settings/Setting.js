@@ -9,6 +9,7 @@ import Mainlogo from "../../assets/icons/logo-main.svg";
 import MainSlogun from "../../assets/images/slogan.svg";
 import { AuthContext } from "../../store/context";
 import { colors } from "../../styles/colors";
+import { spacing } from "../../styles/theme";
 
 export default function Setting({ navigation }) {
   const { user, setUser } = useContext(AuthContext);
@@ -114,7 +115,7 @@ export default function Setting({ navigation }) {
     <SafeAreaView>
       <TouchableOpacity
         onPress={() => navigation.navigate("Bottom", { screen: "Home" })}
-        style={{ alignItems: "center", marginBottom: 30 }}
+        style={{ alignItems: "center", marginBottom: spacing.xxxl }}
       >
         <Mainlogo width={200} height={100} />
         <MainSlogun width={180} height={30} />
@@ -123,19 +124,19 @@ export default function Setting({ navigation }) {
         <View style={styles.userSetting}>
           <TouchableOpacity
             style={{
-              margin: 8,
+              margin: spacing.xs,
             }}
             onPress={() => navigation.goBack()}
           >
-            <BackwardIcon width={24} height={24} fill="#fff" />
+            <BackwardIcon width={24} height={24} fill={colors.white} />
           </TouchableOpacity>
           <TouchableOpacity onPress={userInfoCheck}>
             <Text
               style={{
-                backgroundColor: "#fff",
-                padding: 10,
+                backgroundColor: colors.white,
+                padding: spacing.sm,
                 borderBottomWidth: 1,
-                borderBottomColor: "#d9d9d9",
+                borderBottomColor: colors.lightGray,
               }}
             >
               가입정보 확인
@@ -151,10 +152,10 @@ export default function Setting({ navigation }) {
         <View style={styles.QASetting}>
           <Text
             style={{
-              backgroundColor: "#fff",
-              padding: 10,
+              backgroundColor: colors.white,
+              padding: spacing.sm,
               borderBottomWidth: 1,
-              borderBottomColor: "#d9d9d9",
+              borderBottomColor: colors.lightGray,
             }}
           >
             공지사항
@@ -193,10 +194,10 @@ export default function Setting({ navigation }) {
           <TouchableOpacity
             onPress={userLogout}
             style={{
-              backgroundColor: "#fff",
-              padding: 10,
+              backgroundColor: colors.white,
+              padding: spacing.sm,
               borderBottomWidth: 1,
-              borderBottomColor: "#d9d9d9",
+              borderBottomColor: colors.lightGray,
             }}
           >
             <Text>로그아웃</Text>
@@ -218,15 +219,13 @@ const styles = StyleSheet.create({
   },
   userSetting: {
     width: "100%",
-    // height: "40%",
     flexDirection: "horizontal",
-    // paddingTop: 40,
     paddingBottom: 0,
     backgroundColor: colors.primary,
   },
   userSettingFactor: {
     backgroundColor: colors.white,
-    padding: 10,
+    padding: spacing.sm,
     borderBottomWidth: 1,
     borderBottomColor: colors.lightGray,
   },
@@ -235,13 +234,13 @@ const styles = StyleSheet.create({
     flexDirection: "horizontal",
     justyfyContent: "center",
     verticalAlign: "center",
-    paddingTop: 40,
+    paddingTop: spacing.exxl,
     paddingBottom: 0,
     backgroundColor: colors.primary,
   },
   QAFactor: {
     backgroundColor: colors.white,
-    padding: 10,
+    padding: spacing.sm,
     borderBottomWidth: 1,
     borderBottomColor: colors.lightGray,
   },

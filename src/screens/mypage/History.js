@@ -16,6 +16,7 @@ import ArtworkInfoModal from "../../components/modals/ArtworkInfoModal";
 import SearchBar from "../../components/search/SearchBar";
 import { AuthContext } from "../../store/context";
 import { colors } from "../../styles/colors";
+import { fontSize, radius, spacing } from "../../styles/theme";
 
 export default function History({ navigation }) {
   const [myhistory, setMyHistory] = useState([]);
@@ -67,7 +68,7 @@ export default function History({ navigation }) {
         paddingBottom: 60,
       }}
     >
-      <View style={{ paddingBottom: 80, padding: 10 }}>
+      <View style={{ paddingBottom: 80, padding: spacing.sm }}>
         <TouchableOpacity style={{ alignItems: "center" }}>
           <Mainlogo
             width={150}
@@ -84,15 +85,15 @@ export default function History({ navigation }) {
             }}
           >
             <TouchableOpacity
-              style={{ margin: 8 }}
+              style={{ margin: spacing.xs }}
               onPress={() => navigation.goBack()}
             >
-              <BackwardIcon width={32} height={32} fill="#000" />
+              <BackwardIcon width={32} height={32} fill={colors.blackblack} />
             </TouchableOpacity>
             <Text
               style={{
-                fontSize: 22,
-                color: "black",
+                fontSize: fontSize.xl,
+                color: colors.black,
                 fontWeight: "bold",
               }}
             >
@@ -103,7 +104,6 @@ export default function History({ navigation }) {
             <FlatList
               data={reviewPreview}
               keyExtractor={(item) => item.id}
-              // contentContainerStyle={{ paddingBottom: 100 }}
               renderItem={({ item }) => (
                 <TouchableOpacity onPress={() => handleModalOpen(item)}>
                   <View style={styles.historyContainer}>
@@ -118,8 +118,8 @@ export default function History({ navigation }) {
                         width: "50%",
                         flexDirection: "column",
                         justifyContent: "flex-start",
-                        paddingVertical: 4,
-                        paddingHorizontal: 8,
+                        paddingVertical: spacing.xs,
+                        paddingHorizontal: spacing.xs,
                       }}
                     >
                       <Text style={styles.title}>{item.title}</Text>
@@ -156,19 +156,19 @@ const styles = StyleSheet.create({
     height: "100%",
     width: "95%",
     marginHorizontal: "auto",
-    marginTop: 20,
+    marginTop: spacing.xl,
     flexDirection: "row",
-    padding: 10,
+    padding: spacing.sm,
   },
   historyContainer: {
     width: "100%",
     borderWidth: 1,
     borderColor: colors.primary,
-    borderRadius: 10,
-    padding: 8,
+    borderRadius: radius.sm,
+    padding: spacing.xs,
     flexDirection: "row",
     justifyContent: "space-between",
-    marginVertical: 10,
+    marginVertical: spacing.sm,
   },
   artworkTumbnail: {
     width: 130,
@@ -176,25 +176,25 @@ const styles = StyleSheet.create({
     borderColor: colors.primary,
     borderwidth: 1,
     marginHorizontal: "auto",
-    marginVertical: 10,
+    marginVertical: spacing.sm,
   },
   artworkImage: {
-    borderRadius: 10,
+    borderRadius: radius.sm,
   },
   title: {
-    margin: 10,
-    fontSize: 12,
+    margin: spacing.sm,
+    fontSize: fontSize.sm,
     fontWeight: "bold",
   },
   desc: {
     marginVertical: 2,
-    marginHorizontal: 10,
-    fontSize: 10,
+    marginHorizontal: spacing.sm,
+    fontSize: fontSize.xs,
     color: colors.placeholder,
   },
   content: {
-    margin: 10,
-    fontSize: 12,
+    margin: spacing.sm,
+    fontSize: fontSize.xs,
     color: colors.text,
   },
 });

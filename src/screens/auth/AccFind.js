@@ -16,6 +16,7 @@ import Mainlogo from "../../assets/icons/logo-main.svg";
 import MainSlogun from "../../assets/images/slogan.svg";
 import { AuthContext } from "../../store/context";
 import { colors } from "../../styles/colors";
+import { fontSize, radius, spacing } from "../../styles/theme";
 
 export default function AccFind({ navigation }) {
   const [userId, setUserId] = useState("");
@@ -114,12 +115,12 @@ export default function AccFind({ navigation }) {
             <View style={styles.decoLine}>
               <Text
                 style={{
-                  paddingHorizontal: 15,
-                  backgroundColor: "white",
-                  zIndex: 20,
-                  top: 10,
-                  color: "#A8A8A8",
-                  fontSize: 12,
+                  paddingHorizontal: spacing.lg,
+                  backgroundColor: colors.white,
+                  zIndex: spacing.xl,
+                  top: spacing.sm,
+                  color: colors.lightGray,
+                  fontSize: fontSize.sm,
                 }}
               >
                 소셜로 시작하기
@@ -135,11 +136,11 @@ export default function AccFind({ navigation }) {
             >
               <TouchableOpacity
                 style={{
-                  backgroundColor: "#F4DF4A",
-                  borderRadius: 30,
+                  backgroundColor: colors.kakao_yellow,
+                  borderRadius: radius.lg,
                   width: "80%",
                   height: 45,
-                  marginBottom: 10,
+                  marginBottom: spacing.sm,
                   alignItems: "center",
                 }}
                 // onPress={login}
@@ -148,11 +149,11 @@ export default function AccFind({ navigation }) {
               </TouchableOpacity>
               <TouchableOpacity
                 style={{
-                  backgroundColor: "#5EC439",
-                  borderRadius: 30,
+                  backgroundColor: colors.naver_green,
+                  borderRadius: radius.lg,
                   width: "80%",
                   height: 45,
-                  marginBottom: 10,
+                  marginBottom: spacing.sm,
                   alignItems: "center",
                 }}
                 // onPress={login}
@@ -162,13 +163,13 @@ export default function AccFind({ navigation }) {
 
               <TouchableOpacity
                 style={{
-                  backgroundColor: "white",
-                  borderColor: "black",
+                  backgroundColor: colors.white,
+                  borderColor: colors.black,
                   borderWidth: 1,
-                  borderRadius: 30,
+                  borderRadius: radius.lg,
                   width: "80%",
                   height: 45,
-                  marginBottom: 10,
+                  marginBottom: spacing.sm,
                   alignItems: "center",
                 }}
                 // onPress={login}
@@ -192,13 +193,13 @@ const styles = StyleSheet.create({
   },
   input: {
     width: 300,
-    height: 45,
+    height: 46,
     backgroundColor: colors.white,
     borderColor: colors.primary,
     borderWidth: 1,
-    borderRadius: 30,
-    padding: 10,
-    marginBottom: 10,
+    borderRadius: radius.lg,
+    padding: spacing.sm,
+    marginBottom: spacing.sm,
     textAlign: "center",
     placeholderTextColor: colors.placeholder,
   },
@@ -206,23 +207,23 @@ const styles = StyleSheet.create({
     width: "100%",
     flexDirection: "column",
     alignItems: "center",
-    padding: 10,
+    padding: spacing.sm,
   },
   button: {
     width: 300,
-    height: 45,
+    height: 46,
     backgroundColor: colors.primary,
-    borderRadius: 30,
-    margin: 10,
+    borderRadius: radius.lg,
+    margin: spacing.sm,
     alignItems: "center",
-    padding: 15,
+    padding: spacing.lg,
   },
   socialBtn: {
     width: "100%",
     height: "100%",
     textAlign: "center",
-    lineHeight: 45,
-    fontSize: 14,
+    lineHeight: 46,
+    fontSize: fontSize.sm,
     fontWeight: "bold",
     alignItems: "center",
     flexDirection: "center",
@@ -232,8 +233,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderBottomColor: colors.gray,
     borderBottomWidth: 1,
-    marginTop: 30,
-    marginBottom: 40,
+    marginTop: spacing.xxxl,
+    marginBottom: spacing.exxl,
     alignItems: "center",
     marginHorizontal: "auto",
   },
@@ -244,9 +245,9 @@ const styles = StyleSheet.create({
     marginHorizontal: "auto",
   },
   findFactor: {
-    color: "gray",
-    fontSize: 10,
+    color: colors.gray,
+    fontSize: fontSize.sm,
     fontWeight: "semibold",
-    marginBottom: 20,
+    marginBottom: spacing.xl,
   },
 });

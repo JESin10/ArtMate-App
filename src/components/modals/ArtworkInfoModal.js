@@ -30,6 +30,7 @@ import Map from "../../screens/places/Map";
 import { AuthContext } from "../../store/context";
 import { useArtStore } from "../../store/useArtStore";
 import { colors } from "../../styles/colors";
+import { fontSize, spacing } from "../../styles/theme";
 import ReviewImageSlider from "../Slider/ReviewImageSlider";
 
 export default function ArtworkInfoModal({ visible, onClose, seq, artwork }) {
@@ -338,7 +339,7 @@ export default function ArtworkInfoModal({ visible, onClose, seq, artwork }) {
                   <ScrollView
                     horizontal
                     showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={{ paddingVertical: 10 }}
+                    contentContainerStyle={{ paddingVertical: spacing.sm }}
                   >
                     {reviews.map((item, index) => (
                       <View
@@ -399,18 +400,17 @@ const styles = StyleSheet.create({
     bottom: 0,
   },
   ModalContainer: {
-    backgroundColor: "#fff",
-    padding: 16,
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
+    backgroundColor: colors.white,
+    padding: spacing.lg,
+    borderTopLeftRadius: spacing.md,
+    borderTopRightRadius: spacing.md,
     minHeight: 300,
     maxHeight: "80%",
-    // height: "80%",
     overflow: "scroll",
     flex: 1,
     flexDirection: "column",
   },
-  ModalContent: { paddingBottom: 20 },
+  ModalContent: { paddingBottom: spacing.xl },
   overlay: {
     position: "absolute",
     top: 0,
@@ -423,37 +423,37 @@ const styles = StyleSheet.create({
     zIndex: 999,
   },
   overlayContent: {
-    padding: 20,
-    borderRadius: 8,
+    padding: spacing.xl,
+    borderRadius: spacing.xs,
     backgroundColor: "rgba(0,0,0,0.6)",
     alignItems: "center",
   },
   titleText1: {
     fontWeight: "bold",
-    fontSize: 16,
+    fontSize: fontSize.md,
     width: "100%",
-    paddingVertical: 20,
-    paddingHorizontal: 10,
+    paddingVertical: spacing.xl,
+    paddingHorizontal: spacing.sm,
   },
   titleContainer: {
     width: "100%",
     borderColor: "transparent",
-    borderBottomColor: "#C6C6C6",
+    borderBottomColor: colors.lightGray,
     borderBottomWidth: 1,
-    marginBottom: 20,
+    marginBottom: spacing.xl,
     justifyContent: "space-between",
     flexDirection: "row",
   },
   titleText2: {
     width: "20%",
     fontWeight: "bold",
-    fontSize: 14,
-    marginRight: 10,
+    fontSize: fontSize.sm,
+    marginRight: spacing.sm,
     paddingTop: 2,
   },
   subText: {
     fontWeight: "normal",
-    fontSize: 12,
+    fontSize: fontSize.sm,
     flexShrink: 1,
     color: "gray",
   },
@@ -472,15 +472,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   textContainer: {
-    marginBottom: 10,
+    marginBottom: spacing.sm,
     width: "100%",
     flexDirection: "row",
-    padding: 10,
+    padding: spacing.sm,
   },
   imageContainer: {
     width: "100%",
     height: 400,
-    paddingVertical: 30,
+    paddingVertical: spacing.xxxl,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -496,14 +496,14 @@ const styles = StyleSheet.create({
     height: "100%",
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#e8e8e8",
+    backgroundColor: colors.white,
   },
   mapContainer: {
     height: 400,
-    marginBottom: 10,
+    marginBottom: spacing.sm,
     width: "100%",
     flexDirection: "row",
     border: "solid",
-    padding: 10,
+    padding: spacing.sm,
   },
 });

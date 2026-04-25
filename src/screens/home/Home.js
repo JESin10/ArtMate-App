@@ -28,6 +28,7 @@ import { AuthContext } from "../../store/context";
 import { useArtStore } from "../../store/useArtStore";
 import { useUserStore } from "../../store/useUserStore";
 import { colors } from "../../styles/colors";
+import { fontSize, radius, spacing } from "../../styles/theme";
 import { computeEndedArtworks, groupByPlace } from "../../utils/artwork";
 import { formatDate, parseDateSafe } from "../../utils/date";
 import { parseItems } from "../../utils/xmlParser";
@@ -262,10 +263,12 @@ export default function Home({ navigation }) {
                   recentPage === 0 && styles.disabledIcon,
                 ]}
               >
-                <BackwardIcon width={24} height={24} fill="#000" />
+                <BackwardIcon width={24} height={24} fill={colors.black} />
               </TouchableOpacity>
 
-              <Text style={{ alignSelf: "center", marginHorizontal: 12 }}>
+              <Text
+                style={{ alignSelf: "center", marginHorizontal: spacing.md }}
+              >
                 {recentPage + 1} / {recentTotalPages}
               </Text>
 
@@ -279,7 +282,7 @@ export default function Home({ navigation }) {
                   recentPage >= recentTotalPages - 1 && styles.disabledIcon,
                 ]}
               >
-                <ForwardIcon width={24} height={24} fill="#000" />
+                <ForwardIcon width={24} height={24} fill={colors.black} />
               </TouchableOpacity>
             </View>
           </View>
@@ -319,9 +322,9 @@ export default function Home({ navigation }) {
                   <View style={styles.endedContents}>
                     <Text
                       style={{
-                        color: "gray",
-                        marginBottom: 5,
-                        fontSize: 10,
+                        color: colors.gray,
+                        margin: spacing.xs,
+                        fontSize: fontSize.xs,
                       }}
                     >
                       {formatDate(endedartwork?.endDate)}까지 만날 수 있는 전시!
@@ -347,9 +350,6 @@ export default function Home({ navigation }) {
             />
           </View>
           <View style={styles.artInPlaceContainer}>
-            {/* <View style={styles.subTitle}>
-              <Text style={styles.pageTitle}>전시장별 전시모음</Text>
-            </View> */}
             <SectionTitle title="전시장별 전시모음" />
             <View style={styles.artInPlaceContents}>
               {Object.entries(groupByPlace(artworks))
@@ -363,9 +363,9 @@ export default function Home({ navigation }) {
                       <Text
                         style={{
                           fontWeight: "bold",
-                          fontSize: 14,
-                          marginVertical: 10,
-                          marginHorizontal: 4,
+                          fontSize: fontSize.sm,
+                          marginVertical: spacing.sm,
+                          marginHorizontal: spacing.xs,
                         }}
                       >
                         {place}
@@ -382,35 +382,29 @@ export default function Home({ navigation }) {
                           <TouchableOpacity
                             key={`${item.seq}-${index}`}
                             style={{
-                              marginRight: 10,
-                              marginBottom: 22,
-                              marginTop: 8,
+                              marginRight: spacing.sm,
+                              marginBottom: spacing.xl,
+                              marginTop: spacing.xs,
                             }}
                             onPress={() => {
                               openArtwork(item);
                             }}
                           >
-                            {/* <ImageBackground
-                              source={{ uri: item.thumbnail }}
-                              style={styles.artInbackgroundImage}
-                              imageStyle={styles.artInimageBackground}
-                              resizeMode="cover"
-                            /> */}
                             <View
                               style={{
                                 backgroundColor: colors.primary,
                                 borderWidth: 1,
-                                borderRadius: 12,
+                                borderRadius: radius.sm,
                                 borderColor: colors.primary,
-                                paddingHorizontal: 8,
-                                paddingVertical: 4,
+                                paddingHorizontal: spacing.sm,
+                                paddingVertical: spacing.xs,
                               }}
                             >
                               <Text
                                 style={{
-                                  fontSize: 14,
+                                  fontSize: fontSize.sm,
                                   marginVertical: 4,
-                                  color: "white",
+                                  color: colors.white,
                                 }}
                               >
                                 {item.title}

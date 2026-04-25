@@ -15,6 +15,7 @@ import Mainlogo from "../../assets/icons/logo-main.svg";
 import SearchBar from "../../components/search/SearchBar";
 import { AuthContext } from "../../store/context";
 import { colors } from "../../styles/colors";
+import { fontSize, radius, spacing } from "../../styles/theme";
 
 export default function Likes({ navigation }) {
   const [myLikes, setMyLikes] = useState([]);
@@ -70,7 +71,7 @@ export default function Likes({ navigation }) {
         paddingBottom: 60,
       }}
     >
-      <View style={{ paddingBottom: 80, padding: 10 }}>
+      <View style={{ paddingBottom: 80, padding: spacing.sm }}>
         <TouchableOpacity style={{ alignItems: "center" }}>
           <Mainlogo
             width={150}
@@ -90,12 +91,12 @@ export default function Likes({ navigation }) {
               style={{ margin: 8 }}
               onPress={() => navigation.goBack()}
             >
-              <BackwardIcon width={32} height={32} fill="#000" />
+              <BackwardIcon width={32} height={32} fill={colors.black} />
             </TouchableOpacity>
             <Text
               style={{
-                fontSize: 22,
-                color: "black",
+                fontSize: fontSize.xl,
+                color: colors.black,
                 fontWeight: "bold",
               }}
             >
@@ -115,8 +116,8 @@ export default function Likes({ navigation }) {
                     style={{
                       flexDirection: "row",
                       alignItems: "center",
-                      marginVertical: 15,
-                      marginHorizontal: 10,
+                      marginVertical: spacing.lg,
+                      marginHorizontal: spacing.sm,
                     }}
                   >
                     <ImageBackground
@@ -125,12 +126,15 @@ export default function Likes({ navigation }) {
                       imageStyle={styles.profileImage}
                       resizeMode="cover"
                     />
-                    <Text style={{ fontWeight: "bold", color: "#000" }}>
+                    <Text style={{ fontWeight: "bold", color: colors.black }}>
                       {item.displayName}
                     </Text>
                   </View>
                   <View
-                    style={{ flexDirection: "column", marginHorizontal: 13 }}
+                    style={{
+                      flexDirection: "column",
+                      marginHorizontal: spacing.md,
+                    }}
                   >
                     <Text style={styles.title}>{item.title}</Text>
                     <Text style={styles.content}>{item.content}</Text>
@@ -151,25 +155,25 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   reviewCard: {
-    margin: 12,
-    padding: 12,
+    margin: spacing.md,
+    padding: spacing.md,
     backgroundColor: colors.white,
-    borderRadius: 8,
+    borderRadius: radius.xs,
     borderColor: colors.primary,
     borderWidth: 1,
   },
   title: {
     fontWeight: "bold",
-    marginVertical: 12,
+    marginVertical: spacing.md,
   },
   content: {
     color: colors.text,
-    marginBottom: 14,
+    marginBottom: spacing.md,
   },
   profileTumbnail: {
     width: 40,
     height: 40,
-    marginRight: 14,
+    marginRight: spacing.lg,
     borderRadius: 100,
   },
   profileImage: {

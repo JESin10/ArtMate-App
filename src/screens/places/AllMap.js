@@ -11,6 +11,7 @@ import SearchBar from "../../components/search/SearchBar";
 import { AuthContext } from "../../store/context";
 import { useUserStore } from "../../store/useUserStore";
 import { colors } from "../../styles/colors";
+import { fontSize, radius, spacing } from "../../styles/theme";
 
 export default function AllMap({ route, navigation }) {
   const markers = route?.params?.markers ?? [];
@@ -114,7 +115,7 @@ export default function AllMap({ route, navigation }) {
         height: "100%",
         marginHorizontal: "auto",
         flexDirection: "column",
-        padding: 10,
+        padding: spacing.sm,
         justifyContent: "center",
       }}
     >
@@ -180,7 +181,14 @@ export default function AllMap({ route, navigation }) {
         </TouchableOpacity>
       </View>
       <View style={styles.container}>
-        <View style={{ position: "absolute", top: 10, left: 10, zIndex: 10 }}>
+        <View
+          style={{
+            position: "absolute",
+            top: spacing.sm,
+            left: spacing.sm,
+            zIndex: spacing.sm,
+          }}
+        >
           <TouchableOpacity style={styles.zoomInBtn} onPress={zoomIn}>
             <Text style={styles.zoomInText}>+</Text>
           </TouchableOpacity>
@@ -213,7 +221,7 @@ export default function AllMap({ route, navigation }) {
                     longitude: item.longitude,
                   }}
                   title={item.title}
-                  pinColor="green"
+                  pinColor={colors.pin_green}
                 />
               ) : (
                 //API place
@@ -224,7 +232,7 @@ export default function AllMap({ route, navigation }) {
                     longitude: item.longitude,
                   }}
                   title={item.title}
-                  pinColor="blue"
+                  pinColor={colors.pin_blue}
                 />
               ),
             )}
@@ -239,7 +247,7 @@ export default function AllMap({ route, navigation }) {
                   longitude: pin.geoCode.lng,
                 }}
                 title={pin.placeName}
-                pinColor="red"
+                pinColor={colors.pin_red}
               />
             ))}
         </MapView>
@@ -253,23 +261,23 @@ const styles = StyleSheet.create({
   searchbar: {
     borderColor: colors.black,
     borderWidth: 1,
-    borderRadius: 10,
+    borderRadius: radius.sm,
     width: "100%",
-    padding: 10,
+    padding: spacing.sm,
     marginHorizontal: "auto",
-    marginVertical: 15,
+    marginVertical: spacing.lg,
     backgroundColor: colors.lightGray,
     alignItems: "center",
   },
   closeBtn: {
     position: "absolute",
-    top: 20,
-    right: 20,
+    top: spacing.xl,
+    right: spacing.xl,
     zIndex: 1,
     backgroundColor: colors.white,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 6,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.xs,
     borderColor: colors.black,
     borderWidth: 1,
   },
@@ -277,13 +285,13 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     position: "absolute",
-    top: 30,
-    right: 20,
+    top: spacing.xxxl,
+    right: spacing.xl,
     zIndex: 1,
     backgroundColor: colors.white,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 13,
+    borderRadius: radius.sm,
     borderColor: colors.lightGray,
     borderWidth: 1,
   },
@@ -293,12 +301,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     position: "absolute",
-    top: 20,
-    left: 20,
+    top: spacing.xl,
+    left: spacing.xl,
     zIndex: 1,
     backgroundColor: colors.white,
-    borderTopRightRadius: 13,
-    borderTopLeftRadius: 13,
+    borderTopRightRadius: spacing.md,
+    borderTopLeftRadius: spacing.md,
     borderColor: colors.lightGray,
     borderBottomWidth: 0,
     borderTopWidth: 1,
@@ -312,33 +320,33 @@ const styles = StyleSheet.create({
     alignItems: "center",
     position: "absolute",
     top: 60,
-    left: 20,
+    left: spacing.xl,
     zIndex: 1,
     backgroundColor: colors.white,
-    borderBottomRightRadius: 13,
-    borderBottomLeftRadius: 13,
+    borderBottomRightRadius: spacing.md,
+    borderBottomLeftRadius: spacing.md,
     borderColor: colors.lightGray,
     borderWidth: 1,
   },
   zoomInText: {
-    fontSize: 20,
+    fontSize: fontSize.md,
   },
   zoomOutText: {
     justifyContent: "center",
     alignItems: "center",
-    fontSize: 20,
+    fontSize: fontSize.md,
   },
   closeText: { color: colors.black, fontWeight: "bold" },
   filterContainer: {
     flexDirection: "row",
     justifyContent: "space-around",
-    marginBottom: 10,
+    marginBottom: spacing.sm,
   },
   filterBtn: {
-    paddingVertical: 8,
-    paddingHorizontal: 15,
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.lg,
     backgroundColor: colors.white,
-    borderRadius: 20,
+    borderRadius: radius.md,
   },
   activeFilterBtn: {
     backgroundColor: colors.primary, // 클릭된 버튼 색

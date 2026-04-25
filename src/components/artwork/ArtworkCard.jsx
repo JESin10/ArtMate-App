@@ -6,6 +6,7 @@ import {
   View,
 } from "react-native";
 import { colors } from "../../styles/colors";
+import { fontSize, radius, spacing } from "../../styles/theme";
 import { formatDate } from "../../utils/date";
 
 export default function ArtworkCard({ item, openArtwork }) {
@@ -42,39 +43,39 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "column",
     backgroundColor: colors.primary,
-    padding: 8,
-    borderBottomLeftRadius: 10,
-    borderBottomRightRadius: 10,
+    padding: spacing.xs,
+    borderBottomLeftRadius: radius.sm,
+    borderBottomRightRadius: radius.sm,
   },
   MainbackgroundImage: {
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
+    borderTopLeftRadius: radius.sm,
+    borderTopRightRadius: radius.sm,
   },
   recommendCard: {
     width: 310,
-    marginRight: 12,
-    borderRadius: 10,
+    marginRight: spacing.md,
+    borderRadius: radius.sm,
     backgroundColor: "transparent",
-    padding: 10,
+    padding: spacing.sm,
     overflow: "hidden",
   },
   recommendImage: {
     width: "100%",
     height: 450,
-    borderRadius: 8,
+    borderRadius: radius.xs,
   },
   recommendTitle: {
-    fontSize: 16,
+    fontSize: fontSize.md,
     fontWeight: "bold",
-    marginVertical: 8,
+    marginVertical: spacing.xs,
     color: colors.white,
   },
   recommendPart: {
-    fontSize: 12,
+    fontSize: fontSize.sm,
     color: colors.gray,
   },
   DescStyle: {
-    fontSize: 10,
+    fontSize: fontSize.sm,
     color: colors.white,
     marginVertical: 4,
   },

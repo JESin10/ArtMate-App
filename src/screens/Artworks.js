@@ -26,6 +26,8 @@ import ArtworkInfoModal from "../components/modals/ArtworkInfoModal";
 import SearchBar from "../components/search/SearchBar.js";
 import { fetchArtwork } from "../services/artService.js";
 import { useArtStore } from "../store/useArtStore.js";
+import { colors } from "../styles/colors.js";
+import { fontSize, radius, spacing } from "../styles/theme.js";
 import { parseItems } from "../utils/xmlParser.js";
 
 export default function Artworks({ navigation }) {
@@ -300,7 +302,7 @@ export default function Artworks({ navigation }) {
       }}
     >
       {/* <ScrollView contentContainerStyle={{ flexGrow: 1 }}> */}
-      <View style={{ padding: 10, justifyContent: "center" }}>
+      <View style={{ padding: spacing.sm, justifyContent: "center" }}>
         <TouchableOpacity style={{ alignItems: "center" }}>
           <Mainlogo
             width={150}
@@ -312,9 +314,7 @@ export default function Artworks({ navigation }) {
         <View
           style={{
             width: "100%",
-            // borderColor: "black",
-            // borderWidth: 1,
-            paddingVertical: 20,
+            paddingVertical: spacing.xl,
             flexDirection: "row",
             justifyContent: "space-between",
           }}
@@ -335,8 +335,8 @@ export default function Artworks({ navigation }) {
                 width={24}
                 height={24}
                 style={{
-                  marginBottom: 12,
-                  color: loading ? "#999" : "#333",
+                  marginBottom: spacing.md,
+                  color: loading ? colors.lightGray : colors.gray,
                 }}
               />
             </TouchableOpacity>
@@ -441,45 +441,36 @@ export default function Artworks({ navigation }) {
 
 const styles = StyleSheet.create({
   searchbar: {
-    borderColor: "black",
+    borderColor: colors.black,
     borderWidth: 1,
-    borderRadius: 10,
+    borderRadius: radius.sm,
     width: "100%",
-    padding: 10,
+    padding: spacing.sm,
     marginHorizontal: "auto",
-    marginVertical: 15,
-    backgroundColor: "#f5f5f5",
+    marginVertical: spacing.md,
+    backgroundColor: colors.lightGray,
     alignItems: "center",
   },
   pageTitle: {
-    fontSize: 22,
-    color: "black",
+    fontSize: fontSize.xl,
+    color: colors.black,
     fontWeight: "bold",
-    paddingLeft: 10,
+    paddingLeft: spacing.sm,
   },
   artworks_S: {
     width: "40%",
-    // borderColor: "red",
-    // borderWidth: 1,
-    // borderRadius: 10,
-    marginVertical: 8,
+    marginVertical: spacing.xs,
     marginHorizontal: "1%",
-    padding: 8,
+    padding: spacing.xs,
   },
   artworks_B: {
     width: "55%",
-    // borderColor: "purple",
-    // borderWidth: 1,
-    // borderRadius: 10,
-    marginVertical: 8,
+    marginVertical: spacing.xs,
     marginHorizontal: "1%",
-    padding: 8,
+    padding: spacing.xs,
   },
   ModalContainer: {
     width: "100%",
-    // borderColor: "orange",
-    // borderWidth: 1,
-    // borderRadius: 10,
     flex: 1,
     flexWrap: "wrap",
     flexDirection: "row",
@@ -490,34 +481,33 @@ const styles = StyleSheet.create({
     height: 200,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 10,
+    marginBottom: spacing.sm,
     borderColor: "transparent",
     borderWidth: 1,
-    borderRadius: 10,
+    borderRadius: radius.sm,
   },
   backgroundImage: {
-    borderRadius: 10,
+    borderRadius: radius.sm,
   },
   conditions: {
     width: "50%",
     flexDirection: "row",
-    // borderColor: "red",
-    // borderWidth: 1,
+
     justifyContent: "flex-end",
   },
   condition: {
     fontWeight: "bold",
-    marginLeft: 10,
+    marginLeft: spacing.sm,
   },
   descStyle: {
-    fontSize: 10,
+    fontSize: fontSize.xs,
     color: "#000",
     fontWeight: "200",
     marginVertical: 4,
   },
   ArtistDescStyle: {
-    fontSize: 12,
-    color: "#6F6F6F",
+    fontSize: fontSize.sm,
+    color: colors.gray,
     marginVertical: 4,
     fontWeight: "600",
   },
@@ -533,8 +523,8 @@ const styles = StyleSheet.create({
     zIndex: 999,
   },
   overlayContent: {
-    padding: 20,
-    borderRadius: 8,
+    padding: spacing.xl,
+    borderRadius: radius.xs,
     backgroundColor: "rgba(0,0,0,0.6)",
     alignItems: "center",
   },

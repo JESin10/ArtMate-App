@@ -1,7 +1,9 @@
 // components/NotificationItem.js
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { colors } from "../../styles/colors";
+import { fontSize, spacing } from "../../styles/theme";
 
 dayjs.extend(relativeTime);
 
@@ -38,20 +40,20 @@ export default function NotificationItem({ item, onPress }) {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 15,
+    padding: spacing.lg,
     borderBottomWidth: 1,
-    borderColor: "#eee",
-    backgroundColor: "#fff",
+    borderColor: colors.lightGray,
+    backgroundColor: colors.white,
   },
   unread: {
-    backgroundColor: "#eef6ff", // 🔥 안읽음 배경
+    backgroundColor: colors.lightBlue, // 🔥 안읽음 배경
   },
   message: {
-    fontSize: 14,
+    fontSize: fontSize.sm,
   },
   time: {
-    fontSize: 12,
-    color: "#888",
-    marginTop: 5,
+    fontSize: fontSize.xs,
+    color: colors.gray,
+    marginTop: spacing.xs,
   },
 });

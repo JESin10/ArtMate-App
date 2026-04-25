@@ -15,6 +15,7 @@ import PlaceItem from "../../components/places/PlaceItem";
 import SearchBar from "../../components/search/SearchBar";
 import usePlaces from "../../hooks/usePlaces";
 import { useArtStore } from "../../store/useArtStore";
+import { fontSize, spacing } from "../../styles/theme";
 
 export default function PlacesScreen({ navigation }) {
   const {
@@ -113,7 +114,7 @@ export default function PlacesScreen({ navigation }) {
     <SafeAreaView
       style={{ width: "95%", height: "100%", marginHorizontal: "auto" }}
     >
-      <View style={{ padding: 10 }}>
+      <View style={{ padding: spacing.sm }}>
         <TouchableOpacity style={{ alignItems: "center" }}>
           <Mainlogo
             width={150}
@@ -127,12 +128,12 @@ export default function PlacesScreen({ navigation }) {
         <View
           style={{
             width: "100%",
-            marginVertical: 20,
+            marginVertical: spacing.xl,
             flexDirection: "row",
             justifyContent: "space-between",
           }}
         >
-          <Text style={{ fontSize: 22, fontWeight: "bold" }}>
+          <Text style={{ fontSize: fontSize.xl, fontWeight: "bold" }}>
             가까운 전시장
           </Text>
 
@@ -142,9 +143,9 @@ export default function PlacesScreen({ navigation }) {
                 width={24}
                 height={24}
                 style={{
-                  marginBottom: 12,
-                  marginLeft: 12,
-                  marginHorizontal: 12,
+                  marginBottom: spacing.md,
+                  marginLeft: spacing.md,
+                  marginHorizontal: spacing.md,
                 }}
               />
             </TouchableOpacity>
@@ -168,7 +169,7 @@ export default function PlacesScreen({ navigation }) {
           removeClippedSubviews
           ListFooterComponent={
             isFetchingMore ? (
-              <ActivityIndicator style={{ marginVertical: 20 }} />
+              <ActivityIndicator style={{ marginVertical: spacing.xl }} />
             ) : null
           }
         />

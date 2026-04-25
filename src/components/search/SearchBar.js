@@ -1,6 +1,7 @@
-import { View, TextInput, StyleSheet, Keyboard } from "react-native";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import React, { useState } from "react";
+import { Keyboard, StyleSheet, TextInput, View } from "react-native";
+import { radius, spacing } from "../../styles/theme";
 
 export default function SearchBar() {
   const navigation = useNavigation();
@@ -35,12 +36,12 @@ export default function SearchBar() {
 const styles = StyleSheet.create({
   container: {
     borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: 12,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.md,
     height: 50,
     justifyContent: "center",
     width: "95%",
     margin: "auto",
-    marginVertical: 14,
+    marginVertical: spacing.lg,
   },
 });

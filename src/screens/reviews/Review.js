@@ -43,6 +43,7 @@ import { FollowUser } from "../../services/followService";
 import { AuthContext } from "../../store/context";
 import { useReviewStore } from "../../store/useReviewStore";
 import { colors } from "../../styles/colors";
+import { fontSize, radius, spacing } from "../../styles/theme";
 
 export default function Review({ route, navigation }) {
   const {
@@ -271,7 +272,7 @@ export default function Review({ route, navigation }) {
         paddingBottom: 60,
       }}
     >
-      <View style={{ paddingBottom: 80, padding: 10 }}>
+      <View style={{ paddingBottom: 80, padding: spacing.sm }}>
         <TouchableOpacity style={{ alignItems: "center" }}>
           <Mainlogo
             width={150}
@@ -315,7 +316,7 @@ export default function Review({ route, navigation }) {
                 width={24}
                 height={24}
                 style={{
-                  color: loading ? "#999" : "#333",
+                  color: loading ? colors.lightGray : colors.gray,
                 }}
               />
             </TouchableOpacity>
@@ -359,7 +360,7 @@ export default function Review({ route, navigation }) {
                       imageStyle={styles.ProfileImage}
                       resizeMode="cover"
                     />
-                    <Text style={{ marginRight: 10 }}>
+                    <Text style={{ marginRight: spacing.sm }}>
                       {review.displayName}
                     </Text>
                   </TouchableOpacity>
@@ -406,8 +407,7 @@ export default function Review({ route, navigation }) {
                         setShowModal(true);
                       }}
                       style={{
-                        // borderWidth: 1,
-                        borderRadius: 10,
+                        borderRadius: radius.sm,
                         alignItems: "center",
                         justifyContent: "center",
                       }}
@@ -418,7 +418,7 @@ export default function Review({ route, navigation }) {
                     <TouchableOpacity
                       onPress={() => ReviewDelete(review.id, review.userId)}
                       style={{
-                        paddingHorizontal: 10,
+                        paddingHorizontal: spacing.sm,
                         alignItems: "center",
                         justifyContent: "center",
                       }}
@@ -433,11 +433,11 @@ export default function Review({ route, navigation }) {
                 onPress={() => {
                   setShowArtworkModal(true);
                   setSelectedArtworkId(review.artworkId);
-
-                  // setSelectedReview(review.artworkId);
                 }}
               >
-                <Text style={{ marginVertical: 14, fontWeight: "bold" }}>
+                <Text
+                  style={{ marginVertical: spacing.lg, fontWeight: "bold" }}
+                >
                   {review.title}
                 </Text>
               </TouchableOpacity>
@@ -465,7 +465,7 @@ export default function Review({ route, navigation }) {
                       <Text
                         style={{
                           color: colors.primary,
-                          marginTop: 4,
+                          marginTop: spacing.xs,
                           fontWeight: "bold",
                           textAlign: "right",
                         }}
@@ -485,14 +485,14 @@ export default function Review({ route, navigation }) {
                       <FilledLikeIcon
                         width={16}
                         height={16}
-                        style={{ marginRight: 5 }}
+                        style={{ marginRight: spacing.xs }}
                         fill="red"
                       />
                     ) : (
                       <LikeIcon
                         width={16}
                         height={16}
-                        style={{ marginRight: 5 }}
+                        style={{ marginRight: spacing.xs }}
                         fill="black"
                       />
                     )}
@@ -509,7 +509,10 @@ export default function Review({ route, navigation }) {
                     <CommentIcon
                       width={16}
                       height={16}
-                      style={{ marginRight: 5, marginLeft: 30 }}
+                      style={{
+                        marginRight: spacing.xs,
+                        marginLeft: spacing.xxxl,
+                      }}
                       reviewId={reviews.id}
                     />
                   </TouchableOpacity>
@@ -538,7 +541,7 @@ export default function Review({ route, navigation }) {
         <WriteIcon
           width={24}
           height={24}
-          style={{ marginTop: 12, backgroundColor: "transparent" }}
+          style={{ marginTop: spacing.md, backgroundColor: "transparent" }}
           fill="#fff"
         />
       </View>
@@ -569,8 +572,10 @@ export default function Review({ route, navigation }) {
       {loading && (
         <View style={styles.overlay}>
           <View style={styles.overlayContent}>
-            <ActivityIndicator size="large" color="#fff" />
-            <Text style={{ color: "#fff", marginTop: 8 }}>로딩중...</Text>
+            <ActivityIndicator size="large" color={colors.white} />
+            <Text style={{ color: colors.white, marginTop: spacing.xs }}>
+              로딩중...
+            </Text>
           </View>
         </View>
       )}
@@ -583,11 +588,11 @@ const styles = StyleSheet.create({
   searchbar: {
     borderColor: colors.black,
     borderWidth: 1,
-    borderRadius: 10,
+    borderRadius: radius.sm,
     width: "100%",
-    padding: 10,
+    padding: spacing.sm,
     marginHorizontal: "auto",
-    marginVertical: 15,
+    marginVertical: spacing.lg,
     backgroundColor: colors.white,
     alignItems: "center",
   },
@@ -595,37 +600,35 @@ const styles = StyleSheet.create({
     width: "100%",
     flexDirection: "row",
     justifyContent: "space-between",
-    // borderWidth: 2,
-    // borderColor: "black",
-    padding: 10,
+    padding: spacing.sm,
     alignItems: "center",
     margin: "auto",
   },
   pageTitle: {
-    fontSize: 22,
+    fontSize: fontSize.xl,
     color: colors.black,
     fontWeight: "bold",
   },
   filterContianer: {
     width: "45%",
-    marginLeft: 5,
+    marginLeft: spacing.xs,
     flexDirection: "row",
     justifyContent: "flex-end",
     alignItems: "center",
   },
   filterFactor: {
-    marginRight: 10,
-    fontSize: 12,
+    marginRight: spacing.sm,
+    fontSize: fontSize.sm,
     color: colors.black,
     fontWeight: "semi-bold",
   },
   reviewsContainer: {
     width: "95%",
     borderWidth: 1,
-    borderRadius: 10,
+    borderRadius: radius.sm,
     borderColor: colors.primary,
-    padding: 20,
-    marginTop: 20,
+    padding: spacing.xl,
+    marginTop: spacing.xl,
     margin: "auto",
   },
   reviewFactor: {
@@ -640,7 +643,7 @@ const styles = StyleSheet.create({
   ProfileTumbnail: {
     width: 40,
     height: 40,
-    marginRight: 14,
+    marginRight: spacing.lg,
     borderRadius: 100,
   },
   ProfileImage: {
@@ -654,22 +657,22 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "flex-start",
-    padding: 10,
+    padding: spacing.sm,
   },
   reviewTextContainer: {
-    padding: 10,
+    padding: spacing.sm,
   },
   reviewDescStyle: {
-    fontSize: 12,
+    fontSize: fontSize.sm,
     color: colors.gray300,
-    marginVertical: 3,
-    lineHeight: 20,
+    marginVertical: spacing.xs,
+    lineHeight: spacing.xl,
   },
   reactionContainer: {
     width: "95%",
     flexDirection: "row",
     justifyContent: "flex-start",
-    padding: 10,
+    padding: spacing.sm,
     borderTopColor: colors.black,
     borderTopWidth: 1,
     margin: "auto",
@@ -686,17 +689,17 @@ const styles = StyleSheet.create({
     zIndex: 200,
   },
   overlayContent: {
-    padding: 20,
-    borderRadius: 8,
+    padding: spacing.xl,
+    borderRadius: spacing.xs,
     backgroundColor: "rgba(0,0,0,0.6)",
     alignItems: "center",
   },
   ReviewBtn: {
     position: "absolute",
     zIndex: 999,
-    bottom: 20,
-    right: 20,
-    borderRadius: 100,
+    bottom: spacing.xl,
+    right: spacing.xl,
+    borderRadius: "100%",
 
     alignItems: "center",
     width: 50,
@@ -710,36 +713,36 @@ const styles = StyleSheet.create({
     position: "absolute",
     alignItems: "center",
   },
-  ReviewBtnText: { margin: "auto", fontSize: 24 },
+  ReviewBtnText: { margin: "auto", fontSize: fontSize.xxl },
   indicatorContainer: {
     flexDirection: "row",
     justifyContent: "center",
-    marginTop: 8,
+    marginTop: spacing.xs,
   },
 
   indicator: {
     width: 6,
     height: 6,
-    borderRadius: 3,
+    borderRadius: "100%",
     backgroundColor: colors.lightGray,
-    marginHorizontal: 4,
+    marginHorizontal: spacing.xs,
   },
 
   activeIndicator: {
     backgroundColor: colors.black,
   },
   followBtn: {
-    marginLeft: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 6,
+    marginLeft: spacing.sm,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.xs,
     backgroundColor: colors.primary,
   },
   unfollowBtn: {
-    marginLeft: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 6,
+    marginLeft: spacing.sm,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.xs,
     backgroundColor: colors.white,
     borderWidth: 1,
     borderColor: colors.primary,

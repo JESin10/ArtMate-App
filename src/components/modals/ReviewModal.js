@@ -27,6 +27,7 @@ import useSearch from "../../hooks/useSearch";
 import { reviewService } from "../../services/reviewService";
 import { AuthContext } from "../../store/context";
 import { colors } from "../../styles/colors";
+import { fontSize, radius, spacing } from "../../styles/theme";
 
 export default function ReviewModal({
   visible,
@@ -238,8 +239,8 @@ export default function ReviewModal({
           >
             <Text
               style={{
-                fontSize: 22,
-                marginVertical: 20,
+                fontSize: fontSize.md,
+                marginVertical: spacing.xl,
                 justifyContent: "center",
                 textAlign: "center",
                 fontWeight: "bold",
@@ -300,7 +301,7 @@ export default function ReviewModal({
                   </Text>
                   <Text
                     style={{
-                      padding: 10,
+                      padding: spacing.sm,
                       justifyContent: "center",
                       textAlign: "center",
                     }}
@@ -318,20 +319,32 @@ export default function ReviewModal({
                 value={content}
                 style={styles.contentInput}
               />
-              <View style={{ width: "90%", marginVertical: 10 }}>
+              <View style={{ width: "90%", marginVertical: spacing.sm }}>
                 <ScrollView horizontal>
                   {image.map((img, index) => (
-                    <View key={img.uri + index} style={{ marginRight: 10 }}>
+                    <View
+                      key={img.uri + index}
+                      style={{ marginRight: spacing.sm, alignItems: "center" }}
+                    >
                       <Image
                         source={{ uri: img.uri }}
-                        style={{ width: 80, height: 80, borderRadius: 8 }}
+                        style={{
+                          width: 80,
+                          height: 80,
+                          borderRadius: radius.xs,
+                        }}
                       />
                       <TouchableOpacity
                         onPress={() =>
                           setImage(image.filter((_, i) => i !== index))
                         }
                       >
-                        <Text style={{ color: "#b50000", marginVertical: 10 }}>
+                        <Text
+                          style={{
+                            color: colors.red,
+                            marginVertical: spacing.sm,
+                          }}
+                        >
                           삭제
                         </Text>
                       </TouchableOpacity>
@@ -341,10 +354,12 @@ export default function ReviewModal({
 
                 {/* <View style={styles.imagePick}> */}
                 <TouchableOpacity style={styles.imagePick} onPress={pickImage}>
-                  <Text style={{ fontSize: 14, fontWeight: "bold" }}>
+                  <Text style={{ fontSize: fontSize.sm, fontWeight: "bold" }}>
                     사진 업로드
                   </Text>
-                  <Text style={{ fontSize: 14, color: colors.primary }}>
+                  <Text
+                    style={{ fontSize: fontSize.sm, color: colors.primary }}
+                  >
                     ({image.length}/3)
                   </Text>
                 </TouchableOpacity>
@@ -361,10 +376,12 @@ export default function ReviewModal({
                     width: "100%",
                   }}
                 >
-                  <Text style={{ fontSize: 14, fontWeight: "bold" }}>
+                  <Text style={{ fontSize: fontSize.sm, fontWeight: "bold" }}>
                     방문 날짜
                   </Text>
-                  <Text style={{ fontSize: 14, color: colors.primary }}>
+                  <Text
+                    style={{ fontSize: fontSize.sm, color: colors.primary }}
+                  >
                     {visitedDate.toISOString().split("T")[0]}
                   </Text>
                 </View>
@@ -377,15 +394,17 @@ export default function ReviewModal({
               />
 
               <View style={styles.ratingPick}>
-                <Text style={{ fontSize: 14, fontWeight: "bold" }}>
+                <Text style={{ fontSize: fontSize.sm, fontWeight: "bold" }}>
                   평점 선택
                 </Text>
-                <View style={{ flexDirection: "row", marginVertical: 10 }}>
+                <View
+                  style={{ flexDirection: "row", marginVertical: spacing.sm }}
+                >
                   {[1, 2, 3, 4, 5].map((i) => (
                     <TouchableOpacity key={i} onPress={() => setRating(i)}>
                       <Text
                         style={{
-                          fontSize: 20,
+                          fontSize: fontSize.lg,
                           color: i <= rating ? colors.primary : colors.gray,
                         }}
                       >
@@ -436,43 +455,43 @@ const styles = StyleSheet.create({
     bottom: 0,
   },
   ModalContainer: {
-    backgroundColor: "#fff",
-    padding: 30,
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
+    backgroundColor: colors.white,
+    padding: spacing.xxxl,
+    borderTopLeftRadius: radius.sm,
+    borderTopRightRadius: radius.sm,
     minHeight: 300,
     maxHeight: "80%",
-    // height: "80%",
     overflow: "scroll",
     flex: 1,
     flexDirection: "column",
   },
-  ModalContent: { paddingBottom: 20 },
+  ModalContent: { paddingBottom: spacing.xl },
   inputContainer: {
     width: "100%",
-    padding: 10,
+    padding: spacing.sm,
     borderWidth: 1,
     flexDirection: "column",
     alignItems: "center",
     backgroundColor: colors.primary,
-    borderRadius: 20,
+    borderRadius: radius.sm,
     borderColor: "transparent",
   },
   searchPage: {
     width: "90%",
     maxHeight: 200,
-    marginBottom: 10,
+    marginBottom: spacing.sm,
     backgroundColor: "rgba(0, 0, 0, 0.5)",
-    padding: 10,
+    padding: spacing.sm,
   },
   titleInput: {
     width: "90%",
     borderWidth: 2,
     backgroundColor: colors.white,
     borderColor: "transparent",
-    borderRadius: 10,
-    margin: 10,
-    padding: 10,
+    borderRadius: radius.sm,
+    margin: spacing.sm,
+    padding: spacing.sm,
+    fontSize: fontSize.sm,
   },
   contentInput: {
     width: "90%",
@@ -480,52 +499,52 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     backgroundColor: colors.white,
     borderColor: "transparent",
-    borderRadius: 10,
-    margin: 10,
-    padding: 20,
-    lineHeight: 24,
-    fontSize: 16,
+    borderRadius: radius.sm,
+    margin: spacing.sm,
+    padding: spacing.md,
+    lineHeight: spacing.xxl,
+    fontSize: fontSize.sm,
   },
   imagePick: {
     width: "100%",
-    marginTop: 10,
-    padding: 10,
+    marginTop: spacing.sm,
+    padding: spacing.sm,
     backgroundColor: colors.lightGray,
     alignItems: "center",
-    borderRadius: 10,
+    borderRadius: radius.sm,
     justifyContent: "space-between",
     flexDirection: "row",
   },
   datePick: {
     width: "90%",
-    marginVertical: 10,
-    padding: 10,
+    marginVertical: spacing.sm,
+    padding: spacing.sm,
     backgroundColor: colors.lightGray,
     alignItems: "center",
-    borderRadius: 10,
+    borderRadius: radius.sm,
   },
   ratingPick: {
     width: "90%",
-    marginVertical: 10,
-    padding: 10,
+    marginVertical: spacing.sm,
+    padding: spacing.sm,
     backgroundColor: colors.lightGray,
     alignItems: "center",
-    borderRadius: 10,
+    borderRadius: radius.sm,
     justifyContent: "space-between",
     flexDirection: "row",
   },
   reviewSubBtn: {
     borderColor: colors.white,
     borderWidth: 2,
-    borderRadius: 10,
+    borderRadius: radius.sm,
     backgroundColor: colors.primary,
     width: "90%",
-    padding: 10,
-    marginVertical: 22,
+    padding: spacing.sm,
+    marginVertical: spacing.xl,
   },
   reviewSubBtnText: {
-    fontWeight: "bold",
-    fontSize: 20,
+    fontWeight: "semi-bold",
+    fontSize: fontSize.md,
     color: colors.white,
     textAlign: "center",
     justifyContent: "center",

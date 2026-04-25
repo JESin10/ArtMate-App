@@ -28,6 +28,7 @@ import { auth, db, storage } from "../../../firebase";
 import Mainlogo from "../../assets/icons/logo-main.svg";
 import MainSlogun from "../../assets/images/slogan.svg";
 import { colors } from "../../styles/colors";
+import { fontSize, radius, spacing } from "../../styles/theme";
 
 export default function Signup({ navigation }) {
   const [name, setName] = useState("");
@@ -189,7 +190,9 @@ export default function Signup({ navigation }) {
                 onPress={() => onCheckEmail(email)}
                 style={styles.EmailCheckBtn}
               >
-                <Text style={{ color: "white", fontSize: 12 }}>확인</Text>
+                <Text style={{ color: colors.white, fontSize: fontSize.sm }}>
+                  확인
+                </Text>
               </TouchableOpacity>
             </View>
 
@@ -224,7 +227,7 @@ export default function Signup({ navigation }) {
               onChangeText={(text) => setPasswordCheck(text)}
             />
             <TouchableOpacity style={styles.button} onPress={onSignup}>
-              <Text style={{ color: "#fff", fontWeight: "bold" }}>
+              <Text style={{ color: colors.white, fontWeight: "bold" }}>
                 회원가입
               </Text>
             </TouchableOpacity>
@@ -235,7 +238,7 @@ export default function Signup({ navigation }) {
               <TouchableOpacity onPress={() => navigation.navigate("AccFind")}>
                 <Text style={styles.findFactor}>PW 찾기</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+              <TouchableOpacity onPress={() => navigation.navigate("SignIn")}>
                 <Text style={styles.findFactor}>로그인</Text>
               </TouchableOpacity>
             </View>
@@ -246,12 +249,12 @@ export default function Signup({ navigation }) {
           <View style={styles.decoLine}>
             <Text
               style={{
-                paddingHorizontal: 15,
-                backgroundColor: "white",
-                zIndex: 20,
-                top: 10,
-                color: "#A8A8A8",
-                fontSize: 12,
+                paddingHorizontal: spacing.lg,
+                backgroundColor: colors.white,
+                zIndex: spacing.xl,
+                top: spacing.sm,
+                color: colors.placeholder,
+                fontSize: fontSize.sm,
               }}
             >
               소셜로 시작하기
@@ -268,12 +271,12 @@ export default function Signup({ navigation }) {
             <TouchableOpacity
               onPress={onSignup}
               style={{
-                backgroundColor: "#F4DF4A",
-                borderRadius: 30,
+                backgroundColor: colors.kakao_yellow,
+                borderRadius: radius.lg,
                 width: "80%",
                 height: 45,
-
-                marginBottom: 10,
+                marginBottom: spacing.sm,
+                padding: spacing.sm,
                 alignItems: "center",
               }}
             >
@@ -282,11 +285,12 @@ export default function Signup({ navigation }) {
             <TouchableOpacity
               onPress={onSignup}
               style={{
-                backgroundColor: "#5EC439",
-                borderRadius: 30,
+                backgroundColor: colors.naver_green,
+                borderRadius: radius.lg,
                 width: "80%",
                 height: 45,
-                marginBottom: 10,
+                marginBottom: spacing.sm,
+                padding: spacing.sm,
                 alignItems: "center",
               }}
             >
@@ -295,13 +299,14 @@ export default function Signup({ navigation }) {
             <TouchableOpacity
               onPress={onSignup}
               style={{
-                backgroundColor: "white",
-                borderColor: "black",
+                backgroundColor: colors.white,
+                borderColor: colors.black,
                 borderWidth: 1,
-                borderRadius: 30,
+                borderRadius: radius.lg,
                 width: "80%",
                 height: 45,
-                marginBottom: 30,
+                marginBottom: spacing.sm,
+                padding: spacing.sm,
                 alignItems: "center",
               }}
             >
@@ -328,12 +333,12 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     borderColor: colors.primary,
     borderWidth: 1,
-    borderRadius: 30,
-    padding: 10,
-    marginBottom: 10,
+    borderRadius: radius.lg,
+    padding: spacing.sm,
+    marginBottom: spacing.sm,
     textAlign: "center",
     placeholderTextColor: colors.placeholder,
-    fontSize: 12,
+    fontSize: fontSize.sm,
   },
   EmailInput: {
     width: 240,
@@ -341,13 +346,13 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     borderColor: colors.primary,
     borderWidth: 1,
-    borderRadius: 30,
-    padding: 10,
-    marginBottom: 10,
+    borderRadius: radius.lg,
+    padding: spacing.sm,
+    marginBottom: spacing.sm,
     textAlign: "center",
     placeholderTextColor: colors.placeholder,
-    fontSize: 12,
-    marginRight: 10,
+    fontSize: fontSize.sm,
+    marginRight: spacing.sm,
   },
   EmailCheckBtn: {
     width: 50,
@@ -355,8 +360,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     borderColor: colors.primary,
     borderWidth: 1,
-    borderRadius: 25,
-    marginBottom: 10,
+    borderRadius: radius.md,
+    marginBottom: spacing.sm,
     textAlign: "center",
     alignItems: "center",
     justifyContent: "center",
@@ -365,58 +370,57 @@ const styles = StyleSheet.create({
     width: "100%",
     flexDirection: "column",
     alignItems: "center",
-    padding: 10,
+    padding: spacing.sm,
   },
   button: {
     width: 300,
     height: 45,
     backgroundColor: colors.primary,
-    borderRadius: 30,
-    margin: 10,
+    borderRadius: radius.lg,
+    margin: spacing.sm,
     alignItems: "center",
-    padding: 15,
+    padding: spacing.lg,
   },
   findContainer: {
-    marginTop: 10,
+    marginTop: spacing.sm,
     flexDirection: "row",
     justifyContent: "space-between",
     width: "50%",
     marginHorizontal: "auto",
   },
   findFactor: {
-    color: "gray",
-    fontSize: 10,
+    color: colors.gray,
+    fontSize: spacing.sm,
     fontWeight: "semibold",
-    marginBottom: 10,
+    marginBottom: spacing.sm,
   },
   decoLine: {
     width: "80%",
     justifyContent: "center",
     borderBottomColor: colors.gray,
     borderBottomWidth: 1,
-    marginTop: 10,
-    marginBottom: 40,
+    marginTop: spacing.sm,
+    marginBottom: spacing.exxl,
     alignItems: "center",
     marginHorizontal: "auto",
   },
   socialBtn: {
     width: "100%",
-    height: "100%",
     textAlign: "center",
-    lineHeight: 45,
-    fontSize: 14,
+    height: 46,
+    fontSize: fontSize.sm,
     fontWeight: "bold",
     alignItems: "center",
     flexDirection: "center",
   },
   profilePicker: {
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: spacing.xl,
   },
   profileImage: {
     width: 80,
     height: 80,
-    borderRadius: 40,
+    borderRadius: radius.xl,
     backgroundColor: colors.lightGray,
   },
 });

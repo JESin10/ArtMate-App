@@ -1,23 +1,24 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useContext } from "react";
-import Artworks from "../../screens/Artworks";
-import Home from "../home/Home";
+import ReviewIcon from "../../assets/icons/Menubar_bookmark-filled.svg";
+import ReviewLineIcon from "../../assets/icons/Menubar_bookmark.svg";
+import PlacesIcon from "../../assets/icons/Menubar_gallery-filled.svg";
+import PlacesLineIcon from "../../assets/icons/Menubar_gallery.svg";
 import HomeIcon from "../../assets/icons/Menubar_home-filled.svg";
 import HomeLineIcon from "../../assets/icons/Menubar_home.svg";
 import ArtworksIcon from "../../assets/icons/Menubar_image-filled.svg";
 import ArtworksLineIcon from "../../assets/icons/Menubar_image.svg";
-import PlacesIcon from "../../assets/icons/Menubar_gallery-filled.svg";
-import PlacesLineIcon from "../../assets/icons/Menubar_gallery.svg";
-import ReviewIcon from "../../assets/icons/Menubar_bookmark-filled.svg";
-import ReviewLineIcon from "../../assets/icons/Menubar_bookmark.svg";
 import MypageIcon from "../../assets/icons/Menubar_user-filled.svg";
 import MypageLineIcon from "../../assets/icons/Menubar_user.svg";
+import Artworks from "../../screens/Artworks";
 import { AuthContext } from "../../store/context";
+import { colors } from "../../styles/colors";
+import { spacing } from "../../styles/theme";
+import AuthStack from "../auth/AuthStack";
+import Home from "../home/Home";
+import MyPageStack from "../mypage/MyPageStack";
 import PlacesScreen from "../places/PlacesScreen";
 import ReviewStack from "../reviews/ReviewStack";
-import MyPageStack from "../mypage/MyPageStack";
-import AuthStack from "../auth/AuthStack";
-import { colors } from "../../styles/colors";
 
 export default function BottomTopScreen() {
   const Tab = createBottomTabNavigator();
@@ -30,7 +31,7 @@ export default function BottomTopScreen() {
         headerShown: false,
         tabBarStyle: {
           height: 80,
-          paddingTop: 10,
+          paddingTop: spacing.sm,
           backgroundColor: colors.primary,
         },
         tabBarActiveTintColor: colors.white,
@@ -38,11 +39,15 @@ export default function BottomTopScreen() {
         tabBarIcon: ({ focused, size, color }) => {
           if (route.name === "Home") {
             return focused ? (
-              <HomeIcon width={size ?? 24} height={size ?? 24} fill={color} />
+              <HomeIcon
+                width={size ?? spacing.xxxl}
+                height={size ?? spacing.xxxl}
+                fill={color}
+              />
             ) : (
               <HomeLineIcon
-                width={size ?? 24}
-                height={size ?? 24}
+                width={size ?? spacing.xxxl}
+                height={size ?? spacing.xxxl}
                 fill={color}
               />
             );
@@ -50,58 +55,74 @@ export default function BottomTopScreen() {
           if (route.name === "Artworks") {
             return focused ? (
               <ArtworksIcon
-                width={size ?? 24}
-                height={size ?? 24}
+                width={size ?? spacing.xxxl}
+                height={size ?? spacing.xxxl}
                 fill={color}
               />
             ) : (
               <ArtworksLineIcon
-                width={size ?? 24}
-                height={size ?? 24}
+                width={size ?? spacing.xxxl}
+                height={size ?? spacing.xxxl}
                 fill={color}
               />
             );
           }
           if (route.name === "Places") {
             return focused ? (
-              <PlacesIcon width={size ?? 24} height={size ?? 24} fill={color} />
+              <PlacesIcon
+                width={size ?? spacing.xxxl}
+                height={size ?? spacing.xxxl}
+                fill={color}
+              />
             ) : (
               <PlacesLineIcon
-                width={size ?? 24}
-                height={size ?? 24}
+                width={size ?? spacing.xxxl}
+                height={size ?? spacing.xxxl}
                 fill={color}
               />
             );
           }
           if (route.name === "Review") {
             return focused ? (
-              <ReviewIcon width={size ?? 24} height={size ?? 24} fill={color} />
+              <ReviewIcon
+                width={size ?? spacing.xxxl}
+                height={size ?? spacing.xxxl}
+                fill={color}
+              />
             ) : (
               <ReviewLineIcon
-                width={size ?? 24}
-                height={size ?? 24}
+                width={size ?? spacing.xxxl}
+                height={size ?? spacing.xxxl}
                 fill={color}
               />
             );
           }
           if (route.name === "Mypage") {
             return focused ? (
-              <MypageIcon width={size ?? 24} height={size ?? 24} fill={color} />
+              <MypageIcon
+                width={size ?? spacing.xxxl}
+                height={size ?? spacing.xxxl}
+                fill={color}
+              />
             ) : (
               <MypageLineIcon
-                width={size ?? 24}
-                height={size ?? 24}
+                width={size ?? spacing.xxxl}
+                height={size ?? spacing.xxxl}
                 fill={color}
               />
             );
           }
           if (route.name === "Auth") {
             return focused ? (
-              <MypageIcon width={size ?? 24} height={size ?? 24} fill={color} />
+              <MypageIcon
+                width={size ?? spacing.xxxl}
+                height={size ?? spacing.xxxl}
+                fill={color}
+              />
             ) : (
               <MypageLineIcon
-                width={size ?? 24}
-                height={size ?? 24}
+                width={size ?? spacing.xxxl}
+                height={size ?? spacing.xxxl}
                 fill={color}
               />
             );

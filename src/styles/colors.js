@@ -7,4 +7,10 @@ export const colors = {
   white: "rgb(255, 255, 255)",
   lightGray: "#c4c4c4",
   placeholder: "#6F6F6F",
+  lightBlue: "#eef6ff",
+  kakao_yellow: "#FEE500",
+  naver_green: "#5EC439",
+  pin_green: "#00ab25",
+  pin_blue: "#002bba",
+  pin_red: "#ed2f00",
 };

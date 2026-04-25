@@ -1,4 +1,5 @@
 import { StyleSheet, Text, View } from "react-native";
+import { fontSize, spacing } from "../../styles/theme";
 
 export default function SectionTitle({ title, rightComponent }) {
   return (
@@ -13,16 +14,16 @@ const styles = StyleSheet.create({
   container: {
     alignItems: "flex-start",
     width: "100%",
-    paddingVertical: 10,
-    paddingLeft: 10,
+    paddingVertical: spacing.sm,
+    paddingLeft: spacing.sm,
   },
   title: {
-    fontSize: 22,
+    fontSize: fontSize.lg,
     color: "black",
     fontWeight: "bold",
     alignItems: "flex-start",
-    paddingLeft: 10,
-    paddingVertical: 10,
+    paddingLeft: spacing.sm,
+    paddingVertical: spacing.sm,
   },
   right: {
     flexDirection: "row",

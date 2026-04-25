@@ -17,6 +17,7 @@ import PlacesInfoModal from "../../components/modals/PlacesInfoModal";
 import SearchBar from "../../components/search/SearchBar";
 import useSearch from "../../hooks/useSearch";
 import { colors } from "../../styles/colors";
+import { fontSize, radius, spacing } from "../../styles/theme";
 
 export default function SearchResult({ navigation }) {
   const route = useRoute();
@@ -59,7 +60,7 @@ export default function SearchResult({ navigation }) {
         data={results}
         keyExtractor={(item, index) => `${item.id}-${index}`}
         ListHeaderComponent={
-          <View style={{ padding: 10 }}>
+          <View style={{ padding: spacing.sm }}>
             <TouchableOpacity
               style={{ alignItems: "center" }}
               onPress={() => navigation.navigate("Bottom", { screen: "Home" })}
@@ -124,9 +125,13 @@ export default function SearchResult({ navigation }) {
           ) : null
         }
         ListFooterComponent={
-          <View style={{ padding: 20 }}>
+          <View style={{ padding: spacing.xl }}>
             <Text
-              style={{ fontSize: 18, fontWeight: "bold", marginBottom: 12 }}
+              style={{
+                fontSize: fontSize.lg,
+                fontWeight: "bold",
+                marginBottom: spacing.md,
+              }}
             >
               🔥 금주의 인기 검색어
             </Text>
@@ -183,17 +188,17 @@ export default function SearchResult({ navigation }) {
 
 const styles = StyleSheet.create({
   resultTitle: {
-    fontSize: 16,
+    fontSize: fontSize.md,
     width: "90%",
     margin: "auto",
   },
   keyword: {
-    fontSize: 20,
+    fontSize: fontSize.xl,
     fontWeight: "bold",
   },
   resultContainer: {
     width: "95%",
-    padding: 10,
+    padding: spacing.sm,
     justifyContent: "center",
     margin: "auto",
   },
@@ -204,30 +209,30 @@ const styles = StyleSheet.create({
   },
   resultType: {
     width: "22%",
-    marginRight: 12,
-    borderRadius: 20,
+    marginRight: spacing.md,
+    borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.primary,
     backgroundColor: colors.primary,
     textAlign: "center",
     margin: "auto",
-    padding: 4,
+    padding: spacing.xs,
     alignItems: "center",
   },
   resultName: {
     width: "75%",
     justifyContent: "center",
     textAlign: "center",
-    paddingVertical: 8,
+    paddingVertical: spacing.xs,
   },
   popularKeywordContainer: {
     borderWidth: 1,
     borderColor: colors.primary,
-    borderRadius: 20,
+    borderRadius: radius.md,
     backgroundColor: "transparent",
-    margin: 8,
+    margin: spacing.xs,
     textAlign: "center",
-    paddingVertical: 8,
-    paddingHorizontal: 10,
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.sm,
   },
 });

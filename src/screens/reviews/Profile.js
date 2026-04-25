@@ -24,6 +24,7 @@ import { FollowUser } from "../../services/followService";
 import { AuthContext } from "../../store/context";
 import { useUserStore } from "../../store/useUserStore";
 import { colors } from "../../styles/colors";
+import { fontSize, radius, spacing } from "../../styles/theme";
 
 export default function Profile({ route, navigation }) {
   const { user, setUser } = useContext(AuthContext);
@@ -124,7 +125,7 @@ export default function Profile({ route, navigation }) {
         paddingBottom: 60,
       }}
     >
-      <View style={{ paddingBottom: 80, padding: 10 }}>
+      <View style={{ paddingBottom: 80, padding: spacing.sm }}>
         <TouchableOpacity style={{ alignItems: "center" }}>
           <Mainlogo
             width={150}
@@ -137,7 +138,7 @@ export default function Profile({ route, navigation }) {
 
         <View
           style={{
-            margin: 8,
+            margin: spacing.xs,
             flexDirection: "row",
             alignItems: "center",
           }}
@@ -147,8 +148,8 @@ export default function Profile({ route, navigation }) {
           </TouchableOpacity>
           <Text
             style={{
-              fontSize: 22,
-              color: "black",
+              fontSize: fontSize.xl,
+              color: colors.black,
               fontWeight: "bold",
             }}
           >
@@ -179,35 +180,49 @@ export default function Profile({ route, navigation }) {
             <View style={{ flexDirection: "column" }}>
               <Text
                 style={{
-                  fontSize: 20,
+                  fontSize: fontSize.md,
                   fontWeight: "bold",
-                  marginHorizontal: 30,
+                  marginHorizontal: spacing.xxxl,
                 }}
               >
-                {selectedUser.displayName}
+                {selectedUser?.displayName}
               </Text>
 
               <View style={{ flexDirection: "row" }}>
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <Text style={{ marginLeft: 30, marginVertical: 5 }}>
+                  <Text
+                    style={{
+                      marginLeft: spacing.xxxl,
+                      marginVertical: spacing.xs,
+                    }}
+                  >
                     팔로워
                   </Text>
-                  <Text style={{ fontWeight: "bold", marginHorizontal: 5 }}>
-                    {selectedUser.followerCnt}
+                  <Text
+                    style={{ fontWeight: "bold", marginHorizontal: spacing.xs }}
+                  >
+                    {selectedUser?.followerCnt}
                   </Text>
                 </View>
 
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <Text style={{ marginLeft: 30, marginVertical: 5 }}>
+                  <Text
+                    style={{
+                      marginLeft: spacing.xxxl,
+                      marginVertical: spacing.xs,
+                    }}
+                  >
                     팔로잉
                   </Text>
-                  <Text style={{ fontWeight: "bold", marginHorizontal: 5 }}>
-                    {selectedUser.followingCnt}
+                  <Text
+                    style={{ fontWeight: "bold", marginHorizontal: spacing.xs }}
+                  >
+                    {selectedUser?.followingCnt}
                   </Text>
                 </View>
               </View>
 
-              {user && selectedUser.uid !== user.uid && (
+              {user && selectedUser?.uid !== user.uid && (
                 <TouchableOpacity
                   style={
                     followingMap[selectedUser.uid]
@@ -244,13 +259,15 @@ export default function Profile({ route, navigation }) {
           {/* 사진 */}
           <View style={styles.ImageContainer}>
             <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Text style={{ fontSize: 20, fontWeight: "bold" }}>사진</Text>
+              <Text style={{ fontSize: fontSize.md, fontWeight: "bold" }}>
+                사진
+              </Text>
               <Text
                 style={{
-                  fontSize: 14,
+                  fontSize: spacing.md,
                   fontWeight: "light",
                   color: colors.primary,
-                  marginLeft: 5,
+                  marginLeft: spacing.xs,
                 }}
               >
                 {allImages.length}
@@ -273,7 +290,9 @@ export default function Profile({ route, navigation }) {
                   <TouchableOpacity
                     onPress={() => setShowAllImages((prev) => !prev)}
                   >
-                    <Text style={{ color: colors.primary, marginTop: 10 }}>
+                    <Text
+                      style={{ color: colors.primary, marginTop: spacing.sm }}
+                    >
                       {showAllImages ? "접기" : "더보기"}
                     </Text>
                   </TouchableOpacity>
@@ -283,10 +302,10 @@ export default function Profile({ route, navigation }) {
               <View>
                 <Text
                   style={{
-                    fontSize: 14,
+                    fontSize: fontSize.sm,
                     fontWeight: "bold",
-                    color: "#9b9b9b",
-                    marginVertical: 20,
+                    color: colors.lightGray,
+                    marginVertical: spacing.xl,
                   }}
                 >
                   사진이 없습니다.
@@ -298,13 +317,15 @@ export default function Profile({ route, navigation }) {
           {/* 후기 */}
           <View style={styles.reviewContainer}>
             <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Text style={{ fontSize: 20, fontWeight: "bold" }}>후기</Text>
+              <Text style={{ fontSize: fontSize.md, fontWeight: "bold" }}>
+                후기
+              </Text>
               <Text
                 style={{
-                  fontSize: 14,
+                  fontSize: fontSize.sm,
                   fontWeight: "light",
                   color: colors.primary,
-                  marginLeft: 5,
+                  marginLeft: spacing.xs,
                 }}
               >
                 {review.length}
@@ -328,8 +349,8 @@ export default function Profile({ route, navigation }) {
                         numberOfLines={2}
                         style={{
                           width: 180,
-                          fontSize: 10,
-                          color: "#535353",
+                          fontSize: fontSize.sm,
+                          color: colors.gray,
                           textAlign: "center",
                           alignSelf: "center",
                         }}
@@ -344,10 +365,10 @@ export default function Profile({ route, navigation }) {
               <View>
                 <Text
                   style={{
-                    fontSize: 14,
+                    fontSize: fontSize.sm,
                     fontWeight: "bold",
-                    color: "#9b9b9b",
-                    marginVertical: 20,
+                    color: colors.lightGray,
+                    marginVertical: spacing.xl,
                   }}
                 >
                   리뷰가 없습니다.
@@ -374,8 +395,8 @@ const styles = StyleSheet.create({
     width: "90%",
     height: "auto",
     flexDirection: "column",
-    paddingVertical: 15,
-    marginVertical: 15,
+    paddingVertical: spacing.lg,
+    marginVertical: spacing.lg,
     marginHorizontal: "auto",
   },
   imageBackground: {
@@ -397,21 +418,21 @@ const styles = StyleSheet.create({
     width: "100%",
     flexDirection: "row",
     margin: "auto",
-    justifyContent: "sp",
+    justifyContent: "flex-start",
     alignItems: "center",
   },
   followBtn: {
     width: "80%",
-    marginLeft: 30,
-    paddingVertical: 5,
-    borderRadius: 20,
+    marginLeft: spacing.xxxl,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.md,
     backgroundColor: colors.primary,
   },
   unfollowBtn: {
     width: "80%",
-    marginLeft: 30,
-    paddingVertical: 5,
-    borderRadius: 20,
+    marginLeft: spacing.xxxl,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.md,
     backgroundColor: colors.white,
     borderWidth: 1,
     borderColor: colors.primary,
@@ -430,40 +451,40 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "auto",
     flexDirection: "column",
-    paddingVertical: 15,
-    marginVertical: 25,
+    paddingVertical: spacing.lg,
+    marginVertical: spacing.xxl,
     marginHorizontal: "auto",
   },
   ImageFactors: {
     width: 100,
     height: 100,
-    borderRadius: 20,
+    borderRadius: radius.md,
     overflow: "hidden",
-    marginRight: 5,
-    marginVertical: 10,
+    marginRight: spacing.xs,
+    marginVertical: spacing.sm,
   },
 
   reviewContainer: {
     width: "100%",
     height: "auto",
     flexDirection: "column",
-    paddingVertical: 15,
-    marginVertical: 25,
+    paddingVertical: spacing.lg,
+    marginVertical: spacing.xxl,
     marginHorizontal: "auto",
   },
   reviewFactorContainer: {
     borderWidth: 1,
-    marginRight: 10,
-    marginVertical: 10,
+    marginRight: spacing.sm,
+    marginVertical: spacing.sm,
     flexDirection: "column",
     justifyContent: "center",
   },
   reviewImage: {
     width: 220,
     height: 150,
-    borderRadius: 20,
+    borderRadius: radius.md,
     overflow: "hidden",
-    marginVertical: 10,
-    marginRight: 5,
+    marginVertical: spacing.sm,
+    marginRight: spacing.xs,
   },
 });

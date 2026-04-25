@@ -17,6 +17,7 @@ import { FollowUser } from "../../services/followService";
 import { AuthContext } from "../../store/context";
 import { useUserStore } from "../../store/useUserStore";
 import { colors } from "../../styles/colors";
+import { fontSize, radius, spacing } from "../../styles/theme";
 
 export default function FollowList({ navigation }) {
   const { user } = useContext(AuthContext);
@@ -81,7 +82,7 @@ export default function FollowList({ navigation }) {
         paddingBottom: 60,
       }}
     >
-      <View style={{ paddingBottom: 80, padding: 10 }}>
+      <View style={{ paddingBottom: 80, padding: spacing.sm }}>
         <TouchableOpacity style={{ alignItems: "center" }}>
           <Mainlogo
             width={150}
@@ -94,12 +95,12 @@ export default function FollowList({ navigation }) {
         <View style={styles.settingFactorContainer}>
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <TouchableOpacity onPress={() => navigation.goBack()}>
-              <BackwardIcon width={32} height={32} fill="#000" />
+              <BackwardIcon width={32} height={32} fill={colors.black} />
             </TouchableOpacity>
             <Text
               style={{
-                fontSize: 22,
-                color: "black",
+                fontSize: fontSize.xl,
+                color: colors.black,
                 fontWeight: "bold",
               }}
             >
@@ -115,7 +116,7 @@ export default function FollowList({ navigation }) {
             >
               <Text
                 style={{
-                  color: tab === "followers" ? "white" : "#a9a9a9",
+                  color: tab === "followers" ? colors.white : colors.lightGray,
                   textAlign: "center",
                   fontWeight: tab === "followers" ? "bold" : "semibold",
                 }}
@@ -130,7 +131,7 @@ export default function FollowList({ navigation }) {
             >
               <Text
                 style={{
-                  color: tab === "followings" ? "white" : "#a9a9a9",
+                  color: tab === "followings" ? colors.white : colors.lightGray,
                   textAlign: "center",
                   fontWeight: tab === "followings" ? "bold" : "semibold",
                 }}
@@ -159,9 +160,9 @@ export default function FollowList({ navigation }) {
                       backgroundColor: followingMap[follower.uid]
                         ? colors.lightGray
                         : colors.primary,
-                      paddingHorizontal: 12,
-                      paddingVertical: 6,
-                      borderRadius: 10,
+                      paddingHorizontal: spacing.md,
+                      paddingVertical: spacing.xs,
+                      borderRadius: radius.sm,
                     }}
                     onPress={() =>
                       FollowUser({
@@ -176,7 +177,7 @@ export default function FollowList({ navigation }) {
                       })
                     }
                   >
-                    <Text style={{ color: "white" }}>
+                    <Text style={{ color: colors.white }}>
                       {followingMap[follower.uid] ? "언팔로우" : "팔로우"}
                     </Text>
                   </TouchableOpacity>
@@ -202,9 +203,9 @@ export default function FollowList({ navigation }) {
                       backgroundColor: followingMap[following.uid]
                         ? colors.lightGray
                         : colors.primary,
-                      paddingHorizontal: 12,
-                      paddingVertical: 6,
-                      borderRadius: 10,
+                      paddingHorizontal: spacing.md,
+                      paddingVertical: spacing.xs,
+                      borderRadius: radius.sm,
                     }}
                     onPress={() =>
                       FollowUser({
@@ -219,7 +220,7 @@ export default function FollowList({ navigation }) {
                       })
                     }
                   >
-                    <Text style={{ color: "white" }}>
+                    <Text style={{ color: colors.white }}>
                       {followingMap[following.uid] ? "언팔로우" : "팔로우"}
                     </Text>
                   </TouchableOpacity>
@@ -236,31 +237,30 @@ const styles = StyleSheet.create({
   settingFactorContainer: {
     width: "100%",
     height: "100%",
-    // borderWidth: 1,
   },
   btnContainer: {
     width: "95%",
     marginHorizontal: "auto",
-    marginTop: 20,
+    marginTop: spacing.xl,
     justifyContent: "center",
     flexDirection: "row",
   },
   btnFactor: {
     backgroundColor: colors.primary,
     width: "50%",
-    padding: 10,
+    padding: spacing.sm,
     justifyContent: "center",
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    borderTopLeftRadius: spacing.xl,
+    borderTopRightRadius: spacing.xl,
     borderWidth: 0.3,
     borderColor: colors.lightGray,
   },
   followContainer: {
     borderWidth: 1,
     borderColor: colors.primary,
-    borderRadius: 10,
-    padding: 10,
-    margin: 10,
+    borderRadius: radius.sm,
+    padding: spacing.sm,
+    margin: spacing.sm,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -268,7 +268,7 @@ const styles = StyleSheet.create({
   profileTumbnail: {
     width: 40,
     height: 40,
-    marginRight: 14,
+    marginRight: spacing.lg,
     borderRadius: 100,
   },
   profileImage: {

@@ -37,6 +37,7 @@ import NotificationModal from "../../components/notify/NotificationModal";
 import { AuthContext } from "../../store/context";
 import { useUserStore } from "../../store/useUserStore";
 import { colors } from "../../styles/colors";
+import { fontSize, radius, spacing } from "../../styles/theme";
 
 export default function Mypage({ navigation }) {
   const {
@@ -409,10 +410,10 @@ export default function Mypage({ navigation }) {
                       value={editedName}
                       onChangeText={setEditedName}
                       style={{
-                        backgroundColor: "#fff",
-                        borderRadius: 6,
-                        paddingHorizontal: 10,
-                        paddingVertical: 5,
+                        backgroundColor: colors.white,
+                        borderRadius: spacing.xs,
+                        paddingHorizontal: spacing.sm,
+                        paddingVertical: spacing.xs,
                         minWidth: 120,
                         fontSize: 20,
                       }}
@@ -420,7 +421,7 @@ export default function Mypage({ navigation }) {
                     <TouchableOpacity
                       onPress={() => editProfile(editedName, profileImage)}
                     >
-                      <Text style={{ color: "#fff", fontWeight: "bold" }}>
+                      <Text style={{ color: colors.white, fontWeight: "bold" }}>
                         저장
                       </Text>
                     </TouchableOpacity>
@@ -430,7 +431,7 @@ export default function Mypage({ navigation }) {
                         setIsEditing(false);
                       }}
                     >
-                      <Text style={{ color: "#fff", fontWeight: "bold" }}>
+                      <Text style={{ color: colors.white, fontWeight: "bold" }}>
                         취소
                       </Text>
                     </TouchableOpacity>
@@ -458,8 +459,8 @@ export default function Mypage({ navigation }) {
                       <Text
                         style={{
                           fontWeight: "bold",
-                          color: "#fff",
-                          fontSize: 22,
+                          color: colors.white,
+                          fontSize: fontSize.xl,
                           minWidth: 120,
                         }}
                       >
@@ -467,7 +468,7 @@ export default function Mypage({ navigation }) {
                       </Text>
 
                       <TouchableOpacity onPress={() => setIsEditing(true)}>
-                        <EditIcon width={20} height={20} fill="#fff" />
+                        <EditIcon width={20} height={20} fill={colors.white} />
                       </TouchableOpacity>
                     </View>
                   </View>
@@ -480,10 +481,12 @@ export default function Mypage({ navigation }) {
                       navigation.navigate("FollowList", { tab: "followers" })
                     }
                   >
-                    <Text style={{ marginRight: 10, color: "#fff" }}>
+                    <Text
+                      style={{ marginRight: spacing.sm, color: colors.white }}
+                    >
                       팔로워
                     </Text>
-                    <Text style={{ fontWeight: "bold", color: "#fff" }}>
+                    <Text style={{ fontWeight: "bold", color: colors.white }}>
                       {followerCnt}
                     </Text>
                   </TouchableOpacity>
@@ -493,10 +496,12 @@ export default function Mypage({ navigation }) {
                     }
                     style={{ flexDirection: "row" }}
                   >
-                    <Text style={{ marginRight: 10, color: "#fff" }}>
+                    <Text
+                      style={{ marginRight: spacing.sm, color: colors.white }}
+                    >
                       팔로잉
                     </Text>
-                    <Text style={{ fontWeight: "bold", color: "#fff" }}>
+                    <Text style={{ fontWeight: "bold", color: colors.white }}>
                       {followingCnt}
                     </Text>
                   </TouchableOpacity>
@@ -508,12 +513,12 @@ export default function Mypage({ navigation }) {
                 style={{ alignItems: "center" }}
                 onPress={() => navigation.navigate("History")}
               >
-                <ListIcon width={36} height={36} fill="#fff" />
+                <ListIcon width={36} height={36} fill={colors.white} />
                 <Text
                   style={{
-                    marginTop: 15,
-                    color: "#fff",
-                    fontSize: "14",
+                    marginTop: spacing.lg,
+                    color: colors.white,
+                    fontSize: fontSize.sm,
                     fontWeight: "bold",
                   }}
                 >
@@ -528,12 +533,12 @@ export default function Mypage({ navigation }) {
                   navigation.navigate("Bookmarks");
                 }}
               >
-                <BookMarkIcon width={36} height={36} fill="#fff" />
+                <BookMarkIcon width={36} height={36} fill={colors.white} />
                 <Text
                   style={{
-                    marginTop: 15,
-                    color: "#fff",
-                    fontSize: "14",
+                    marginTop: spacing.lg,
+                    color: colors.white,
+                    fontSize: fontSize.sm,
                     fontWeight: "bold",
                   }}
                 >
@@ -541,12 +546,12 @@ export default function Mypage({ navigation }) {
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={() => navigation.navigate("Likes")}>
-                <LikeIcon width={36} height={36} fill="#fff" />
+                <LikeIcon width={36} height={36} fill={colors.white} />
                 <Text
                   style={{
-                    marginTop: 15,
-                    color: "#fff",
-                    fontSize: "14",
+                    marginTop: spacing.lg,
+                    color: colors.white,
+                    fontSize: fontSize.sm,
                     fontWeight: "bold",
                   }}
                 >
@@ -558,25 +563,16 @@ export default function Mypage({ navigation }) {
           <View style={styles.reviewContainer}>
             <Text style={styles.reiewText}>나의 후기 목록</Text>
             <View style={styles.reviewTumbContainer}>
-              {/* {myReviews.map((item, index) => (
-                <ImageBackground
-                  key={index}
-                  source={{ uri: item.images[0] }}
-                  style={styles.reviewTumblnail}
-                  imageStyle={styles.ReviewImage}
-                  resizeMode="cover"
-                />
-              ))} */}
               {myReviews.length === 0 ? (
                 <View
                   style={{
                     width: "100%",
                     justifyContent: "center",
-                    padding: 20,
-                    marginVertical: 20,
+                    padding: spacing.xl,
+                    marginVertical: spacing.xl,
                   }}
                 >
-                  <Text style={{ textAlign: "center", color: "#828282" }}>
+                  <Text style={{ textAlign: "center", color: colors.gray }}>
                     등록된 후기가 없습니다
                   </Text>
                 </View>
@@ -597,7 +593,7 @@ export default function Mypage({ navigation }) {
         {!user.email ? (
           <>
             <Pressable
-              onPress={() => navigation.navigate("Login")}
+              onPress={() => navigation.navigate("SignIn")}
               style={({ pressed }) => [
                 styles.loginBtnWrapper,
                 pressed && styles.loginBtnPressedWrapper,
@@ -668,29 +664,26 @@ export default function Mypage({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // borderColor: "yellow",
-    // borderWidth: 5,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "transparent",
     alignItems: "center",
     justifyContent: "center",
   },
   title: {
-    fontSize: 24,
+    fontSize: fontSize.xxl,
     fontWeight: "bold",
     color: colors.text,
   },
   subTitle: {
-    fontSize: 15,
-    // fontWeight: "semibold",
+    fontSize: fontSize.md,
     alignItems: "flex-start",
-    paddingVertical: 10,
-    marginRight: 10,
+    paddingVertical: spacing.sm,
+    marginRight: spacing.sm,
   },
   settingContainer: {
     width: "90%",
     justifyContent: "flex-end",
     flexDirection: "row",
-    marginVertical: 20,
+    marginVertical: spacing.xl,
   },
   myInfoContainer: {
     width: "90%",
@@ -698,11 +691,11 @@ const styles = StyleSheet.create({
     borderColor: colors.primary,
     backgroundColor: colors.primary,
     borderWidth: 1,
-    borderRadius: 20,
+    borderRadius: radius.md,
     flexDirection: "horizontal",
     alignItems: "left",
-    padding: 15,
-    marginVertical: 10,
+    padding: spacing.lg,
+    marginVertical: spacing.sm,
     marginHorizontal: "auto",
     shadowColor: colors.black,
     shadowOffset: { width: 1, height: 4 },
@@ -714,7 +707,7 @@ const styles = StyleSheet.create({
   accContainer: {
     width: "100%",
     height: "auto",
-    padding: 10,
+    padding: spacing.sm,
     justifyContent: "beetween",
     flexDirection: "row",
     alignItems: "center",
@@ -722,7 +715,7 @@ const styles = StyleSheet.create({
   myAccInfo: {
     width: "100%",
     height: "auto",
-    marginBottom: 15,
+    marginBottom: spacing.lg,
     marginLeft: 5,
     justifyContent: "space-around",
     flexDirection: "row",
@@ -732,8 +725,8 @@ const styles = StyleSheet.create({
   myFollowInfo: {
     width: "100%",
     height: "auto",
-    marginVertical: 10,
-    paddingVertical: 10,
+    marginVertical: spacing.sm,
+    paddingVertical: spacing.sm,
     alignItems: "center",
     justifyContent: "space-around",
     flexDirection: "row",
@@ -745,15 +738,15 @@ const styles = StyleSheet.create({
   myActivity: {
     width: "100%",
     height: "auto",
-    padding: 10,
-    marginVertical: 10,
+    padding: spacing.sm,
+    marginVertical: spacing.sm,
     justifyContent: "space-around",
     flexDirection: "row",
   },
   imageContainer: {
     width: 80,
     height: 80,
-    borderRadius: 100,
+    borderRadius: "100%",
     shadowColor: colors.black,
     shadowOffset: { width: 1, height: 4 },
     shadowOpacity: 0.5,
@@ -762,7 +755,7 @@ const styles = StyleSheet.create({
   imageBackground: {
     width: 80,
     height: 80,
-    borderRadius: 100,
+    borderRadius: "100%",
     justifyContent: "center",
     alignItems: "center",
     overflow: "hidden",
@@ -775,7 +768,7 @@ const styles = StyleSheet.create({
   reviewContainer: {
     width: "90%",
     height: "auto",
-    marginVertical: 30,
+    marginVertical: spacing.xxxl,
   },
   reviewTumblnail: {
     width: 110,
@@ -785,13 +778,13 @@ const styles = StyleSheet.create({
     margin: 3,
   },
   ReviewImage: {
-    borderRadius: 10,
+    borderRadius: spacing.sm,
   },
   reiewText: {
-    fontSize: 16,
+    fontSize: fontSize.md,
     fontWeight: "bold",
-    marginBottom: 20,
-    marginLeft: 5,
+    marginBottom: spacing.xl,
+    marginLeft: spacing.xs,
   },
   reviewTumbContainer: {
     flexDirection: "row",
@@ -800,12 +793,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   loginBtnWrapper: {
-    marginTop: 20,
+    marginTop: spacing.xl,
     borderColor: colors.primary,
     borderWidth: 2,
     width: 300,
     height: 45,
-    borderRadius: 30,
+    borderRadius: radius.lg,
     alignItems: "center",
     justifyContent: "center",
     marginHorizontal: "auto",
@@ -816,8 +809,9 @@ const styles = StyleSheet.create({
   },
   loginBtnText: {
     textAlign: "center",
-    lineHeight: 45,
-    fontSize: 14,
+    lineHeight: 46,
+    fontSize: fontSize.sm,
+    padding: spacing.sm,
     fontWeight: "bold",
     color: colors.primary,
   },
@@ -825,13 +819,13 @@ const styles = StyleSheet.create({
     color: colors.white,
   },
   signupBtnWrapper: {
-    marginTop: 10,
-    marginBottom: 30,
+    marginTop: spacing.sm,
+    marginBottom: spacing.xl,
     borderColor: colors.primary,
     borderWidth: 2,
     width: 300,
     height: 45,
-    borderRadius: 30,
+    borderRadius: radius.lg,
     alignItems: "center",
     justifyContent: "center",
     marginHorizontal: "auto",
@@ -842,8 +836,8 @@ const styles = StyleSheet.create({
   },
   signupBtnText: {
     textAlign: "center",
-    lineHeight: 45,
-    fontSize: 14,
+    lineHeight: 46,
+    fontSize: fontSize.sm,
     fontWeight: "bold",
     color: colors.primary,
   },
@@ -851,13 +845,13 @@ const styles = StyleSheet.create({
     color: colors.white,
   },
   logoutBtnWrapper: {
-    marginTop: 20,
-    marginBottom: 30,
+    marginTop: spacing.xl,
+    marginBottom: spacing.xxxl,
     borderColor: colors.primary,
     borderWidth: 2,
     width: 300,
-    height: 45,
-    borderRadius: 30,
+    height: 46,
+    borderRadius: radius.lg,
     alignItems: "center",
     justifyContent: "center",
     marginHorizontal: "auto",
@@ -868,10 +862,10 @@ const styles = StyleSheet.create({
   },
   logoutBtnText: {
     textAlign: "center",
-    lineHeight: 45,
-    fontSize: 14,
+    lineHeight: 46,
+    fontSize: fontSize.sm,
     fontWeight: "bold",
-    color: "white",
+    color: colors.white,
   },
   logoutBtnPressedText: {
     color: colors.primary,
@@ -881,8 +875,8 @@ const styles = StyleSheet.create({
     top: -5,
     right: -5,
     backgroundColor: colors.red,
-    borderRadius: 10,
-    minWidth: 18,
+    borderRadius: radius.sm,
+    minWidth: spacing.lg,
     height: 18,
     justifyContent: "center",
     alignItems: "center",
@@ -891,7 +885,7 @@ const styles = StyleSheet.create({
 
   badgeText: {
     color: colors.white,
-    fontSize: 10,
+    fontSize: fontSize.xs,
     fontWeight: "bold",
   },
 });

@@ -1,6 +1,7 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { FollowUser } from "../../services/followService";
 import { colors } from "../../styles/colors";
+import { fontSize, radius, spacing } from "../../styles/theme";
 
 export default function UserCard({
   u,
@@ -82,11 +83,11 @@ export default function UserCard({
 const styles = StyleSheet.create({
   userCard: {
     width: 110,
-    marginRight: 12,
+    marginRight: spacing.md,
     alignItems: "center",
     backgroundColor: colors.white,
-    borderRadius: 10,
-    padding: 10,
+    borderRadius: radius.sm,
+    padding: spacing.sm,
     shadowColor: colors.black,
     shadowOpacity: 0.1,
     shadowRadius: 3,
@@ -94,27 +95,27 @@ const styles = StyleSheet.create({
   userAvatar: {
     width: 60,
     height: 60,
-    borderRadius: 30,
+    borderRadius: radius.lg,
     backgroundColor: colors.lightGray,
     marginBottom: 6,
     overflow: "hidden",
   },
   userName: {
     fontWeight: "bold",
-    fontSize: 12,
+    fontSize: fontSize.sm,
   },
 
   userDesc: {
-    fontSize: 10,
+    fontSize: fontSize.xs,
     color: colors.gray,
-    marginBottom: 6,
+    marginBottom: spacing.xs,
   },
   followBtn: {
     backgroundColor: colors.primary,
-    paddingHorizontal: 10,
+    paddingHorizontal: spacing.sm,
     paddingVertical: 4,
-    borderRadius: 6,
-    marginTop: 10,
+    borderRadius: radius.xs,
+    marginTop: spacing.sm,
     height: 20,
   },
 });
