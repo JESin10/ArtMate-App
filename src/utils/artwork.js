@@ -1,13 +1,5 @@
 import { parseDateSafe } from "./date";
 
-export const normalizeArtwork = (item) => ({
-  seq: item.seq,
-  title: item.title,
-  thumbnail: item?.thumbnail?.replace("http:", "https:"),
-  startDate: item.startDate,
-  endDate: item.endDate,
-});
-
 // artworks 배열을 받아 DP_START 기준으로 현재 날짜와 가까운 순으로 정렬하여 설정
 export const computeRecentArtworks = (artworks) => {
   const today = new Date();

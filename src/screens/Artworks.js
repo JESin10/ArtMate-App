@@ -28,6 +28,7 @@ import { fetchArtwork } from "../services/artService.js";
 import { useArtStore } from "../store/useArtStore.js";
 import { colors } from "../styles/colors.js";
 import { fontSize, radius, spacing } from "../styles/theme.js";
+import { normalizeArtwork } from "../utils/nomalize.js";
 import { parseItems } from "../utils/xmlParser.js";
 
 export default function Artworks({ navigation }) {
@@ -102,7 +103,6 @@ export default function Artworks({ navigation }) {
   }, []);
 
   //작품 가져오기
-  // getArtwork 함수 수정 (무한 스크롤 시 필터 적용)
   const getArtwork = async (nextPage = 1) => {
     if (!hasMore && nextPage !== 1) return;
 
@@ -112,23 +112,13 @@ export default function Artworks({ navigation }) {
     try {
       const xmlText = await fetchArtwork(nextPage, listCnt);
       const items = parseItems(xmlText);
-      // const list = items[0] || []; // items가 배열이지만, 실제 데이터는 첫 번째 요소에 있음
       const list = Array.isArray(items) ? items : [items];
+      const normalized = list.map(normalizeArtwork).filter(Boolean);
 
       if (list.length < listCnt) setHasMore(false);
-
-      const normalized = list.map((it) => ({
-        ...it,
-        DP_SEQ: it?.seq,
-        thumbnail: it?.thumbnail?.startsWith("http:")
-          ? it.thumbnail.replace("http:", "https:")
-          : it?.thumbnail,
-      }));
-
       if (nextPage === 1) {
         setArtworks(normalized);
 
-        // 🔥 여기 핵심
         applyFilter({
           start: startIndex,
           end: endIndex,
@@ -148,7 +138,7 @@ export default function Artworks({ navigation }) {
             keep =
               keep &&
               lowered.some((g) =>
-                String(item.serviceName || "")
+                String(item.raw?.serviceName || "")
                   .toLowerCase()
                   .includes(g),
               );
@@ -159,14 +149,14 @@ export default function Artworks({ navigation }) {
             keep =
               keep &&
               lowered.some((r) =>
-                String(item.area || "")
+                String(item.location?.area || "")
                   .toLowerCase()
                   .includes(r),
               );
           }
 
           if (selectedRating > 0) {
-            const avg = avgRatingMap[item.DP_SEQ] || 0;
+            const avg = avgRatingMap[item.id] || 0;
             keep = keep && avg >= selectedRating;
           }
 
@@ -229,7 +219,7 @@ export default function Artworks({ navigation }) {
 
       filtered = filtered.filter((item) =>
         lowered.some((g) =>
-          String(item.serviceName || "")
+          String(item.raw?.serviceName || "")
             .toLowerCase()
             .includes(g),
         ),
@@ -241,7 +231,7 @@ export default function Artworks({ navigation }) {
 
       filtered = filtered.filter((item) =>
         lowered.some((r) =>
-          String(item.area || "")
+          String(item.location?.area || "")
             .toLowerCase()
             .includes(r),
         ),
@@ -250,7 +240,7 @@ export default function Artworks({ navigation }) {
 
     if (minRating > 0) {
       filtered = filtered.filter((item) => {
-        const avg = avgRatingMap[item.DP_SEQ] || 0;
+        const avg = avgRatingMap[item.id] || 0;
         return avg >= minRating;
       });
     }
@@ -345,7 +335,7 @@ export default function Artworks({ navigation }) {
         <FlatList
           ref={flatListRef}
           data={displayedArtworks}
-          keyExtractor={(item) => item.DP_SEQ}
+          keyExtractor={(item) => item.id}
           numColumns={2}
           onEndReached={loadMore}
           onEndReachedThreshold={0.5}
@@ -394,8 +384,6 @@ export default function Artworks({ navigation }) {
           }}
         />
       </View>
-      {/* </ScrollView> */}
-
       <ArtworkFilter
         visible={showFilter}
         initStart={startIndex}
@@ -412,10 +400,15 @@ export default function Artworks({ navigation }) {
           setShowFilter(false);
         }}
         genres={[
-          ...new Set(artworks.map((a) => a.serviceName).filter(Boolean)),
+          ...new Set(
+            (artworks ?? []).map((a) => a.raw?.serviceName).filter(Boolean),
+          ),
         ]}
-        regions={[...new Set(artworks.map((a) => a.area).filter(Boolean))]}
-        // rating={[...new Set(artworks.map((a) => a.rating).filter(Boolean))]}
+        regions={[
+          ...new Set(
+            (artworks ?? []).map((a) => a.location?.area).filter(Boolean),
+          ),
+        ]}
       />
 
       <ArtworkInfoModal
@@ -424,17 +417,8 @@ export default function Artworks({ navigation }) {
           setShowModal(false);
         }}
         artwork={selectedArtwork}
-        seq={selectedArtwork?.DP_SEQ}
+        seq={selectedArtwork?.id}
       />
-      {/*       
-      {loading && (
-        <View style={styles.overlay}>
-          <View style={styles.overlayContent}>
-            <ActivityIndicator size="large" color="#fff" />
-            <Text style={{ color: "#fff", marginTop: 8 }}>로딩중...</Text>
-          </View>
-        </View>
-      )} */}
     </SafeAreaView>
   );
 }

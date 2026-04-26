@@ -4,6 +4,7 @@ import { fetchArtwork } from "../services/artService";
 import { fetchDetailPlace, fetchPlace } from "../services/placeService";
 import { useArtStore } from "../store/useArtStore";
 import { usePlaceStore } from "../store/usePlaceStore";
+import { normalizeArtwork } from "../utils/nomalize";
 import { xmlParser } from "../utils/xmlParser";
 
 export default function usePlaces() {
@@ -163,11 +164,6 @@ export default function usePlaces() {
         setGallery([...gallery, ...sortedItems]);
       }
 
-      // ✅ 기존 Promise.all 제거
-      // const detailPromises = items.map(...)
-      // const results = await Promise.all(detailPromises);
-
-      // ✅ 변경: concurrency 제한
       const results = await fetchDetailsWithLimit(items, 3);
 
       const newMap = { ...details };
@@ -201,12 +197,7 @@ export default function usePlaces() {
       const rawItems = jsonData?.response?.body?.items?.item || [];
       const list = Array.isArray(rawItems) ? rawItems : [rawItems];
 
-      const normalized = list.map((it) => ({
-        seq: it?.seq,
-        title: it?.title,
-        gpsX: it?.gpsX,
-        gpsY: it?.gpsY,
-      }));
+      const normalized = list.map(normalizeArtwork);
 
       setArtworks(normalized);
     } catch (error) {

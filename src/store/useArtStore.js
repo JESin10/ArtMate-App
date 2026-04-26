@@ -1,8 +1,8 @@
+import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { create } from "zustand";
+import { db } from "../../firebase";
 import { fetchDetailArtwork } from "../services/artService";
 import { parseItems } from "../utils/xmlParser";
-import { collection, query, where, onSnapshot } from "firebase/firestore";
-import { db } from "../../firebase";
 
 const initialFilter = {
   start: 1,
@@ -20,9 +20,13 @@ export const useArtStore = create((set) => ({
   filter: initialFilter,
 
   setArtworks: (value) =>
-    set((state) => ({
-      artworks: typeof value === "function" ? value(state.artworks) : value,
-    })),
+    set((state) => {
+      const next = typeof value === "function" ? value(state.artworks) : value;
+
+      return {
+        artworks: Array.isArray(next) ? next : [], // 🔥 핵심
+      };
+    }),
 
   setDisplayedArtworks: (value) =>
     set((state) => ({
