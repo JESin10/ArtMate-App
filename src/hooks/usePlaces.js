@@ -1,9 +1,9 @@
-import { useEffect } from "react";
 import * as Location from "expo-location";
-import { fetchDetailPlace, fetchPlace } from "../services/placeService";
+import { useEffect } from "react";
 import { fetchArtwork } from "../services/artService";
-import { usePlaceStore } from "../store/usePlaceStore";
+import { fetchDetailPlace, fetchPlace } from "../services/placeService";
 import { useArtStore } from "../store/useArtStore";
+import { usePlaceStore } from "../store/usePlaceStore";
 import { xmlParser } from "../utils/xmlParser";
 
 export default function usePlaces() {
@@ -24,7 +24,7 @@ export default function usePlaces() {
     setUserLocation,
   } = usePlaceStore();
   const { artworks, setArtworks } = useArtStore();
-  const listCnt = 20;
+  const listCnt = 10;
 
   useEffect(() => {
     init();
@@ -106,6 +106,35 @@ export default function usePlaces() {
       .sort((a, b) => a.distance - b.distance);
   };
 
+  const fetchDetailsWithLimit = async (items, limit = 3) => {
+    const results = [];
+    let index = 0;
+
+    const worker = async () => {
+      while (index < items.length) {
+        const currentIndex = index++;
+        const item = items[currentIndex];
+
+        try {
+          const xmlText = await fetchDetailPlace(item.seq);
+          const json = xmlParser(xmlText);
+
+          results[currentIndex] = {
+            seq: item.seq,
+            detail: json?.response?.body?.items?.item,
+          };
+        } catch (err) {
+          console.error("detail fetch 실패:", err);
+          results[currentIndex] = null;
+        }
+      }
+    };
+
+    await Promise.all(Array.from({ length: limit }, worker));
+
+    return results;
+  };
+
   // 장소 목록 가져오기
   const getPlace = async (nextPage = 1) => {
     if (!hasMore && nextPage !== 1) return;
@@ -134,23 +163,12 @@ export default function usePlaces() {
         setGallery([...gallery, ...sortedItems]);
       }
 
-      // detail API 병렬 호출
-      const detailPromises = items.map(async (item) => {
-        try {
-          const xmlText = await fetchDetailPlace(item.seq);
-          const json = xmlParser(xmlText);
+      // ✅ 기존 Promise.all 제거
+      // const detailPromises = items.map(...)
+      // const results = await Promise.all(detailPromises);
 
-          return {
-            seq: item.seq,
-            detail: json?.response?.body?.items?.item,
-          };
-        } catch (err) {
-          console.error("detail fetch 실패:", err);
-          return null;
-        }
-      });
-
-      const results = await Promise.all(detailPromises);
+      // ✅ 변경: concurrency 제한
+      const results = await fetchDetailsWithLimit(items, 3);
 
       const newMap = { ...details };
 
@@ -159,7 +177,6 @@ export default function usePlaces() {
       });
 
       setDetails(newMap);
-
       setPageNum(nextPage);
     } catch (error) {
       console.error("place fetch 실패:", error);

@@ -21,7 +21,7 @@ export const useKakaoLogin = ({ setUser, navigation }) => {
 
   const [request, response, promptAsync] = AuthSession.useAuthRequest(
     {
-      clientId: `${process.env.REACT_APP_KAKAO_CLIENTID}`,
+      clientId: `${process.env.EXPO_PUBLIC_KAKAO_CLIENTID}`,
       redirectUri,
       responseType: "code",
     },
@@ -41,7 +41,7 @@ export const useKakaoLogin = ({ setUser, navigation }) => {
           headers: {
             "Content-type": "application/x-www-form-urlencoded;charset=utf-8",
           },
-          body: `grant_type=authorization_code&client_id=${process.env.REACT_APP_KAKAO_CLIENTID}&redirect_uri=${encodeURIComponent(redirectUri)}&code=${code}`,
+          body: `grant_type=authorization_code&client_id=${process.env.EXPO_PUBLIC_KAKAO_CLIENTID}&redirect_uri=${encodeURIComponent(redirectUri)}&code=${code}`,
         });
 
         const tokenJson = await tokenRes.json();

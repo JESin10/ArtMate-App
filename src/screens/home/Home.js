@@ -179,7 +179,11 @@ export default function Home({ navigation }) {
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         {/* <TouchableOpacity style={styles.container}> */}
         <View style={styles.container}>
-          <TouchableOpacity style={{ alignItems: "center" }}>
+          <TouchableOpacity
+            style={{
+              alignItems: "center",
+            }}
+          >
             <Mainlogo width={150} height={50} />
           </TouchableOpacity>
           <SearchBar />

@@ -1,13 +1,14 @@
-import { useState } from "react";
 import {
-  collection,
   addDoc,
+  collection,
+  doc,
   serverTimestamp,
   setDoc,
-  doc,
 } from "firebase/firestore";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { useState } from "react";
+import { Alert } from "react-native";
 import { db, storage } from "../../firebase";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 export const reviewService = (userId, seq) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -36,9 +37,7 @@ export const reviewService = (userId, seq) => {
         const downloadURL = await getDownloadURL(storageRef);
         uploadedUrls.push(downloadURL);
       } catch (error) {
-        console.log("전체 에러:", JSON.stringify(error, null, 2));
-        console.log("error.code:", error.code);
-        console.log("error.message:", error.message);
+        Alert.alert(error.code, error.message);
       }
     }
 

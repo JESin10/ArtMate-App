@@ -11,6 +11,7 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
+import { Alert } from "react-native";
 import { db } from "../../firebase";
 
 export const FollowUser = async ({
@@ -27,7 +28,6 @@ export const FollowUser = async ({
   if (isFollowing) {
     await deleteDoc(followingRef);
     await deleteDoc(followerRef);
-    console.log(1);
     await deleteFollowNotification(targetUserId, user.uid);
 
     await updateDoc(doc(db, "users", user.uid), {
@@ -86,6 +86,6 @@ export const deleteFollowNotification = async (targetUserId, currentUserId) => {
 
     await Promise.all(promises);
   } catch (error) {
-    console.error("팔로우 알림 삭제 실패:", error);
+    Alert.alert(error.code, error.message);
   }
 };

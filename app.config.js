@@ -10,7 +10,7 @@ module.exports = {
     ios: {
       bundleIdentifier: "com.artmate.app",
       config: {
-        googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
+        googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,
       },
       infoPlist: {
         NSLocationWhenInUseUsageDescription:
@@ -31,13 +31,13 @@ module.exports = {
       permissions: ["ACCESS_FINE_LOCATION"],
       config: {
         googleMaps: {
-          apiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
+          apiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,
         },
       },
     },
     extra: {
-      apikey: process.env.REACT_APP_API_KEY,
-      serverurl: process.env.REACT_APP_SERVER_URL,
+      apikey: process.env.EXPO_PUBLIC_API_KEY,
+      serverurl: process.env.EXPO_PUBLIC_SERVER_URL,
     },
   },
 };

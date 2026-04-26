@@ -10,14 +10,14 @@ const request = async (url) => {
 
 export const fetchDetailArtwork = async (seq) => {
   return request(
-    `${process.env.REACT_APP_SERVER_URL}/detail2?serviceKey=${process.env.REACT_APP_API_KEY}&seq=${seq}`,
+    `${process.env.EXPO_PUBLIC_SERVER_URL}/detail2?serviceKey=${process.env.EXPO_PUBLIC_API_KEY}&seq=${seq}`,
   );
 };
 
 export const fetchArtwork = async (nextPage, listCnt) => {
   return request(
-    `${process.env.REACT_APP_SERVER_URL}/area2?serviceKey=${
-      process.env.REACT_APP_API_KEY
+    `${process.env.EXPO_PUBLIC_SERVER_URL}/area2?serviceKey=${
+      process.env.EXPO_PUBLIC_API_KEY
     }&PageNo=${nextPage}&numOfrows=${listCnt}`,
   );
 };
