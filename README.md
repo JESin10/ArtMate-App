@@ -1,4 +1,5 @@
-# ArtMate(APP) : 문화예술 데이터를 기반으로 사용자 생성 콘텐츠와 상호작용이 가능한 모바일 플랫폼
+# ArtMate(APP) 
+## 문화예술 데이터를 기반으로 사용자 생성 콘텐츠와 상호작용이 가능한 모바일 플랫폼
 
 <img width="100%" alt="Top-Bar" src="https://github.com/JESin10/ArtMate/assets/119720123/cbeac7bc-7d28-4814-a172-a0091b069357">
 
