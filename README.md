@@ -6,11 +6,15 @@
 
 (구현 시 최소 1일 1commit 하였기에 총 commit 일수로 표시하였습니다.)
 
-<!--
-artmate URL : [artmate](https://artmate-ver100.web.app/)
+## 🚀 Getting Started
 
-📎 회고 URL
-[Velog 회고](https://velog.io/@jin_s/WIL-24.06.15)-->
+```
+bash
+git clone https://github.com/JESin10/ArtMate-App.git
+cd ArtMate-App
+npm install
+npm start
+```
 
 Notion URL
 [artmate-Notion](https://jin29.notion.site/ArtMate-7a7b69e3c1da4f4bbf64cda1999a9ab0?source=copy_link)
@@ -27,11 +31,11 @@ Notion URL
 
 ## 📌 기술 스택
 
-FrontEnd: React Native, Typescript, TailwindCss
+FrontEnd: React Native (Expo)
 
-BackEnd : FireBase
+Backend / DB : Firebase Firestore, Firebase Authentication
 
-Deployment : Expo
+Data : 공공 문화예술 API 활용 (XML 파싱)
 
 ## 📌 서비스 예시
 
@@ -86,9 +90,10 @@ Mobile View
 
 기존 웹 프로젝트에선 Auth와 Database의 기본적인 부분만 사용하였지만 collection간의 연결도를 생각해보다 정교하게 Database를 구성하였습니다.
 
-또한, add, set, update, delete와 같은 기본적인 기능만 썼던 기존의 웹앱과 달리 모바일앱에서는 where, orderBy와 같은 frontend단 정렬을 사용해 Database를 활용하였습니다.
+또한, add, set, update, delete와 같은 기본적인 기능만 썼던 기존의 웹앱과 달리 모바일앱에서는 where, orderBy와 같은 frontend단 정렬을 사용하였고, 실시간 데이터 동기화를 위해 Firestore onSnapshot 사용해 Database를 활용하였습니다.
 
 사용자의 정보, 리뷰와 같이 수정가능한 정보들을 Firestore에 저장하였고 리뷰 혹은 프로필에 사용될 이미지들을 Storage에 따로 저장한 후 링크를 불러오는 방식을 사용하였습니다.
+
 
 ✅ 모바일 앱
 
@@ -96,15 +101,15 @@ Mobile View
 
 최종적으로 React Native + Expo를 기반으로 iOS/Android 크로스 플랫폼 앱으로 구현하였습니다.
 
-현재는 JS로 기본 개발 되어있으나 data type으로 발생할 수 있는 에러를 줄이고, 마이그레이션의 경험을 위해 typescript로 마이그레이션 할 예정입니다.
+현재는 JS로 기본 개발 되어있으나 data type으로 발생할 수 있는 에러를 줄이고, 경험을 위해 typescript로 마이그레이션 할 예정입니다.
 
-<!-- 초기에는 JS로 기본 개발을 진행하였고, 이후 TypeScript로 마이그레이션을 진행해 Data의 type으로 발생할 수 있는 에러를 줄이고자 하였습니다. -->
 
 ✅ 공공 API 활용
 
 개발 밑 테스트 단계에서는 프로젝트에 필요한 정보를 서울시 공공 API를 사용하였고, 거리나 필터의 경우 frontend 단에서 처리를 해 보여주고 있습니다.
 
-단, 공공 API를 사용하는 관계로 속도와 용량에 제한이 있다는 한계가 있습니다.
+XML 데이터를 파싱하여 앱에서 사용 가능한 형태로 가공하였다는 점에 의의가 있으나, 공공 API를 사용하는 관계로 속도와 용량에 제한이 있다는 한계가 있습니다.
+
 
 ✅ Custom Style
 
@@ -112,12 +117,35 @@ Mobile View
 
 ts 마이그레이션을 진행하며 uiux의 쉬운 관리를 위해 tailwind와 styled-component를 함께 결합한 tailwind-styled-component를 사용할 에정입니다.
 
-<!-- 이후, 복잡하지 않은 UIUX의 쉬운 관리를 위하여 tailwind와 styled-component를 함께 결합한 tailwind-styled-component를 사용했습니다.
-
-정교한 CSS가 필요한 상황의 경우 두개를 따로 분리하여 사용하기도 하였으나, 보편적으로는 관리의 용이와 통일성을 위해 tailwind-styled-component를 사용하였습니다. -->
 
 ✅ Custom Hook
 
 개인프로젝트인 만큼 러프한 초기 구성에서 자주 사용되는 function을 파악하고, custom hook으로 만들어 어느 컴포넌트에서나 public하게 접근 및 사용이 용이하도록 하였습니다.
 
 Hook뿐 아니라 filter, modal, slider와 같은 각자의 기능을 따로하는 컴포넌트들을 분리해 구성하고자 하였습니다.
+
+
+
+## ⚠️ Troubleshooting
+
+### Firestore 실시간 데이터 중복 렌더링 문제
+- 원인: onSnapshot 구독 중복 발생
+- 해결: useEffect cleanup 함수에서 unsubscribe 처리
+
+### XML 파싱 데이터 구조 불일치
+- 원인: API 응답 구조의 일관성 부족
+- 해결: 데이터 가공 로직 추가 및 예외 처리
+
+
+## 📌 향후 서비스 개선 예정
+[완료] Firestore 로직을 Service Layer로 분리
+
+[완료] 상태 관리 도입 (Zustand)
+
+[완료] 컴포넌트 구조 리팩토링
+
+[ ] TypeScript 적용
+
+[ ] UI/UX 개선
+
+[ ] 테스트 코드 작성 (Jest / React Native Testing Library)
