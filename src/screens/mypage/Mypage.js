@@ -378,7 +378,7 @@ export default function Mypage({ navigation }) {
               <SettingIcon
                 width={24}
                 height={24}
-                fill={"#333"}
+                fill={colors.gray}
                 onPress={() => navigation.navigate("Setting")}
               />
             </TouchableOpacity>

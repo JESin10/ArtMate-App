@@ -1,11 +1,13 @@
-import React, { useRef, useState } from "react";
+import { useRef, useState } from "react";
 import {
-  View,
+  Dimensions,
+  Image,
   ScrollView,
   TouchableOpacity,
-  Image,
-  Dimensions,
+  View,
 } from "react-native";
+import { colors } from "../../styles/colors";
+import { spacing } from "../../styles/theme";
 
 const { width } = Dimensions.get("window");
 
@@ -55,7 +57,11 @@ export default function ReviewImageSlider({
       </ScrollView>
 
       <View
-        style={{ flexDirection: "row", justifyContent: "center", marginTop: 8 }}
+        style={{
+          flexDirection: "row",
+          justifyContent: "center",
+          marginTop: spacing.xs,
+        }}
       >
         {images.map((_, index) => (
           <TouchableOpacity
@@ -65,8 +71,9 @@ export default function ReviewImageSlider({
               width: 6,
               height: 6,
               borderRadius: 3,
-              marginHorizontal: 4,
-              backgroundColor: activeIndex === index ? "#000" : "#ccc",
+              marginHorizontal: spacing.xs,
+              backgroundColor:
+                activeIndex === index ? colors.black : colors.gray,
             }}
           />
         ))}

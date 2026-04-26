@@ -1,12 +1,14 @@
 import React from "react";
 import {
-  View,
-  Text,
-  ImageBackground,
   ActivityIndicator,
-  TouchableOpacity,
+  ImageBackground,
   StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
+import { colors } from "../../styles/colors";
+import { fontSize, radius, spacing } from "../../styles/theme";
 
 const PlaceItem = React.memo(({ item, detail, onPress }) => {
   return (
@@ -68,14 +70,14 @@ const styles = StyleSheet.create({
   imageContainer: {
     width: "100%",
     flexDirection: "row",
-    marginBottom: 10,
+    marginBottom: spacing.sm,
   },
 
   image: {
     width: "45%",
     height: 160,
-    borderRadius: 10,
-    marginVertical: 10,
+    borderRadius: radius.sm,
+    marginVertical: spacing.sm,
   },
 
   imageBackground: {
@@ -84,34 +86,34 @@ const styles = StyleSheet.create({
   },
 
   thumbnail: {
-    borderRadius: 10,
+    borderRadius: radius.sm,
   },
 
   discriptions: {
     width: 160,
     height: 160,
     flexDirection: "column",
-    marginVertical: 10,
+    marginVertical: spacing.sm,
     marginHorizontal: "auto",
     justifyContent: "center",
     textAlign: "center",
   },
   distanceText: {
-    fontSize: 12,
-    color: "#6B8E23",
+    fontSize: fontSize.md,
+    color: colors.primary,
     fontWeight: "600",
-    marginBottom: 6,
+    marginBottom: spacing.xs,
     textAlign: "right",
   },
   titleStyle: {
-    fontSize: 14,
+    fontSize: fontSize.md,
     fontWeight: "bold",
-    marginVertical: 10,
+    marginVertical: spacing.md,
   },
 
   descStyle: {
-    fontSize: 12,
-    color: "#333",
-    marginVertical: 10,
+    fontSize: fontSize.sm,
+    color: colors.placeholder,
+    marginVertical: spacing.md,
   },
 });

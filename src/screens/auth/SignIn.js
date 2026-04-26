@@ -94,7 +94,6 @@ export default function SignIn({ navigation }) {
               <MainSlogun width={220} height={30} />
             </TouchableOpacity>
           </View>
-          {/* <TouchableOpacity> */}
           <View>
             <View style={styles.inputContainer}>
               <TextInput
@@ -165,7 +164,6 @@ export default function SignIn({ navigation }) {
                 height: 46,
                 marginBottom: spacing.sm,
                 alignItems: "center",
-                padding: spacing.md,
               }}
               onPress={() => promptAsync()}
               disabled={!request}
@@ -175,14 +173,12 @@ export default function SignIn({ navigation }) {
             <TouchableOpacity
               style={{
                 backgroundColor: colors.naver_green,
-                padding: spacing.md,
                 borderRadius: radius.lg,
                 width: "80%",
                 height: 46,
                 marginBottom: spacing.sm,
                 alignItems: "center",
               }}
-              // onPress={login}
             >
               <Text style={styles.socialBtn}>네이버로 시작하기</Text>
             </TouchableOpacity>
@@ -192,7 +188,6 @@ export default function SignIn({ navigation }) {
                 backgroundColor: colors.white,
                 borderColor: colors.black,
                 borderWidth: 1,
-                padding: spacing.md,
                 borderRadius: radius.lg,
                 width: "80%",
                 height: 46,
@@ -245,8 +240,9 @@ const styles = StyleSheet.create({
   },
   socialBtn: {
     width: "100%",
-    height: 46,
+    height: "100%",
     textAlign: "center",
+    lineHeight: 46,
     fontSize: fontSize.sm,
     fontWeight: "bold",
     alignItems: "center",

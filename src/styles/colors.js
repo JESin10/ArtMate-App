@@ -6,6 +6,7 @@ export const colors = {
   red: "#ff0000",
   white: "rgb(255, 255, 255)",
   lightGray: "#c4c4c4",
+  lightGray50: "rgba(211, 211, 211, 0.5)",
   placeholder: "#6F6F6F",
   lightBlue: "#eef6ff",
   kakao_yellow: "#FEE500",

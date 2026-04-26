@@ -190,20 +190,18 @@ export const styles = StyleSheet.create({
     height: "auto",
     marginBottom: spacing.sm,
   },
-
   artInPlaceContainer: {
     width: "100%",
     alignItems: "center",
     flexDirection: "column",
-    backgroundColor: colors.lightGray,
+    backgroundColor: colors.lightGray50,
     height: "auto",
+    marginTop: spacing.xl,
   },
   artInPlaceContents: {
     width: "100%",
     paddingHorizontal: spacing.xl,
     paddingBottom: spacing.xl,
-
-    // backgroundColor: "pink",
   },
   artInimageBackground: {
     width: "100%",

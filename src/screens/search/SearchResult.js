@@ -72,7 +72,7 @@ export default function SearchResult({ navigation }) {
 
             <View style={{ flexDirection: "row" }}>
               <TouchableOpacity onPress={() => navigation.goBack()}>
-                <BackwardIcon width={36} height={36} fill="black" />
+                <BackwardIcon width={36} height={36} fill={colors.black} />
               </TouchableOpacity>
 
               <Text style={styles.resultTitle}>
@@ -92,7 +92,11 @@ export default function SearchResult({ navigation }) {
             <View style={styles.results}>
               <View style={styles.resultType}>
                 <Text
-                  style={{ color: "white", fontWeight: "bold", fontSize: 14 }}
+                  style={{
+                    color: "white",
+                    fontWeight: "bold",
+                    fontSize: fontSize.sm,
+                  }}
                 >
                   {item.type}
                 </Text>
@@ -100,7 +104,6 @@ export default function SearchResult({ navigation }) {
               <View style={styles.resultName}>
                 <Text>{item.name}</Text>
               </View>
-              {/* <Text style={styles.resultName}>{item.name}</Text> */}
             </View>
           </TouchableOpacity>
         )}

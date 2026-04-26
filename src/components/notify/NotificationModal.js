@@ -99,7 +99,7 @@ export default function NotificationModal({ visible, onClose }) {
           >
             <Text style={styles.modalTitle}>알림</Text>
             <TouchableOpacity onPress={() => onClose()} style={styles.closeBtn}>
-              <Text style={{ color: "#fff" }}>X</Text>
+              <Text style={{ color: colors.white }}>X</Text>
             </TouchableOpacity>
           </View>
           {notifications.length === 0 ? (

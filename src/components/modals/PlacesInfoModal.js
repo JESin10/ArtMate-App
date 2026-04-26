@@ -173,8 +173,10 @@ export default function PlacesInfoModal({
       {loading && (
         <View style={styles.overlay}>
           <View style={styles.overlayContent}>
-            <ActivityIndicator size="large" color="#fff" />
-            <Text style={{ color: "#fff", marginTop: 8 }}>로딩중...</Text>
+            <ActivityIndicator size="large" color={colors.white} />
+            <Text style={{ color: colors.white, marginTop: spacing.xs }}>
+              로딩중...
+            </Text>
           </View>
         </View>
       )}
@@ -230,9 +232,8 @@ export default function PlacesInfoModal({
                       width={24}
                       height={24}
                       style={{
-                        color: "black",
+                        color: colors.black,
                       }}
-                      fill="#000"
                     />
                   </TouchableOpacity>
                 )}
@@ -270,7 +271,11 @@ export default function PlacesInfoModal({
                     )
                   }
                 >
-                  <InfoIcon width={20} height={20} style={{ marginRight: 8 }} />
+                  <InfoIcon
+                    width={20}
+                    height={20}
+                    style={{ marginRight: spacing.xs }}
+                  />
                   <Text style={styles.subText}>홈페이지로 이동</Text>
                 </TouchableOpacity>
               ) : (
@@ -345,7 +350,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: "column",
   },
-  ModalContent: { paddingBottom: spacing.xl, height: "90%", top: spacing.xl },
+  ModalContent: { paddingBottom: spacing.xl, top: spacing.xl },
   titleText1: {
     fontWeight: "bold",
     fontSize: fontSize.md,

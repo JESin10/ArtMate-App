@@ -88,22 +88,12 @@ export default function AccFind({ navigation }) {
                 onChangeText={(text) => setUserId(text)}
                 keyboardType="email-address"
               />
-              {/* <TextInput
-                  style={styles.input}
-                  placeholder="비밀번호"
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  secureTextEntry={true}
-                  textContentType="password"
-                  value={userPw}
-                  onChangeText={(text) => setUserPw(text)}
-                /> */}
               <TouchableOpacity style={styles.button} onPress={findPassword}>
-                <Text style={{ color: "#fff" }}>비밀번호 찾기</Text>
+                <Text style={{ color: colors.white }}>비밀번호 찾기</Text>
               </TouchableOpacity>
             </View>
             <View style={styles.findContainer}>
-              <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+              <TouchableOpacity onPress={() => navigation.navigate("SignIn")}>
                 <Text style={styles.findFactor}>로그인</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={() => navigation.navigate("Signup")}>
@@ -139,7 +129,7 @@ export default function AccFind({ navigation }) {
                   backgroundColor: colors.kakao_yellow,
                   borderRadius: radius.lg,
                   width: "80%",
-                  height: 45,
+                  height: 46,
                   marginBottom: spacing.sm,
                   alignItems: "center",
                 }}
@@ -152,11 +142,10 @@ export default function AccFind({ navigation }) {
                   backgroundColor: colors.naver_green,
                   borderRadius: radius.lg,
                   width: "80%",
-                  height: 45,
+                  height: 46,
                   marginBottom: spacing.sm,
                   alignItems: "center",
                 }}
-                // onPress={login}
               >
                 <Text style={styles.socialBtn}>네이버로 시작하기</Text>
               </TouchableOpacity>
@@ -168,7 +157,7 @@ export default function AccFind({ navigation }) {
                   borderWidth: 1,
                   borderRadius: radius.lg,
                   width: "80%",
-                  height: 45,
+                  height: 46,
                   marginBottom: spacing.sm,
                   alignItems: "center",
                 }}

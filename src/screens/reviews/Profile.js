@@ -59,6 +59,8 @@ export default function Profile({ route, navigation }) {
       setFollowerMap(follower);
     });
 
+    console.log(followingMap);
+
     // 팔로잉 구독
     const followingRef = collection(db, "users", user.uid, "following");
     const unsubscribeFollowing = onSnapshot(followingRef, (snapshot) => {
@@ -144,7 +146,7 @@ export default function Profile({ route, navigation }) {
           }}
         >
           <TouchableOpacity onPress={() => navigation.goBack()}>
-            <BackwardIcon width={32} height={32} fill="#000" />
+            <BackwardIcon width={32} height={32} fill={colors.black} />
           </TouchableOpacity>
           <Text
             style={{
@@ -162,7 +164,7 @@ export default function Profile({ route, navigation }) {
           <View style={styles.profileContainer}>
             <View
               style={{
-                shadowColor: "#000",
+                shadowColor: colors.black,
                 shadowOffset: { width: 1, height: 4 },
                 shadowOpacity: 0.5,
                 shadowRadius: 4,
@@ -225,7 +227,7 @@ export default function Profile({ route, navigation }) {
               {user && selectedUser?.uid !== user.uid && (
                 <TouchableOpacity
                   style={
-                    followingMap[selectedUser.uid]
+                    followingMap[selectedUser?.uid]
                       ? styles.unfollowBtn
                       : styles.followBtn
                   }
@@ -249,7 +251,7 @@ export default function Profile({ route, navigation }) {
                         : styles.followBtnText
                     }
                   >
-                    {followingMap[selectedUser.uid] ? "언팔로우" : "팔로우"}
+                    {followingMap[selectedUser.id] ? "언팔로우" : "팔로우"}
                   </Text>
                 </TouchableOpacity>
               )}

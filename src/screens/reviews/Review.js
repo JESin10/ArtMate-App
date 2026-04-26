@@ -542,7 +542,7 @@ export default function Review({ route, navigation }) {
           width={24}
           height={24}
           style={{ marginTop: spacing.md, backgroundColor: "transparent" }}
-          fill="#fff"
+          fill={colors.white}
         />
       </View>
       <ArtworkInfoModal

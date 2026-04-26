@@ -485,14 +485,14 @@ const styles = StyleSheet.create({
   },
   descStyle: {
     fontSize: fontSize.xs,
-    color: "#000",
+    color: colors.black,
     fontWeight: "200",
-    marginVertical: 4,
+    marginVertical: spacing.xs,
   },
   ArtistDescStyle: {
     fontSize: fontSize.sm,
     color: colors.gray,
-    marginVertical: 4,
+    marginVertical: spacing.xs,
     fontWeight: "600",
   },
   overlay: {

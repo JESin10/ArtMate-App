@@ -171,7 +171,7 @@ export default function Signup({ navigation }) {
                 source={{ uri: profileImage }}
                 style={styles.profileImage}
               />
-              <Text style={{ color: colors.primary, marginTop: 5 }}>
+              <Text style={{ color: colors.primary, marginTop: spacing.xs }}>
                 프로필 사진 선택
               </Text>
             </TouchableOpacity>
@@ -274,9 +274,8 @@ export default function Signup({ navigation }) {
                 backgroundColor: colors.kakao_yellow,
                 borderRadius: radius.lg,
                 width: "80%",
-                height: 45,
+                height: 46,
                 marginBottom: spacing.sm,
-                padding: spacing.sm,
                 alignItems: "center",
               }}
             >
@@ -288,9 +287,8 @@ export default function Signup({ navigation }) {
                 backgroundColor: colors.naver_green,
                 borderRadius: radius.lg,
                 width: "80%",
-                height: 45,
+                height: 46,
                 marginBottom: spacing.sm,
-                padding: spacing.sm,
                 alignItems: "center",
               }}
             >
@@ -304,9 +302,8 @@ export default function Signup({ navigation }) {
                 borderWidth: 1,
                 borderRadius: radius.lg,
                 width: "80%",
-                height: 45,
+                height: 46,
                 marginBottom: spacing.sm,
-                padding: spacing.sm,
                 alignItems: "center",
               }}
             >
@@ -390,7 +387,7 @@ const styles = StyleSheet.create({
   },
   findFactor: {
     color: colors.gray,
-    fontSize: spacing.sm,
+    fontSize: fontSize.sm,
     fontWeight: "semibold",
     marginBottom: spacing.sm,
   },
@@ -406,8 +403,9 @@ const styles = StyleSheet.create({
   },
   socialBtn: {
     width: "100%",
+    height: "100%",
     textAlign: "center",
-    height: 46,
+    lineHeight: 46,
     fontSize: fontSize.sm,
     fontWeight: "bold",
     alignItems: "center",

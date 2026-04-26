@@ -195,8 +195,10 @@ export default function ArtworkInfoModal({ visible, onClose, seq, artwork }) {
       {loading && (
         <View style={styles.overlay}>
           <View style={styles.overlayContent}>
-            <ActivityIndicator size="large" color="#fff" />
-            <Text style={{ color: "#fff", marginTop: 8 }}>로딩중...</Text>
+            <ActivityIndicator size="large" color={colors.white} />
+            <Text style={{ color: colors.white, marginTop: spacing.xs }}>
+              로딩중...
+            </Text>
           </View>
         </View>
       )}
@@ -248,9 +250,8 @@ export default function ArtworkInfoModal({ visible, onClose, seq, artwork }) {
                     width={24}
                     height={24}
                     style={{
-                      color: "black",
+                      color: colors.black,
                     }}
-                    fill="#000"
                   />
                 </TouchableOpacity>
               )}
@@ -308,7 +309,7 @@ export default function ArtworkInfoModal({ visible, onClose, seq, artwork }) {
                   <InfoIcon
                     width={20}
                     height={20}
-                    fill="#000"
+                    fill={colors.black}
                     style={{ marginRight: 8 }}
                   />
                   <Text style={styles.subText}>홈페이지로 이동</Text>
