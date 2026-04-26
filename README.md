@@ -7,6 +7,16 @@
 
 (구현 시 최소 1일 1commit 하였기에 총 commit 일수로 표시하였습니다.)
 
+
+## 🙋‍♂️ Project Overview
+
+본 프로젝트는 기획, 디자인, 개발까지 모두 단독으로 진행한 개인 프로젝트입니다.
+
+
+Notion URL
+[artmate-Notion](https://jin29.notion.site/ArtMate-7a7b69e3c1da4f4bbf64cda1999a9ab0?source=copy_link)
+
+
 ## 🚀 Getting Started
 
 ```
@@ -16,9 +26,6 @@ cd ArtMate-App
 npm install
 npm start
 ```
-
-Notion URL
-[artmate-Notion](https://jin29.notion.site/ArtMate-7a7b69e3c1da4f4bbf64cda1999a9ab0?source=copy_link)
 
 ## 📌 서비스 소개
 
@@ -30,7 +37,7 @@ Notion URL
 
 유저간의 팔로우, 좋아요, 댓글과 같은 상호작용이 가능하며, 팔로잉과 좋아요의 경우 상호 작용을 위해 알림을 전달하고 있습니다.
 
-단순히 문화예술 정보 제공 서비스가 아닌 사용자간의 콘텐츠 생성, 상호작용이 가능한 구조로 개발하고자 하였습니다.
+단순히 API로 문화예술 정보를 제공받기만 하는 일방형 서비스가 아닌, 공공 API를 활용해 사용자간의 콘텐츠 생성, 상호작용이 가능한 양방향서비스로 개발하고자 하였습니다.
 
 
 ## 📌 서비스 아키텍쳐
@@ -142,11 +149,11 @@ Hook뿐 아니라 filter, modal, slider와 같은 각자의 기능을 따로하�
 
 ## ⚠️ Troubleshooting
 
-### Firestore 실시간 데이터 중복 렌더링 문제
+1. Firestore 실시간 데이터 중복 렌더링 문제
 - 원인: onSnapshot 중복 구독
 - 해결: useEffect cleanup 함수에서 unsubscribe 처리
 
-### XML 파싱 데이터 구조 불일치
+2. XML 파싱 데이터 구조 불일치
 - 원인: API 응답 구조의 일관성 부족
 - 해결: 데이터 가공 로직 추가 및 예외 처리
 
