@@ -27,6 +27,7 @@ export const normalizePlace = (item) => {
     raw: item,
   };
 };
+
 export const normalizeArtwork = (item) => {
   if (!item) return null;
 

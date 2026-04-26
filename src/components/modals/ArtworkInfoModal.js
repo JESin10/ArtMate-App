@@ -128,29 +128,27 @@ export default function ArtworkInfoModal({ visible, onClose, seq, artwork }) {
   };
 
   //북마크 하기
-  const BookmarkHandler = async () => {
+  const BookmarkHandler = async (seq) => {
     if (!user) {
       Alert.alert("알림", "로그인 후 이용가능합니다.");
       return;
     }
-
-    if (!artwork?.seq) {
+    if (!seq) {
       console.warn("북마크할 작품 ID가 없습니다");
       return;
     }
-
     const uid = String(user.uid);
-    const seqId = String(artwork.seq); // 여기서 안전하게 id 가져오기
+    // const seqId = String(artwork.seq); // 여기서 안전하게 id 가져오기
     const img = (detailArtwork?.imgUrl ?? "").replace("http", "https");
 
-    const bookmarkRef = doc(db, "users", uid, "bookmarks", seqId);
-    const artworkRef = doc(db, "artworks", seqId);
+    const bookmarkRef = doc(db, "users", uid, "bookmarks", seq);
+    const artworkRef = doc(db, "artworks", seq);
 
     try {
       if (!filled) {
         // 북마크 추가
         await setDoc(bookmarkRef, {
-          seq: seqId,
+          seq: seq,
           artworkTitle: artwork.title ?? "",
           artworkImgUrl: img,
           createdAt: serverTimestamp(),
@@ -237,7 +235,7 @@ export default function ArtworkInfoModal({ visible, onClose, seq, artwork }) {
                 <ShareIcon width={24} height={24} />
               </TouchableOpacity>
               {filled ? (
-                <TouchableOpacity onPress={() => BookmarkHandler()}>
+                <TouchableOpacity onPress={() => BookmarkHandler(seq)}>
                   <FilledBookmarkIcon
                     width={24}
                     height={24}
@@ -245,24 +243,14 @@ export default function ArtworkInfoModal({ visible, onClose, seq, artwork }) {
                   />
                 </TouchableOpacity>
               ) : (
-                <TouchableOpacity onPress={() => BookmarkHandler()}>
-                  <BookmarkIcon
-                    width={24}
-                    height={24}
-                    style={{
-                      color: colors.black,
-                    }}
-                  />
+                <TouchableOpacity onPress={() => BookmarkHandler(seq)}>
+                  <BookmarkIcon width={24} height={24} fill={colors.black} />
                 </TouchableOpacity>
               )}
             </View>
             <View style={styles.titleContainer}>
               <Text style={styles.titleText1}>{detailArtwork?.title}</Text>
             </View>
-            {/* <View style={styles.textContainer}>
-              <Text style={styles.titleText2}>작가</Text>
-              <Text style={styles.subText}>{artwork?.DP_ARTIST}</Text>
-            </View> */}
             <View style={styles.textContainer}>
               <Text style={styles.titleText2}>전시기간</Text>
               <Text style={styles.subText}>

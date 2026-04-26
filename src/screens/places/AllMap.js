@@ -38,9 +38,12 @@ export default function AllMap({ route, navigation }) {
   const [filter, setFilter] = useState("all"); // all | artwork | place | my
   const filteredMarkers = markers.filter((item) => {
     if (filter === "artwork") return item.type === "artwork";
-    if (filter === "place") return item.type !== "artwork";
-    return true;
+    if (filter === "place") return item.type === "place";
+    if (filter === "all") return true;
+    return false;
   });
+
+  // console.log(markers);
 
   useEffect(() => {
     const getCurrentLocation = async () => {
@@ -61,10 +64,8 @@ export default function AllMap({ route, navigation }) {
       };
 
       setRegion(newRegion);
-
       mapRef.current?.animateToRegion(newRegion, 1000);
     };
-
     getCurrentLocation();
   }, []);
 
@@ -88,7 +89,6 @@ export default function AllMap({ route, navigation }) {
         setMyPins([]);
       }
     };
-
     checkBookmark();
   }, [user?.uid]);
 
@@ -107,6 +107,13 @@ export default function AllMap({ route, navigation }) {
       longitudeDelta: prev.longitudeDelta * 2,
     }));
   };
+
+  const safeMyPins = myPins.filter(
+    (pin) =>
+      pin?.geoCode &&
+      typeof pin.geoCode.lat === "number" &&
+      typeof pin.geoCode.lng === "number",
+  );
 
   return (
     <SafeAreaView
@@ -236,12 +243,25 @@ export default function AllMap({ route, navigation }) {
                 />
               ),
             )}
-          {/* 사용자 pins */}
 
+          {/* 사용자 pins */}
+          {/* 
           {(filter === "my" || filter === "all") &&
             myPins.map((pin) => (
               <Marker
                 key={pin.seq}
+                coordinate={{
+                  latitude: pin.geoCode.lat,
+                  longitude: pin.geoCode.lng,
+                }}
+                title={pin.placeName}
+                pinColor={colors.pin_red}
+              />
+            ))} */}
+          {(filter === "all" || filter === "my") &&
+            safeMyPins.map((pin) => (
+              <Marker
+                key={`my-${pin.id}`}
                 coordinate={{
                   latitude: pin.geoCode.lat,
                   longitude: pin.geoCode.lng,

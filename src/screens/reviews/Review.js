@@ -537,13 +537,14 @@ export default function Review({ route, navigation }) {
             setSelectedReview(null); // 🔥 선택 리뷰 초기화
             setShowModal(true); // 모달 열기
           }}
-        />
-        <WriteIcon
-          width={24}
-          height={24}
-          style={{ marginTop: spacing.md, backgroundColor: "transparent" }}
-          fill={colors.white}
-        />
+        >
+          <WriteIcon
+            width={24}
+            height={24}
+            style={{ marginTop: spacing.md }}
+            fill={colors.white}
+          />
+        </TouchableOpacity>
       </View>
       <ArtworkInfoModal
         visible={showArtworkModal}
@@ -700,18 +701,18 @@ const styles = StyleSheet.create({
     bottom: spacing.xl,
     right: spacing.xl,
     borderRadius: "100%",
-
     alignItems: "center",
-    width: 50,
-    height: 50,
-    backgroundColor: colors.primary,
+    width: 56,
+    height: 56,
     pointerEvents: "box-none",
   },
   ReviewBtnInner: {
-    width: 56,
-    height: 56,
+    width: "90%",
+    height: "90%",
+    borderRadius: "100%",
     position: "absolute",
     alignItems: "center",
+    backgroundColor: colors.primary,
   },
   ReviewBtnText: { margin: "auto", fontSize: fontSize.xxl },
   indicatorContainer: {
@@ -750,9 +751,11 @@ const styles = StyleSheet.create({
   followBtnText: {
     color: colors.white,
     fontWeight: "bold",
+    fontSize: fontSize.xs,
   },
   unfollowBtnText: {
     color: colors.primary,
     fontWeight: "bold",
+    fontSize: fontSize.xs,
   },
 });

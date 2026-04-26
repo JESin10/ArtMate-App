@@ -128,8 +128,16 @@ export default function Artworks({ navigation }) {
           sourceData: normalized,
         });
       } else {
-        setArtworks((prev) => [...prev, ...normalized]);
+        setArtworks((prev) => {
+          const merged = [...prev, ...normalized];
 
+          const uniqueMap = new Map();
+          merged.forEach((item) => {
+            uniqueMap.set(item.id, item);
+          });
+
+          return Array.from(uniqueMap.values());
+        });
         const filteredNewItems = normalized.filter((item) => {
           let keep = true;
 
@@ -335,7 +343,7 @@ export default function Artworks({ navigation }) {
         <FlatList
           ref={flatListRef}
           data={displayedArtworks}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item, index) => item.id + "_" + index}
           numColumns={2}
           onEndReached={loadMore}
           onEndReachedThreshold={0.5}

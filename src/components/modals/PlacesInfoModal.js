@@ -62,7 +62,6 @@ export default function PlacesInfoModal({
         setFilled(false);
       }
     };
-
     checkBookmark();
   }, [visible, user?.uid, seq]);
 
@@ -99,19 +98,17 @@ export default function PlacesInfoModal({
   };
 
   //장소 북마크
-  const BookmarkHandler = async () => {
+  const PlaceBookmarkHandler = async (seq) => {
     if (!user) {
       Alert.alert("알림", "로그인 후 이용가능합니다.");
       return;
     }
-
-    if (!detail?.seq) {
-      console.warn("북마크할 작품 ID가 없습니다");
+    if (!seq) {
+      console.warn("북마크할 장소 ID가 없습니다");
       return;
     }
-
     const uid = String(user.uid);
-    const seqId = String(detail.seq); // 여기서 안전하게 id 가져오기
+    const seqId = String(seq); // 여기서 안전하게 id 가져오기
     const imgUrl = (detail?.culViewImg1 ?? "").replace("http", "https");
     const geoCode = {
       lat: Number(detail.gpsY),
@@ -121,7 +118,6 @@ export default function PlacesInfoModal({
 
     const bookmarkRef = doc(db, "users", uid, "pins", seqId);
     const placeRef = doc(db, "places", seqId);
-
     try {
       if (!filled) {
         // 북마크 추가
@@ -133,7 +129,6 @@ export default function PlacesInfoModal({
           geoCode,
           placeAdd: add,
         });
-
         // 작품 컬렉션 count 증가 (merge: true → 문서 없으면 생성)
         await setDoc(
           placeRef,
@@ -144,7 +139,6 @@ export default function PlacesInfoModal({
           },
           { merge: true },
         );
-
         setFilled(true);
         Alert.alert("안내", "북마크에 추가되었습니다.");
       } else {
@@ -219,7 +213,7 @@ export default function PlacesInfoModal({
                   <ShareIcon width={24} height={24} />
                 </TouchableOpacity>
                 {filled ? (
-                  <TouchableOpacity onPress={() => BookmarkHandler()}>
+                  <TouchableOpacity onPress={() => PlaceBookmarkHandler(seq)}>
                     <FilledBookmarkIcon
                       width={24}
                       height={24}
@@ -227,14 +221,8 @@ export default function PlacesInfoModal({
                     />
                   </TouchableOpacity>
                 ) : (
-                  <TouchableOpacity onPress={() => BookmarkHandler()}>
-                    <BookmarkIcon
-                      width={24}
-                      height={24}
-                      style={{
-                        color: colors.black,
-                      }}
-                    />
+                  <TouchableOpacity onPress={() => PlaceBookmarkHandler(seq)}>
+                    <BookmarkIcon width={24} height={24} fill={colors.black} />
                   </TouchableOpacity>
                 )}
               </View>

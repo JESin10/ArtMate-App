@@ -16,6 +16,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { db } from "../../../firebase";
 import BackwardIcon from "../../assets/icons/backward.svg";
 import Mainlogo from "../../assets/icons/logo-main.svg";
@@ -29,7 +30,7 @@ import { fontSize, radius, spacing } from "../../styles/theme";
 export default function Profile({ route, navigation }) {
   const { user, setUser } = useContext(AuthContext);
   const { followingMap, setFollowingMap, setFollowerMap } = useUserStore();
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedUser, setSelectedUser] = useState([]);
   const [showAllImages, setShowAllImages] = useState(false);
   const [review, setReview] = useState([]);
   const { userId } = route.params;
@@ -59,7 +60,8 @@ export default function Profile({ route, navigation }) {
       setFollowerMap(follower);
     });
 
-    console.log(followingMap);
+    console.log(selectedUser);
+    console.log("followingMap", followingMap);
 
     // 팔로잉 구독
     const followingRef = collection(db, "users", user.uid, "following");
@@ -117,274 +119,316 @@ export default function Profile({ route, navigation }) {
   }, [userId]);
 
   return (
-    <ScrollView
+    <SafeAreaView
       style={{
         width: "95%",
         marginHorizontal: "auto",
         flexDirection: "column",
         flex: 1,
-        position: "relative",
-        paddingBottom: 60,
+        position: "relative", // overlay를 위해 상대 위치 필요
       }}
     >
-      <View style={{ paddingBottom: 80, padding: spacing.sm }}>
-        <TouchableOpacity style={{ alignItems: "center" }}>
-          <Mainlogo
-            width={150}
-            height={50}
-            onPress={() => navigation.navigate("Bottom", { screen: "Home" })}
-          />
-        </TouchableOpacity>
-
-        <SearchBar />
-
-        <View
-          style={{
-            margin: spacing.xs,
-            flexDirection: "row",
-            alignItems: "center",
-          }}
-        >
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <BackwardIcon width={32} height={32} fill={colors.black} />
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+        <View style={styles.container}>
+          <TouchableOpacity style={{ alignItems: "center" }}>
+            <Mainlogo
+              width={150}
+              height={50}
+              onPress={() => navigation.navigate("Bottom", { screen: "Home" })}
+            />
           </TouchableOpacity>
-          <Text
+
+          <SearchBar />
+
+          <View
             style={{
-              fontSize: fontSize.xl,
-              color: colors.black,
-              fontWeight: "bold",
+              margin: spacing.xs,
+              flexDirection: "row",
+              alignItems: "center",
             }}
           >
-            계정 정보
-          </Text>
-        </View>
-
-        <View style={styles.myInfoContainer}>
-          {/* 프로필 */}
-          <View style={styles.profileContainer}>
-            <View
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <BackwardIcon width={32} height={32} fill={colors.black} />
+            </TouchableOpacity>
+            <Text
               style={{
-                shadowColor: colors.black,
-                shadowOffset: { width: 1, height: 4 },
-                shadowOpacity: 0.5,
-                shadowRadius: 4,
-                elevation: 3,
-                overflow: "visible",
+                fontSize: fontSize.xl,
+                color: colors.black,
+                fontWeight: "bold",
               }}
             >
-              <ImageBackground
-                source={{ uri: selectedUser?.photoURL }}
-                style={styles.imageBackground}
-                imageStyle={styles.tumbnail}
-              />
-            </View>
-
-            <View style={{ flexDirection: "column" }}>
-              <Text
-                style={{
-                  fontSize: fontSize.md,
-                  fontWeight: "bold",
-                  marginHorizontal: spacing.xxxl,
-                }}
-              >
-                {selectedUser?.displayName}
-              </Text>
-
-              <View style={{ flexDirection: "row" }}>
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <Text
-                    style={{
-                      marginLeft: spacing.xxxl,
-                      marginVertical: spacing.xs,
-                    }}
-                  >
-                    팔로워
-                  </Text>
-                  <Text
-                    style={{ fontWeight: "bold", marginHorizontal: spacing.xs }}
-                  >
-                    {selectedUser?.followerCnt}
-                  </Text>
-                </View>
-
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <Text
-                    style={{
-                      marginLeft: spacing.xxxl,
-                      marginVertical: spacing.xs,
-                    }}
-                  >
-                    팔로잉
-                  </Text>
-                  <Text
-                    style={{ fontWeight: "bold", marginHorizontal: spacing.xs }}
-                  >
-                    {selectedUser?.followingCnt}
-                  </Text>
-                </View>
-              </View>
-
-              {user && selectedUser?.uid !== user.uid && (
-                <TouchableOpacity
-                  style={
-                    followingMap[selectedUser?.uid]
-                      ? styles.unfollowBtn
-                      : styles.followBtn
-                  }
-                  onPress={() =>
-                    FollowUser({
-                      user,
-                      targetUser: {
-                        uid: selectedUser.uid,
-                        displayName: selectedUser.displayName,
-                        photoURL: selectedUser.photoURL,
-                      },
-                      isFollowing: !!followingMap[selectedUser.uid],
-                      expireAt,
-                    })
-                  }
-                >
-                  <Text
-                    style={
-                      followingMap[userId]
-                        ? styles.unfollowBtnText
-                        : styles.followBtnText
-                    }
-                  >
-                    {followingMap[selectedUser.id] ? "언팔로우" : "팔로우"}
-                  </Text>
-                </TouchableOpacity>
-              )}
-            </View>
+              계정 정보
+            </Text>
           </View>
 
-          {/* 사진 */}
-          <View style={styles.ImageContainer}>
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Text style={{ fontSize: fontSize.md, fontWeight: "bold" }}>
-                사진
-              </Text>
-              <Text
+          <View style={styles.myInfoContainer}>
+            {/* 프로필 */}
+            <View style={styles.profileContainer}>
+              <View
                 style={{
-                  fontSize: spacing.md,
-                  fontWeight: "light",
-                  color: colors.primary,
-                  marginLeft: spacing.xs,
+                  shadowColor: colors.black,
+                  shadowOffset: { width: 1, height: 4 },
+                  shadowOpacity: 0.5,
+                  shadowRadius: 4,
+                  elevation: 3,
+                  overflow: "visible",
                 }}
               >
-                {allImages.length}
-              </Text>
-            </View>
+                <ImageBackground
+                  source={{ uri: selectedUser?.photoURL }}
+                  style={styles.imageBackground}
+                  imageStyle={styles.tumbnail}
+                />
+              </View>
 
-            {allImages.length > 0 ? (
-              <View>
-                <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
-                  {visibleImages.map((item, index) => (
-                    <ImageBackground
-                      key={index}
-                      source={{ uri: item }}
-                      style={styles.ImageFactors}
-                    />
-                  ))}
-                </View>
+              <View style={{ flexDirection: "column" }}>
+                <Text
+                  style={{
+                    fontSize: fontSize.md,
+                    fontWeight: "bold",
+                    marginHorizontal: spacing.xxxl,
+                    marginBottom: spacing.xs,
+                  }}
+                >
+                  {selectedUser?.displayName}
+                </Text>
 
-                {allImages.length > 6 && (
-                  <TouchableOpacity
-                    onPress={() => setShowAllImages((prev) => !prev)}
+                <View
+                  style={{ flexDirection: "row", marginBottom: spacing.xs }}
+                >
+                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    <Text
+                      style={{
+                        marginLeft: spacing.xxxl,
+                        marginVertical: spacing.xs,
+                      }}
+                    >
+                      팔로워
+                    </Text>
+                    <Text
+                      style={{
+                        fontWeight: "bold",
+                        marginHorizontal: spacing.xs,
+                      }}
+                    >
+                      {selectedUser?.followerCnt}
+                    </Text>
+                  </View>
+
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                    }}
                   >
                     <Text
-                      style={{ color: colors.primary, marginTop: spacing.sm }}
+                      style={{
+                        marginLeft: spacing.xxxl,
+                        marginVertical: spacing.xs,
+                      }}
                     >
-                      {showAllImages ? "접기" : "더보기"}
+                      팔로잉
+                    </Text>
+                    <Text
+                      style={{
+                        fontWeight: "bold",
+                        marginHorizontal: spacing.xs,
+                      }}
+                    >
+                      {selectedUser?.followingCnt}
+                    </Text>
+                  </View>
+                </View>
+
+                {user && selectedUser?.id !== user.uid && (
+                  <TouchableOpacity
+                    style={
+                      followingMap[selectedUser?.id]
+                        ? styles.unfollowBtn
+                        : styles.followBtn
+                    }
+                    onPress={() =>
+                      FollowUser({
+                        user,
+                        targetUser: {
+                          id: selectedUser.id,
+                          displayName: selectedUser.displayName,
+                          photoURL: selectedUser.photoURL,
+                        },
+                        isFollowing: !!followingMap[selectedUser.id],
+                        expireAt,
+                      })
+                    }
+                  >
+                    <Text
+                      style={
+                        followingMap[userId]
+                          ? styles.unfollowBtnText
+                          : styles.followBtnText
+                      }
+                    >
+                      {followingMap[selectedUser.id] ? "언팔로우" : "팔로우"}
                     </Text>
                   </TouchableOpacity>
                 )}
               </View>
-            ) : (
-              <View>
-                <Text
-                  style={{
-                    fontSize: fontSize.sm,
-                    fontWeight: "bold",
-                    color: colors.lightGray,
-                    marginVertical: spacing.xl,
-                  }}
-                >
-                  사진이 없습니다.
-                </Text>
-              </View>
-            )}
-          </View>
-
-          {/* 후기 */}
-          <View style={styles.reviewContainer}>
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Text style={{ fontSize: fontSize.md, fontWeight: "bold" }}>
-                후기
-              </Text>
-              <Text
-                style={{
-                  fontSize: fontSize.sm,
-                  fontWeight: "light",
-                  color: colors.primary,
-                  marginLeft: spacing.xs,
-                }}
-              >
-                {review.length}
-              </Text>
             </View>
 
-            {review?.length > 0 ? (
-              <View style={{ flexDirection: "row" }}>
-                <FlatList
-                  data={reviewPreview}
-                  keyExtractor={(item) => item.seq}
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  renderItem={({ item }) => (
-                    <View>
-                      <ImageBackground
-                        source={{ uri: item.image }}
-                        style={styles.reviewImage}
-                      />
-                      <Text
-                        numberOfLines={2}
-                        style={{
-                          width: 180,
-                          fontSize: fontSize.sm,
-                          color: colors.gray,
-                          textAlign: "center",
-                          alignSelf: "center",
-                        }}
-                      >
-                        {item.title}
-                      </Text>
-                    </View>
-                  )}
-                />
+            {/* 사진 */}
+            <View style={styles.ImageContainer}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  marginBottom: spacing.sm,
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: fontSize.md,
+                    fontWeight: "bold",
+                  }}
+                >
+                  사진
+                </Text>
+                <Text
+                  style={{
+                    fontSize: spacing.md,
+                    fontWeight: "light",
+                    color: colors.primary,
+                    marginLeft: spacing.xs,
+                  }}
+                >
+                  {allImages.length}
+                </Text>
               </View>
-            ) : (
-              <View>
+
+              {allImages.length > 0 ? (
+                <View>
+                  <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
+                    {visibleImages.map((item, index) => (
+                      <ImageBackground
+                        key={index}
+                        source={{ uri: item }}
+                        style={styles.ImageFactors}
+                      />
+                    ))}
+                  </View>
+
+                  {allImages.length > 6 && (
+                    <TouchableOpacity
+                      onPress={() => setShowAllImages((prev) => !prev)}
+                    >
+                      <Text
+                        style={{ color: colors.primary, marginTop: spacing.sm }}
+                      >
+                        {showAllImages ? "접기" : "더보기"}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              ) : (
+                <View>
+                  <Text
+                    style={{
+                      fontSize: fontSize.sm,
+                      fontWeight: "bold",
+                      color: colors.lightGray,
+                      marginVertical: spacing.xl,
+                    }}
+                  >
+                    사진이 없습니다.
+                  </Text>
+                </View>
+              )}
+            </View>
+
+            {/* 후기 */}
+            <View style={styles.reviewContainer}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  marginBottom: spacing.sm,
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: fontSize.md,
+                    fontWeight: "bold",
+                  }}
+                >
+                  후기
+                </Text>
                 <Text
                   style={{
                     fontSize: fontSize.sm,
-                    fontWeight: "bold",
-                    color: colors.lightGray,
-                    marginVertical: spacing.xl,
+                    fontWeight: "light",
+                    color: colors.primary,
+                    marginLeft: spacing.xs,
                   }}
                 >
-                  리뷰가 없습니다.
+                  {review.length}
                 </Text>
               </View>
-            )}
+
+              {review?.length > 0 ? (
+                <View style={{ flexDirection: "row" }}>
+                  <FlatList
+                    data={reviewPreview}
+                    keyExtractor={(item) => item.seq}
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    renderItem={({ item }) => (
+                      <View>
+                        <ImageBackground
+                          source={{ uri: item.image }}
+                          style={styles.reviewImage}
+                        />
+                        <Text
+                          numberOfLines={2}
+                          style={{
+                            width: 180,
+                            fontSize: fontSize.sm,
+                            color: colors.gray,
+                            textAlign: "center",
+                            alignSelf: "center",
+                          }}
+                        >
+                          {item.title}
+                        </Text>
+                      </View>
+                    )}
+                  />
+                </View>
+              ) : (
+                <View>
+                  <Text
+                    style={{
+                      fontSize: fontSize.sm,
+                      fontWeight: "bold",
+                      color: colors.lightGray,
+                      marginVertical: spacing.xl,
+                    }}
+                  >
+                    리뷰가 없습니다.
+                  </Text>
+                </View>
+              )}
+            </View>
           </View>
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    backgroundColor: "transparent",
+    justifyContent: "center",
+    padding: spacing.sm,
+  },
   viewContainer: {
     flex: 1,
     width: "90%",

@@ -77,23 +77,27 @@ export default function PlacesScreen({ navigation }) {
         };
       })
       .filter(Boolean);
+    console.log(artworks[0]);
 
     const artworkMarkers = artworks
       .map((art) => {
-        const coords = getCoords(null, art);
-        if (!coords) return null;
+        const lat = Number(art?.location?.lat ?? art?.raw?.gpsY);
+        const lng = Number(art?.location?.lng ?? art?.raw?.gpsX);
+
+        if (!lat || !lng) return null;
 
         return {
-          ...coords,
+          latitude: lat,
+          longitude: lng,
           title: art.title,
-          seq: art.seq,
+          seq: art.id, // 🔥 중요 (art.seq 아님)
           type: "artwork",
         };
       })
       .filter(Boolean);
 
     const markers = [...placeMarkers, ...artworkMarkers];
-    // console.log("markers:", markers[0]);
+    // console.log("markers:", markers);
 
     navigation.getParent()?.navigate("AllMap", {
       markers,

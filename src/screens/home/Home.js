@@ -177,7 +177,6 @@ export default function Home({ navigation }) {
       }}
     >
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        {/* <TouchableOpacity style={styles.container}> */}
         <View style={styles.container}>
           <TouchableOpacity
             style={{
