@@ -3,6 +3,7 @@
 <img width="100%" alt="Top-Bar" src="https://github.com/JESin10/ArtMate/assets/119720123/cbeac7bc-7d28-4814-a172-a0091b069357">
 
 ~ 26.03.29 / 총 37일 Commit
+리팩토링 : 4/15, 20, 21, 22, 25, 26 (총 6일 진행)
 
 (구현 시 최소 1일 1commit 하였기에 총 commit 일수로 표시하였습니다.)
 
@@ -29,6 +30,18 @@ Notion URL
 
 유저간의 팔로우, 좋아요, 댓글과 같은 상호작용이 가능하며, 팔로잉과 좋아요의 경우 상호 작용을 위해 알림을 전달하고 있습니다.
 
+단순히 문화예술 정보 제공 서비스가 아닌 사용자간의 콘텐츠 생성, 상호작용이 가능한 구조로 개발하고자 하였습니다.
+
+
+## 📌 서비스 아키텍쳐
+
+- Service Layer : Firebase 및 API 호출을 service로 분리해 제어하고, 재사용성과 테스트 가능성 확보
+
+- Custom Hooks  : 데이터 흐름에따라 자주 사용되는 함수를 hook으로 분리해 컴포넌트 단순화
+
+- Zustand Store : 단순히 state에서 그치지않고, 전역 상태를 사용해 보다 간결하게 관리하고 props drilling 방지
+  
+  
 ## 📌 기술 스택
 
 FrontEnd: React Native (Expo)
@@ -36,6 +49,7 @@ FrontEnd: React Native (Expo)
 Backend / DB : Firebase Firestore, Firebase Authentication
 
 Data : 공공 문화예술 API 활용 (XML 파싱)
+
 
 ## 📌 서비스 예시
 
@@ -129,7 +143,7 @@ Hook뿐 아니라 filter, modal, slider와 같은 각자의 기능을 따로하�
 ## ⚠️ Troubleshooting
 
 ### Firestore 실시간 데이터 중복 렌더링 문제
-- 원인: onSnapshot 구독 중복 발생
+- 원인: onSnapshot 중복 구독
 - 해결: useEffect cleanup 함수에서 unsubscribe 처리
 
 ### XML 파싱 데이터 구조 불일치
