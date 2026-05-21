@@ -1,4 +1,6 @@
-export const parseDateSafe = (dateStr) => {
+export const parseDateSafe = (
+  dateStr?: string | number | null
+): Date | null => {
   if (!dateStr) return null;
 
   const s = String(dateStr).trim();
@@ -12,20 +14,25 @@ export const parseDateSafe = (dateStr) => {
   }
 
   const normalized = s.replace(/\./g, "-").slice(0, 10);
+
   const d = new Date(normalized);
 
   return isNaN(d.getTime()) ? null : d;
 };
 
-  // 날짜 문자열을 'YYYY년 M월 D일' 형식으로 변환
-export const formatDate = (dateStr) => {
+// 날짜 문자열을 'YYYY년 M월 D일' 형식으로 변환
+export const formatDate = (
+  dateStr?: string | number | null
+): string => {
   if (!dateStr) return "";
 
   const s = String(dateStr).trim();
 
   if (/^\d{8}$/.test(s)) {
     const year = s.slice(0, 4);
+
     const month = Number(s.slice(4, 6));
+
     const day = Number(s.slice(6, 8));
 
     return `${year}년 ${month}월 ${day}일`;

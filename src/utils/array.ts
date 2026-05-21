@@ -1,4 +1,7 @@
-export const getRandomItems = (array, count) => {
+export const getRandomItems = <T>(
+  array: T[],
+  count: number
+): T[] => {
   const shuffled = [...array];
 
   for (let i = shuffled.length - 1; i > 0; i--) {
@@ -10,14 +13,19 @@ export const getRandomItems = (array, count) => {
   return shuffled.slice(0, count);
 };
 
-export const groupByKey = (items, key) => {
+export const groupByKey = <T extends Record<string, any>>(
+  items: T[],
+  key: keyof T
+): Record<string, T[]> => {
   return items.reduce((acc, item) => {
-    const value = item[key];
+    const value = String(item[key]);
 
-    if (!acc[value]) acc[value] = [];
+    if (!acc[value]) {
+      acc[value] = [];
+    }
 
     acc[value].push(item);
 
     return acc;
-  }, {});
+  }, {} as Record<string, T[]>);
 };
