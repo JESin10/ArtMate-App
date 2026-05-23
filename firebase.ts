@@ -1,10 +1,20 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { initializeApp } from "firebase/app";
-import { initializeAuth, getReactNativePersistence } from "firebase/auth";
+import { getReactNativePersistence, initializeAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const firebaseConfig = {
+interface FirebaseInitialization {
+  apiKey: string;
+  authDomain: string;
+  projectId: string;
+  storageBucket: string;
+  messagingSenderId: string;
+  appId: string;
+  measurementId: string;
+}
+
+const firebaseConfig: FirebaseInitialization = {
   apiKey: "AIzaSyAIYLEU2fecfYvbco7S2eHIorocm_bg0Vw",
   authDomain: "art-mate-app.firebaseapp.com",
   projectId: "art-mate-app",

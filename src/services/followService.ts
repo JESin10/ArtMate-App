@@ -1,3 +1,4 @@
+import { User } from "firebase/auth";
 import {
   addDoc,
   collection,
@@ -14,12 +15,21 @@ import {
 import { Alert } from "react-native";
 import { db } from "../../firebase";
 
+interface FollowUserParams {
+  user: User;
+  targetUser: {
+    id: string;
+  };
+  isFollowing: boolean;
+  expireAt: Date;
+}
+
 export const FollowUser = async ({
-  user,
+   user,
   targetUser,
   isFollowing,
   expireAt,
-}) => {
+}: FollowUserParams):Promise<void> => {
   const targetUserId = targetUser.id;
 
   const followingRef = doc(db, "users", user.uid, "following", targetUserId);
@@ -72,7 +82,7 @@ export const FollowUser = async ({
   }
 };
 
-export const deleteFollowNotification = async (targetUserId, currentUserId) => {
+export const deleteFollowNotification = async (targetUserId:string, currentUserId:string): Promise<void> => {
   try {
     const q = query(
       collection(db, "users", targetUserId, "notifications"),
@@ -85,7 +95,7 @@ export const deleteFollowNotification = async (targetUserId, currentUserId) => {
     const promises = snapshot.docs.map((docSnap) => deleteDoc(docSnap.ref));
 
     await Promise.all(promises);
-  } catch (error) {
+  } catch (error:any) {
     Alert.alert(error.code, error.message);
   }
 };

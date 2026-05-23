@@ -1,8 +1,18 @@
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../firebase";
 
+interface UserData {
+  displayName?: string;
+  photoURL?: string;
+}
+
+interface RecommendedUser extends UserData {
+  id: string;
+  isFollowing: boolean;
+}
+
 // 내가 팔로우한 유저 ID 리스트
-export const getMyFollowingIds = async (userId) => {
+export const getMyFollowingIds = async (userId:string): Promise<string[]> => {
   if (!userId) return [];
 
   const snapshot = await getDocs(collection(db, "users", userId, "following"));
@@ -11,18 +21,18 @@ export const getMyFollowingIds = async (userId) => {
 };
 
 // 추천 유저 가져오기 (기존 Home 로직 100% 반영)
-export const getRecommendedUsers = async (userId) => {
+export const getRecommendedUsers = async (userId:string): Promise<RecommendedUser[]> => { 
   try {
     const myFollowingIds = await getMyFollowingIds(userId);
 
     const querySnapshot = await getDocs(collection(db, "users"));
 
-    const users = [];
+    const users: RecommendedUser[] = [];
 
     querySnapshot.forEach((doc) => {
       users.push({
         id: doc.id,
-        ...doc.data(),
+        ...(doc.data() as UserData),
       });
     });
 
@@ -42,7 +52,7 @@ export const getRecommendedUsers = async (userId) => {
     }));
 
     return usersWithFollowState;
-  } catch (error) {
+  } catch (error: any) {
     console.error("추천 유저 불러오기 오류:", error);
     return [];
   }

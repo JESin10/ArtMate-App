@@ -1,12 +1,46 @@
 import { create } from "zustand";
 import { fetchDetailPlace } from "../services/placeService";
+import { DetailPlace, Place } from "../types/place";
 import { xmlParser } from "../utils/xmlParser";
 
-export const usePlaceStore = create((set, get) => ({
+interface PlaceStore {
+  gallery: Place[];
+  detail: DetailPlace | null;
+  details: Record<string, DetailPlace>;
+  loading: boolean;
+  isFetchingMore: boolean;
+  hasMore: boolean;
+  pageNum: number;
+  userLocation: {
+    lat: number;
+    lng: number;
+  } | null;
+
+  setGallery: (value: Place[] | ((prev: Place[]) => Place[])) => void;
+  setDetail: (value: DetailPlace | null) => void;
+  setDetails: (
+    value:
+      | Record<string, DetailPlace>
+      | ((prev: Record<string, DetailPlace>) => Record<string, DetailPlace>),
+  ) => void;
+  setLoading: (value: boolean) => void;
+  setIsFetchingMore: (value: boolean) => void;
+  setHasMore: (value: boolean) => void;
+  setPageNum: (value: number) => void;
+
+  setUserLocation: (
+    value: {
+      lat: number;
+      lng: number;
+    } | null,
+  ) => void;
+
+  getDetailPlace: (seq: string) => Promise<void>;
+}
+export const usePlaceStore = create<PlaceStore>((set) => ({
   gallery: [],
   detail: null,
-  details: {},
-
+  details: {} as Record<string, DetailPlace>,
   loading: false,
   isFetchingMore: false,
   hasMore: true,
@@ -36,8 +70,7 @@ export const usePlaceStore = create((set, get) => ({
     try {
       const xmlText = await fetchDetailPlace(seq);
       const json = xmlParser(xmlText);
-      const item = json?.response?.body?.items?.item || null;
-
+      const item = json?.response?.body?.items?.item as DetailPlace | null;
       set({ detail: item });
     } catch (error) {
       console.error("상세 정보 오류:", error);

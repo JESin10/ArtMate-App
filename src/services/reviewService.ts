@@ -10,13 +10,27 @@ import { useState } from "react";
 import { Alert } from "react-native";
 import { db, storage } from "../../firebase";
 
-export const reviewService = (userId, seq) => {
-  const [isLoading, setIsLoading] = useState(false);
+interface ImageAsset {
+  uri: string;
+}
 
-  const uploadImages = async (images) => {
+interface ReviewBlankData { 
+  title:string, 
+  content:string,
+  rating:number,
+  visitedDate:Date,
+  images:ImageAsset[],
+  displayName:string,
+  photoURL:string,
+}
+
+export const reviewService = (userId:string, seq:string) => {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const uploadImages = async (images:ImageAsset[]): Promise<string[]> => {
     if (!userId) throw new Error("User ID 없음");
 
-    const uploadedUrls = [];
+    const uploadedUrls: string[] = [];
 
     for (let i = 0; i < images.length; i++) {
       const asset = images[i];
@@ -36,7 +50,7 @@ export const reviewService = (userId, seq) => {
 
         const downloadURL = await getDownloadURL(storageRef);
         uploadedUrls.push(downloadURL);
-      } catch (error) {
+      } catch (error:any) {
         Alert.alert(error.code, error.message);
       }
     }
@@ -52,7 +66,8 @@ export const reviewService = (userId, seq) => {
     images,
     displayName,
     photoURL,
-  }) => {
+  }: ReviewBlankData)
+  : Promise<string> => {
     if (!userId || !seq) throw new Error("userId 또는 artworkId 없음");
 
     setIsLoading(true);
