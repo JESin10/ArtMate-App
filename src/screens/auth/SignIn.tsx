@@ -1,7 +1,9 @@
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { useContext, useState } from "react";
 import {
+  Alert,
   ScrollView,
   StyleSheet,
   Text,
@@ -15,9 +17,11 @@ import Mainlogo from "../../assets/icons/logo-main.svg";
 import MainSlogun from "../../assets/images/slogan.svg";
 import { useKakaoLogin } from "../../hooks/useKakaoLogin";
 import { AuthContext } from "../../store/context";
-
 import { colors } from "../../styles/colors";
 import { fontSize, radius, spacing } from "../../styles/theme";
+import { RootStackParamList } from "../../types/navigation";
+
+type Props = NativeStackScreenProps<RootStackParamList, "SignIn">;
 
 // WebBrowser.maybeCompleteAuthSession();
 
@@ -26,44 +30,46 @@ import { fontSize, radius, spacing } from "../../styles/theme";
 // });
 // console.log("redirectUri:", redirectUri);
 
-export default function SignIn({ navigation }) {
-  const [userId, setUserId] = useState("");
-  const [userPw, setUserPw] = useState("");
-  const [userName, setUserName] = useState("");
-  const { setUser } = useContext(AuthContext);
+export default function SignIn({ navigation }: Props) {
+  const [userId, setUserId] = useState<string>("");
+  const [userPw, setUserPw] = useState<string>("");
+  const authContext = useContext(AuthContext);
+  if (!authContext) {
+    throw new Error("AuthContext 없음");
+  }
+  const { setUser } = authContext;
   const { promptAsync, request } = useKakaoLogin({
     setUser,
     navigation,
   });
 
   //일반 로그인
-  const login = async () => {
+  const login = async (): Promise<void> => {
     try {
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        userId,
-        userPw,
-      );
-
+      const userCredential = await signInWithEmailAndPassword(auth, userId, userPw);
       const uid = userCredential.user.uid;
-
       const userDoc = await getDoc(doc(db, "users", uid));
 
       if (userDoc.exists()) {
         const userData = userDoc.data();
-        setUser({
-          uid,
-          email: userData.email,
-          displayName: userData.displayName,
-          followerCnt: userData.followerCnt,
-          followingCnt: userData.followingCnt,
-          photoURL: userData.photoURL,
-          createdAt: userData.createdAt,
-        });
+        // setUser({
+        //   uid,
+        //   email: userData.email,
+        //   displayName: userData.displayName,
+        //   followerCnt: userData.followerCnt,
+        //   followingCnt: userData.followingCnt,
+        //   photoURL: userData.photoURL,
+        //   createdAt: userData.createdAt,
+        // } as CreateUserPayload);
+        setUser(userCredential.user);
       }
       navigation.navigate("Bottom", { screen: "Home" });
-    } catch (error) {
-      console.log(error);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        Alert.alert("오류", error.message);
+      } else {
+        Alert.alert("오류", "알 수 없는 오류");
+      }
     }
   };
 
@@ -99,22 +105,24 @@ export default function SignIn({ navigation }) {
               <TextInput
                 style={styles.input}
                 placeholder="아이디"
+                placeholderTextColor={colors.placeholder}
                 autoCapitalize="none"
                 autoCorrect={false}
-                textContentType="id"
+                textContentType="emailAddress"
                 value={userId}
-                onChangeText={(text) => setUserId(text)}
+                onChangeText={(text: string) => setUserId(text)}
                 keyboardType="email-address"
               />
               <TextInput
                 style={styles.input}
                 placeholder="비밀번호"
+                placeholderTextColor={colors.placeholder}
                 autoCapitalize="none"
                 autoCorrect={false}
                 secureTextEntry={true}
                 textContentType="password"
                 value={userPw}
-                onChangeText={(text) => setUserPw(text)}
+                onChangeText={(text: string) => setUserPw(text)}
               />
               <TouchableOpacity style={styles.button} onPress={login}>
                 <Text style={{ color: colors.white }}>로그인</Text>
@@ -122,9 +130,6 @@ export default function SignIn({ navigation }) {
             </View>
           </View>
           <View style={styles.findContainer}>
-            {/* <TouchableOpacity onPress={() => navigation.navigate("AccFind")}>
-              <Text style={styles.findFactor}>ID 찾기</Text>
-            </TouchableOpacity> */}
             <TouchableOpacity onPress={() => navigation.navigate("AccFind")}>
               <Text style={styles.findFactor}>PW 찾기</Text>
             </TouchableOpacity>
@@ -221,7 +226,6 @@ const styles = StyleSheet.create({
     padding: spacing.sm,
     marginBottom: spacing.sm,
     textAlign: "center",
-    placeholderTextColor: colors.placeholder,
   },
   inputContainer: {
     width: "100%",
@@ -246,7 +250,7 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     fontWeight: "bold",
     alignItems: "center",
-    flexDirection: "center",
+    justifyContent: "center",
   },
   decoLine: {
     width: "80%",

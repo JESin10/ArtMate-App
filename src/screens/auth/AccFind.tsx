@@ -1,6 +1,7 @@
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { sendPasswordResetEmail } from "firebase/auth";
 import { collection, getDocs, query, where } from "firebase/firestore";
-import { useContext, useState } from "react";
+import { useState } from "react";
 import {
   Alert,
   ScrollView,
@@ -14,17 +15,16 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { auth, db } from "../../../firebase";
 import Mainlogo from "../../assets/icons/logo-main.svg";
 import MainSlogun from "../../assets/images/slogan.svg";
-import { AuthContext } from "../../store/context";
 import { colors } from "../../styles/colors";
 import { fontSize, radius, spacing } from "../../styles/theme";
+import { RootStackParamList } from "../../types/navigation";
 
-export default function AccFind({ navigation }) {
-  const [userId, setUserId] = useState("");
-  const [userPw, setUserPw] = useState("");
-  const [userName, setUserName] = useState("");
-  const { setUser } = useContext(AuthContext);
+type Props = NativeStackScreenProps<RootStackParamList, "AccFind">;
 
-  const findPassword = async () => {
+export default function AccFind({ navigation }: Props) {
+  const [userId, setUserId] = useState<string>("");
+
+  const findPassword = async (): Promise<void> => {
     if (!userId) {
       Alert.alert("안내", "비밀번호를 찾을 이메일을 입력해주세요.");
       return;
@@ -44,8 +44,12 @@ export default function AccFind({ navigation }) {
       // Firebase Auth에서 비밀번호 재설정 이메일 발송
       await sendPasswordResetEmail(auth, userId);
       Alert.alert("안내", "입력한 이메일로 비밀번호 재설정 링크를 보냈습니다.");
-    } catch (error) {
-      Alert.alert("오류", error.message || "오류가 발생했습니다.");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        Alert.alert("오류", error.message);
+      } else {
+        Alert.alert("오류", "알 수 없는 오류");
+      }
     }
   };
 
@@ -81,11 +85,12 @@ export default function AccFind({ navigation }) {
               <TextInput
                 style={styles.input}
                 placeholder="아이디"
+                placeholderTextColor={colors.placeholder}
                 autoCapitalize="none"
                 autoCorrect={false}
-                textContentType="id"
+                textContentType="emailAddress"
                 value={userId}
-                onChangeText={(text) => setUserId(text)}
+                onChangeText={(text: string) => setUserId(text)}
                 keyboardType="email-address"
               />
               <TouchableOpacity style={styles.button} onPress={findPassword}>
@@ -190,7 +195,6 @@ const styles = StyleSheet.create({
     padding: spacing.sm,
     marginBottom: spacing.sm,
     textAlign: "center",
-    placeholderTextColor: colors.placeholder,
   },
   inputContainer: {
     width: "100%",
@@ -215,7 +219,7 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     fontWeight: "bold",
     alignItems: "center",
-    flexDirection: "center",
+    justifyContent: "center",
   },
   decoLine: {
     width: "80%",
@@ -236,7 +240,7 @@ const styles = StyleSheet.create({
   findFactor: {
     color: colors.gray,
     fontSize: fontSize.sm,
-    fontWeight: "semibold",
+    fontWeight: "600",
     marginBottom: spacing.xl,
   },
 });

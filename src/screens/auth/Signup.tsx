@@ -1,13 +1,12 @@
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import * as ImagePicker from "expo-image-picker";
-import {
-  createUserWithEmailAndPassword,
-  fetchSignInMethodsForEmail,
-} from "firebase/auth";
+import { createUserWithEmailAndPassword, fetchSignInMethodsForEmail } from "firebase/auth";
 import {
   collection,
   doc,
   getDocs,
   query,
+  serverTimestamp,
   setDoc,
   where,
 } from "firebase/firestore";
@@ -29,14 +28,17 @@ import Mainlogo from "../../assets/icons/logo-main.svg";
 import MainSlogun from "../../assets/images/slogan.svg";
 import { colors } from "../../styles/colors";
 import { fontSize, radius, spacing } from "../../styles/theme";
+import { RootStackParamList } from "../../types/navigation";
+import { CreateUserPayload } from "../../types/user";
 
-export default function Signup({ navigation }) {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [passwordCheck, setPasswordCheck] = useState("");
-  const [isUser, setIsUser] = useState(false);
-  const [profileImage, setProfileImage] = useState(null);
+type Props = NativeStackScreenProps<RootStackParamList, "Signup">;
+
+export default function Signup({ navigation }: Props) {
+  const [name, setName] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [passwordCheck, setPasswordCheck] = useState<string>("");
+  const [profileImage, setProfileImage] = useState<string | null>(null);
 
   const pickImage = async () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -57,12 +59,9 @@ export default function Signup({ navigation }) {
     }
   };
 
-  const onCheckEmail = async (email) => {
+  const onCheckEmail = async (email: string): Promise<boolean> => {
     try {
-      const q = query(
-        collection(db, "users"),
-        where("email", "==", email.trim().toLowerCase()),
-      );
+      const q = query(collection(db, "users"), where("email", "==", email.trim().toLowerCase()));
 
       const querySnapshot = await getDocs(q);
 
@@ -73,13 +72,13 @@ export default function Signup({ navigation }) {
         Alert.alert("안내", "가입 가능한 이메일입니다.");
         return true; // 사용 가능
       }
-    } catch (error) {
+    } catch (error: any) {
       Alert.alert("오류", "이메일 확인에 실패했습니다.");
       return false;
     }
   };
 
-  const onSignup = async () => {
+  const onSignup = async (): Promise<void> => {
     // 필수 입력 체크
     if (!email || !password || !passwordCheck || !name) {
       Alert.alert("안내", "모든 필드를 입력해주세요.");
@@ -87,13 +86,9 @@ export default function Signup({ navigation }) {
     }
 
     // 비밀번호 조건 체크 (8자 이상, 문자+숫자+특수문자)
-    const passwordRegex =
-      /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+~`|}{[\]:;?><,./-]).{8,}$/;
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+~`|}{[\]:;?><,./-]).{8,}$/;
     if (!passwordRegex.test(password)) {
-      Alert.alert(
-        "안내",
-        "비밀번호는 8자 이상이며, 문자, 숫자, 특수문자를 포함해야 합니다.",
-      );
+      Alert.alert("안내", "비밀번호는 8자 이상이며, 문자, 숫자, 특수문자를 포함해야 합니다.");
       return;
     }
 
@@ -112,14 +107,10 @@ export default function Signup({ navigation }) {
       }
 
       // 회원가입 로직
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password,
-      );
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      let photoURL = null;
+      let photoURL: string | null = null;
       if (profileImage) {
         const response = await fetch(profileImage);
         const blob = await response.blob();
@@ -132,16 +123,19 @@ export default function Signup({ navigation }) {
         displayName: name,
         email,
         uid: user.uid,
-        createdAt: new Date().toUTCString(),
+        createdAt: serverTimestamp(),
         followingCnt: 0,
         followerCnt: 0,
         photoURL,
-      });
-
+      } as CreateUserPayload);
       Alert.alert("안내", "회원가입이 완료되었습니다.");
       navigation.navigate("Login");
-    } catch (error) {
-      Alert.alert("오류", error.message || String(error));
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        Alert.alert("오류", error.message);
+      } else {
+        Alert.alert("오류", "알 수 없는 오류");
+      }
     }
   };
 
@@ -164,21 +158,20 @@ export default function Signup({ navigation }) {
             <Mainlogo width={240} height={100} />
             <MainSlogun width={220} height={30} />
           </TouchableOpacity>
-
           <View style={styles.inputContainer}>
             <TouchableOpacity onPress={pickImage} style={styles.profilePicker}>
-              <Image
-                source={{ uri: profileImage }}
-                style={styles.profileImage}
-              />
-              <Text style={{ color: colors.primary, marginTop: spacing.xs }}>
-                프로필 사진 선택
-              </Text>
+              {profileImage ? (
+                <Image source={{ uri: profileImage }} style={styles.profileImage} />
+              ) : (
+                <View style={styles.profileImage} />
+              )}
+              <Text style={{ color: colors.primary, marginTop: spacing.xs }}>프로필 사진 선택</Text>
             </TouchableOpacity>
             <View style={{ flexDirection: "row", justifyContent: "flex-end" }}>
               <TextInput
                 style={styles.EmailInput}
                 placeholder="이메일"
+                placeholderTextColor={colors.placeholder}
                 autoCapitalize="none"
                 keyboardType="email-address"
                 textContentType="emailAddress"
@@ -186,19 +179,15 @@ export default function Signup({ navigation }) {
                 value={email}
                 onChangeText={(text) => setEmail(text)}
               />
-              <TouchableOpacity
-                onPress={() => onCheckEmail(email)}
-                style={styles.EmailCheckBtn}
-              >
-                <Text style={{ color: colors.white, fontSize: fontSize.sm }}>
-                  확인
-                </Text>
+              <TouchableOpacity onPress={() => onCheckEmail(email)} style={styles.EmailCheckBtn}>
+                <Text style={{ color: colors.white, fontSize: fontSize.sm }}>확인</Text>
               </TouchableOpacity>
             </View>
 
             <TextInput
               style={styles.input}
               placeholder="닉네임(한/영/숫자/기호/2-10자)"
+              placeholderTextColor={colors.placeholder}
               autoCapitalize="none"
               autoCorrect={false}
               textContentType="name"
@@ -208,6 +197,7 @@ export default function Signup({ navigation }) {
             <TextInput
               style={styles.input}
               placeholder="비밀번호 문자+숫자+특수문자 포함 8자이상"
+              placeholderTextColor={colors.placeholder}
               autoCapitalize="none"
               autoCorrect={false}
               secureTextEntry={true}
@@ -219,6 +209,7 @@ export default function Signup({ navigation }) {
             <TextInput
               style={styles.input}
               placeholder="비밀번호 확인 문자+숫자+특수문자 포함 8자이상"
+              placeholderTextColor={colors.placeholder}
               autoCapitalize="none"
               autoCorrect={false}
               secureTextEntry={true}
@@ -227,14 +218,9 @@ export default function Signup({ navigation }) {
               onChangeText={(text) => setPasswordCheck(text)}
             />
             <TouchableOpacity style={styles.button} onPress={onSignup}>
-              <Text style={{ color: colors.white, fontWeight: "bold" }}>
-                회원가입
-              </Text>
+              <Text style={{ color: colors.white, fontWeight: "bold" }}>회원가입</Text>
             </TouchableOpacity>
             <View style={styles.findContainer}>
-              {/* <TouchableOpacity>
-                <Text style={styles.findFactor}>ID 찾기</Text>
-              </TouchableOpacity> */}
               <TouchableOpacity onPress={() => navigation.navigate("AccFind")}>
                 <Text style={styles.findFactor}>PW 찾기</Text>
               </TouchableOpacity>
@@ -334,7 +320,6 @@ const styles = StyleSheet.create({
     padding: spacing.sm,
     marginBottom: spacing.sm,
     textAlign: "center",
-    placeholderTextColor: colors.placeholder,
     fontSize: fontSize.sm,
   },
   EmailInput: {
@@ -347,7 +332,6 @@ const styles = StyleSheet.create({
     padding: spacing.sm,
     marginBottom: spacing.sm,
     textAlign: "center",
-    placeholderTextColor: colors.placeholder,
     fontSize: fontSize.sm,
     marginRight: spacing.sm,
   },
@@ -388,7 +372,7 @@ const styles = StyleSheet.create({
   findFactor: {
     color: colors.gray,
     fontSize: fontSize.sm,
-    fontWeight: "semibold",
+    fontWeight: "600",
     marginBottom: spacing.sm,
   },
   decoLine: {
@@ -409,7 +393,7 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     fontWeight: "bold",
     alignItems: "center",
-    flexDirection: "center",
+    justifyContent: "center",
   },
   profilePicker: {
     alignItems: "center",
