@@ -1,21 +1,6 @@
-import {
-  collection,
-  doc,
-  onSnapshot,
-  query,
-  Timestamp,
-  where,
-} from "firebase/firestore";
+import { collection, doc, onSnapshot, query, Timestamp, where } from "firebase/firestore";
 import { useContext, useEffect, useState } from "react";
-import {
-  FlatList,
-  ImageBackground,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { FlatList, ImageBackground, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { db } from "../../../firebase";
 import BackwardIcon from "../../assets/icons/backward.svg";
@@ -25,25 +10,33 @@ import { FollowUser } from "../../services/followService";
 import { AuthContext } from "../../store/context";
 import { useUserStore } from "../../store/useUserStore";
 import { colors } from "../../styles/colors";
-import { fontSize, radius, spacing } from "../../styles/theme";
+import { fontSize, spacing } from "../../styles/theme";
+import { RootStackScreenProps } from "../../types/navigation";
+import { ReviewPayload } from "../../types/review";
+import { SelectedUser } from "../../types/user";
+import styles from "./profileStyles";
 
-export default function Profile({ route, navigation }) {
-  const { user, setUser } = useContext(AuthContext);
+type Props = RootStackScreenProps<"Profile">;
+
+export default function Profile({ route, navigation }: Props) {
+  const authContext = useContext(AuthContext);
+  if (!authContext) {
+    throw new Error("AuthContext is not available");
+  }
+  const { user } = authContext;
   const { followingMap, setFollowingMap, setFollowerMap } = useUserStore();
-  const [selectedUser, setSelectedUser] = useState([]);
-  const [showAllImages, setShowAllImages] = useState(false);
-  const [review, setReview] = useState([]);
+  const [selectedUser, setSelectedUser] = useState<SelectedUser | null>(null);
+  const [showAllImages, setShowAllImages] = useState<boolean>(false);
+  const [review, setReview] = useState<ReviewPayload[]>([]);
   const { userId } = route.params;
   const allImages = review.flatMap((r) => r.images || []);
-  const reviewPreview = review.map((r) => ({
+  const reviewPreview: { image?: string; title: string }[] = review.map((r) => ({
     image: r.images?.[0],
     title: r.title,
   }));
   const visibleImages = showAllImages ? allImages : allImages.slice(0, 6);
   const now = Timestamp.now();
-  const expireAt = Timestamp.fromMillis(
-    now.toMillis() + 7 * 24 * 60 * 60 * 1000,
-  );
+  const expireAt = Timestamp.fromMillis(now.toMillis() + 7 * 24 * 60 * 60 * 1000);
 
   //팔로잉 팔로워 구독
   useEffect(() => {
@@ -52,21 +45,18 @@ export default function Profile({ route, navigation }) {
     // 팔로워 구독
     const followersRef = collection(db, "users", user.uid, "followers");
     const unsubscribeFollowers = onSnapshot(followersRef, (snapshot) => {
-      const follower = {};
+      const follower: Record<string, boolean> = {};
       // 컬렉션 문서 개수 = 팔로워 수
-      snapshot.docs.forEach((doc) => {
-        follower[doc.id] = true;
+      snapshot.docs.forEach((docSnap) => {
+        follower[docSnap.id] = true;
       });
       setFollowerMap(follower);
     });
 
-    console.log(selectedUser);
-    console.log("followingMap", followingMap);
-
     // 팔로잉 구독
     const followingRef = collection(db, "users", user.uid, "following");
     const unsubscribeFollowing = onSnapshot(followingRef, (snapshot) => {
-      const following = {};
+      const following: Record<string, boolean> = {};
       snapshot.docs.forEach((doc) => {
         following[doc.id] = true;
       });
@@ -107,11 +97,10 @@ export default function Profile({ route, navigation }) {
     const q = query(collection(db, "reviews"), where("userId", "==", userId));
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const reviews = snapshot.docs.map((doc) => ({
+      const reviews: ReviewPayload[] = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
-
       setReview(reviews);
     });
 
@@ -193,9 +182,7 @@ export default function Profile({ route, navigation }) {
                   {selectedUser?.displayName}
                 </Text>
 
-                <View
-                  style={{ flexDirection: "row", marginBottom: spacing.xs }}
-                >
+                <View style={{ flexDirection: "row", marginBottom: spacing.xs }}>
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
                     <Text
                       style={{
@@ -242,11 +229,7 @@ export default function Profile({ route, navigation }) {
 
                 {user && selectedUser?.id !== user.uid && (
                   <TouchableOpacity
-                    style={
-                      followingMap[selectedUser?.id]
-                        ? styles.unfollowBtn
-                        : styles.followBtn
-                    }
+                    style={followingMap[selectedUser?.id] ? styles.unfollowBtn : styles.followBtn}
                     onPress={() =>
                       FollowUser({
                         user,
@@ -261,11 +244,7 @@ export default function Profile({ route, navigation }) {
                     }
                   >
                     <Text
-                      style={
-                        followingMap[userId]
-                          ? styles.unfollowBtnText
-                          : styles.followBtnText
-                      }
+                      style={followingMap[userId] ? styles.unfollowBtnText : styles.followBtnText}
                     >
                       {followingMap[selectedUser.id] ? "언팔로우" : "팔로우"}
                     </Text>
@@ -294,7 +273,7 @@ export default function Profile({ route, navigation }) {
                 <Text
                   style={{
                     fontSize: spacing.md,
-                    fontWeight: "light",
+                    fontWeight: "300",
                     color: colors.primary,
                     marginLeft: spacing.xs,
                   }}
@@ -306,7 +285,7 @@ export default function Profile({ route, navigation }) {
               {allImages.length > 0 ? (
                 <View>
                   <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
-                    {visibleImages.map((item, index) => (
+                    {visibleImages.map((item: string, index: number) => (
                       <ImageBackground
                         key={index}
                         source={{ uri: item }}
@@ -314,14 +293,9 @@ export default function Profile({ route, navigation }) {
                       />
                     ))}
                   </View>
-
                   {allImages.length > 6 && (
-                    <TouchableOpacity
-                      onPress={() => setShowAllImages((prev) => !prev)}
-                    >
-                      <Text
-                        style={{ color: colors.primary, marginTop: spacing.sm }}
-                      >
+                    <TouchableOpacity onPress={() => setShowAllImages((prev) => !prev)}>
+                      <Text style={{ color: colors.primary, marginTop: spacing.sm }}>
                         {showAllImages ? "접기" : "더보기"}
                       </Text>
                     </TouchableOpacity>
@@ -363,7 +337,7 @@ export default function Profile({ route, navigation }) {
                 <Text
                   style={{
                     fontSize: fontSize.sm,
-                    fontWeight: "light",
+                    fontWeight: "300",
                     color: colors.primary,
                     marginLeft: spacing.xs,
                   }}
@@ -376,15 +350,12 @@ export default function Profile({ route, navigation }) {
                 <View style={{ flexDirection: "row" }}>
                   <FlatList
                     data={reviewPreview}
-                    keyExtractor={(item) => item.seq}
+                    keyExtractor={(_, index) => index.toString()}
                     horizontal
                     showsHorizontalScrollIndicator={false}
                     renderItem={({ item }) => (
                       <View>
-                        <ImageBackground
-                          source={{ uri: item.image }}
-                          style={styles.reviewImage}
-                        />
+                        <ImageBackground source={{ uri: item.image }} style={styles.reviewImage} />
                         <Text
                           numberOfLines={2}
                           style={{
@@ -422,115 +393,3 @@ export default function Profile({ route, navigation }) {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: "transparent",
-    justifyContent: "center",
-    padding: spacing.sm,
-  },
-  viewContainer: {
-    flex: 1,
-    width: "90%",
-    justifyContent: "center",
-    flexDirection: "column",
-    borderWidth: 1,
-    margin: "auto",
-  },
-  myInfoContainer: {
-    width: "90%",
-    height: "auto",
-    flexDirection: "column",
-    paddingVertical: spacing.lg,
-    marginVertical: spacing.lg,
-    marginHorizontal: "auto",
-  },
-  imageBackground: {
-    width: 80,
-    height: 80,
-    borderRadius: 100,
-    justifyContent: "center",
-    alignItems: "center",
-    overflow: "hidden",
-    borderWidth: 1,
-    borderColor: colors.lightGray,
-  },
-  tumbnail: {
-    width: 80,
-    height: 80,
-    resizeMode: "cover",
-  },
-  profileContainer: {
-    width: "100%",
-    flexDirection: "row",
-    margin: "auto",
-    justifyContent: "flex-start",
-    alignItems: "center",
-  },
-  followBtn: {
-    width: "80%",
-    marginLeft: spacing.xxxl,
-    paddingVertical: spacing.xs,
-    borderRadius: radius.md,
-    backgroundColor: colors.primary,
-  },
-  unfollowBtn: {
-    width: "80%",
-    marginLeft: spacing.xxxl,
-    paddingVertical: spacing.xs,
-    borderRadius: radius.md,
-    backgroundColor: colors.white,
-    borderWidth: 1,
-    borderColor: colors.primary,
-  },
-  followBtnText: {
-    color: colors.white,
-    fontWeight: "bold",
-    textAlign: "center",
-  },
-  unfollowBtnText: {
-    color: colors.primary,
-    fontWeight: "bold",
-    textAlign: "center",
-  },
-  ImageContainer: {
-    width: "100%",
-    height: "auto",
-    flexDirection: "column",
-    paddingVertical: spacing.lg,
-    marginVertical: spacing.xxl,
-    marginHorizontal: "auto",
-  },
-  ImageFactors: {
-    width: 100,
-    height: 100,
-    borderRadius: radius.md,
-    overflow: "hidden",
-    marginRight: spacing.xs,
-    marginVertical: spacing.sm,
-  },
-
-  reviewContainer: {
-    width: "100%",
-    height: "auto",
-    flexDirection: "column",
-    paddingVertical: spacing.lg,
-    marginVertical: spacing.xxl,
-    marginHorizontal: "auto",
-  },
-  reviewFactorContainer: {
-    borderWidth: 1,
-    marginRight: spacing.sm,
-    marginVertical: spacing.sm,
-    flexDirection: "column",
-    justifyContent: "center",
-  },
-  reviewImage: {
-    width: 220,
-    height: 150,
-    borderRadius: radius.md,
-    overflow: "hidden",
-    marginVertical: spacing.sm,
-    marginRight: spacing.xs,
-  },
-});

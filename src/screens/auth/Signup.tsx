@@ -1,4 +1,3 @@
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import * as ImagePicker from "expo-image-picker";
 import { createUserWithEmailAndPassword, fetchSignInMethodsForEmail } from "firebase/auth";
 import {
@@ -31,7 +30,7 @@ import { fontSize, radius, spacing } from "../../styles/theme";
 import { RootStackParamList } from "../../types/navigation";
 import { CreateUserPayload } from "../../types/user";
 
-type Props = NativeStackScreenProps<RootStackParamList, "Signup">;
+type Props = RootStackParamList<"Signup">;
 
 export default function Signup({ navigation }: Props) {
   const [name, setName] = useState<string>("");

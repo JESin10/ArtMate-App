@@ -1,4 +1,3 @@
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { sendPasswordResetEmail } from "firebase/auth";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { useState } from "react";
@@ -19,7 +18,7 @@ import { colors } from "../../styles/colors";
 import { fontSize, radius, spacing } from "../../styles/theme";
 import { RootStackParamList } from "../../types/navigation";
 
-type Props = NativeStackScreenProps<RootStackParamList, "AccFind">;
+type Props = RootStackParamList<"AccFind">;
 
 export default function AccFind({ navigation }: Props) {
   const [userId, setUserId] = useState<string>("");

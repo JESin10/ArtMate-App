@@ -1,9 +1,7 @@
-export type RootStackParamList = {
-  Signup: undefined;
-  Login: undefined;
-  AccFind: undefined;
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { RootStackParamList } from "./navigation";
 
-  Bottom: {
-    screen: string;
-  };
-};
+export type RootStackScreenProps<T extends keyof RootStackParamList> = NativeStackScreenProps<
+  RootStackParamList,
+  T
+>;

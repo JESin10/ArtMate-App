@@ -1,4 +1,4 @@
-export interface Review {
+export interface ReviewPayload {
   id: string;
 
   userId: string;

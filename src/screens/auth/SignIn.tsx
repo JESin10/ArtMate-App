@@ -1,4 +1,3 @@
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { useContext, useState } from "react";
@@ -21,7 +20,7 @@ import { colors } from "../../styles/colors";
 import { fontSize, radius, spacing } from "../../styles/theme";
 import { RootStackParamList } from "../../types/navigation";
 
-type Props = NativeStackScreenProps<RootStackParamList, "SignIn">;
+type Props = RootStackParamList<"SignIn">;
 
 // WebBrowser.maybeCompleteAuthSession();
 

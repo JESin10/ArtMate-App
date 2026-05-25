@@ -28,7 +28,7 @@ export const styles = StyleSheet.create({
   },
   subTitle: {
     fontSize: fontSize.xl,
-    fontWeight: "semibold",
+    fontWeight: "600",
     alignItems: "flex-start",
     width: "100%",
     paddingVertical: spacing.sm,

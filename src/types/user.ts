@@ -29,3 +29,20 @@ export interface LoginUser {
   photoURL: string | null;
   createdAt: string;
 }
+
+export interface SelectedUserPayload {
+  id: string;
+  displayName: string;
+  photoURL: string;
+  email: string;
+  followingCnt: number;
+  isFollowing: boolean;
+}
+
+export interface RecommendUserPayload {
+  id: string;
+  displayName: string;
+  photoURL: string;
+  email: string;
+  followingCnt: number;
+}

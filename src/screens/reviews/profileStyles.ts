@@ -1,0 +1,115 @@
+import { StyleSheet } from "react-native";
+import { colors } from "../../styles/colors";
+import { radius, spacing } from "../../styles/theme";
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: "transparent",
+    justifyContent: "center",
+    padding: spacing.sm,
+  },
+  viewContainer: {
+    flex: 1,
+    width: "90%",
+    justifyContent: "center",
+    flexDirection: "column",
+    borderWidth: 1,
+    margin: "auto",
+  },
+  myInfoContainer: {
+    width: "90%",
+    height: "auto",
+    flexDirection: "column",
+    paddingVertical: spacing.lg,
+    marginVertical: spacing.lg,
+    marginHorizontal: "auto",
+  },
+  imageBackground: {
+    width: 80,
+    height: 80,
+    borderRadius: 100,
+    justifyContent: "center",
+    alignItems: "center",
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: colors.lightGray,
+  },
+  tumbnail: {
+    width: 80,
+    height: 80,
+    resizeMode: "cover",
+  },
+  profileContainer: {
+    width: "100%",
+    flexDirection: "row",
+    margin: "auto",
+    justifyContent: "flex-start",
+    alignItems: "center",
+  },
+  followBtn: {
+    width: "80%",
+    marginLeft: spacing.xxxl,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.md,
+    backgroundColor: colors.primary,
+  },
+  unfollowBtn: {
+    width: "80%",
+    marginLeft: spacing.xxxl,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.md,
+    backgroundColor: colors.white,
+    borderWidth: 1,
+    borderColor: colors.primary,
+  },
+  followBtnText: {
+    color: colors.white,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  unfollowBtnText: {
+    color: colors.primary,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  ImageContainer: {
+    width: "100%",
+    height: "auto",
+    flexDirection: "column",
+    paddingVertical: spacing.lg,
+    marginVertical: spacing.xxl,
+    marginHorizontal: "auto",
+  },
+  ImageFactors: {
+    width: 100,
+    height: 100,
+    borderRadius: radius.md,
+    overflow: "hidden",
+    marginRight: spacing.xs,
+    marginVertical: spacing.sm,
+  },
+
+  reviewContainer: {
+    width: "100%",
+    height: "auto",
+    flexDirection: "column",
+    paddingVertical: spacing.lg,
+    marginVertical: spacing.xxl,
+    marginHorizontal: "auto",
+  },
+  reviewFactorContainer: {
+    borderWidth: 1,
+    marginRight: spacing.sm,
+    marginVertical: spacing.sm,
+    flexDirection: "column",
+    justifyContent: "center",
+  },
+  reviewImage: {
+    width: 220,
+    height: 150,
+    borderRadius: radius.md,
+    overflow: "hidden",
+    marginVertical: spacing.sm,
+    marginRight: spacing.xs,
+  },
+});

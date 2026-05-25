@@ -7,6 +7,8 @@ import {
   Text,
   TouchableOpacity,
   View,
+  ViewabilityConfig,
+  ViewToken,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { db } from "../../../firebase";
@@ -29,15 +31,23 @@ import { useArtStore } from "../../store/useArtStore";
 import { useUserStore } from "../../store/useUserStore";
 import { colors } from "../../styles/colors";
 import { fontSize, radius, spacing } from "../../styles/theme";
+import { ArtworkNormalized, EndedArtworks, SelectedArtwork } from "../../types/art";
+import { RootStackScreenProps } from "../../types/navigation";
+import { RecommendUserPayload } from "../../types/user";
 import { computeEndedArtworks, groupByPlace } from "../../utils/artwork";
 import { formatDate, parseDateSafe } from "../../utils/date";
 import { parseItems } from "../../utils/xmlParser";
 import { styles } from "./homeStyles";
 
-export default function Home({ navigation }) {
-  const { user } = useContext(AuthContext);
-  const { artworks, setArtworks, setDetailArtwork, setLoading } = useArtStore();
+type Props = RootStackScreenProps<"Home">;
 
+export default function Home({ navigation }: Props) {
+  const authContext = useContext(AuthContext);
+  if (!authContext) {
+    throw new Error("AuthContext is not available");
+  }
+  const { user } = authContext;
+  const { artworks, setArtworks, setDetailArtwork, setLoading } = useArtStore();
   const { followingMap, setFollowingMap, setFollowerMap } = useUserStore();
   const {
     recentPage,
@@ -47,22 +57,16 @@ export default function Home({ navigation }) {
     recentTotalPages,
     RECENT_PER_PAGE,
   } = useRecentArtworks(artworks, parseDateSafe);
-  const {
-    recommendedArtworks,
-    currentIndex,
-    setCurrentIndex,
-    flatListRef,
-    goToIndex,
-  } = useRecommendArtworks(artworks, parseDateSafe);
-
-  const [endedArtworks, setEndedArtworks] = useState([]); // 종료예정 작품
-  const [showModal, setShowModal] = useState(false);
-  const [selectedArtwork, setSelectedArtwork] = useState(null);
-  const [recommendedUsers, setRecommendedUsers] = useState([]);
-  const CARD_WIDTH = 310;
-  const ITEM_SPACING = 12;
-  const ITEM_SIZE = CARD_WIDTH + ITEM_SPACING;
-  const expireAt = Timestamp.fromMillis(
+  const { recommendedArtworks, currentIndex, setCurrentIndex, flatListRef, goToIndex } =
+    useRecommendArtworks(artworks, parseDateSafe);
+  const [endedArtworks, setEndedArtworks] = useState<EndedArtworks[]>([]); // 종료예정 작품
+  const [showModal, setShowModal] = useState<boolean>(false);
+  const [selectedArtwork, setSelectedArtwork] = useState<SelectedArtwork | null>(null);
+  const [recommendedUsers, setRecommendedUsers] = useState<RecommendUserPayload[]>([]);
+  const CARD_WIDTH: number = 310;
+  const ITEM_SPACING: number = 12;
+  const ITEM_SIZE: number = CARD_WIDTH + ITEM_SPACING;
+  const expireAt: Timestamp = Timestamp.fromMillis(
     Timestamp.now().toMillis() + 7 * 24 * 60 * 60 * 1000,
   );
 
@@ -78,16 +82,16 @@ export default function Home({ navigation }) {
     const followerRef = collection(db, "users", user.uid, "followers");
 
     const followingUnsubscribe = onSnapshot(followingRef, (snapshot) => {
-      const following = {};
-      snapshot.docs.forEach((doc) => {
-        following[doc.id] = true; // 팔로우 상태
+      const following: Record<string, boolean> = {};
+      snapshot.docs.forEach((docSnap) => {
+        following[docSnap.id] = true; // 팔로우 상태
       });
       setFollowingMap(following);
     });
     const followerUnsubscribe = onSnapshot(followerRef, (snapshot) => {
-      const follower = {};
-      snapshot.docs.forEach((doc) => {
-        follower[doc.id] = true; // 팔로우 상태
+      const follower: Record<string, boolean> = {};
+      snapshot.docs.forEach((docSnap) => {
+        follower[docSnap.id] = true; // 팔로우 상태
       });
       setFollowerMap(follower);
     });
@@ -119,14 +123,14 @@ export default function Home({ navigation }) {
   }, [artworks]);
 
   //간단 작품 정보
-  const getArtwork = async () => {
+  const getArtwork = async (): Promise<void> => {
     setLoading(true);
 
     try {
       const xmlText = await fetchArtwork(1, 30);
       const jsonData = parseItems(xmlText);
       const list = Array.isArray(jsonData) ? jsonData : [jsonData];
-      const normalized = list.map((item) => ({
+      const normalized: ArtworkNormalized[] = list.map((item) => ({
         seq: item.seq,
         title: item?.title,
         startDate: item?.startDate,
@@ -142,16 +146,17 @@ export default function Home({ navigation }) {
       }));
 
       setArtworks(normalized);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("홈화면 작품 불러오기 오류:", error);
       setArtworks([]);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   // ViewableItems 변경시 인덱스 동기화
-  const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 });
-  const onViewableItemsChanged = useRef(({ viewableItems }) => {
+  const viewConfigRef = useRef<ViewabilityConfig>({ viewAreaCoveragePercentThreshold: 50 });
+  const onViewableItemsChanged = useRef(({ viewableItems }: { viewableItems: ViewToken[] }) => {
     if (viewableItems && viewableItems.length > 0) {
       const idx = viewableItems[0].index ?? 0;
       setCurrentIndex(idx);
@@ -159,9 +164,8 @@ export default function Home({ navigation }) {
   });
 
   // 오픈모달
-  const openArtwork = (item) => {
+  const openArtwork = (item: ArtworkNormalized | null): void => {
     if (!item) return;
-
     setSelectedArtwork(item);
     setShowModal(true);
   };
@@ -190,9 +194,7 @@ export default function Home({ navigation }) {
             <View>
               {user ? (
                 <>
-                  <Text style={styles.pageTitle}>
-                    {user?.displayName}님의 취향저격 전시모음
-                  </Text>
+                  <Text style={styles.pageTitle}>{user?.displayName}님의 취향저격 전시모음</Text>
                 </>
               ) : (
                 <>
@@ -206,11 +208,9 @@ export default function Home({ navigation }) {
                   horizontal
                   pagingEnabled={false}
                   showsHorizontalScrollIndicator={false}
-                  keyExtractor={(item) => item.seq}
+                  keyExtractor={(item) => String(item.seq)}
                   contentContainerStyle={styles.recommendList}
-                  renderItem={({ item }) => (
-                    <ArtworkCard item={item} openArtwork={openArtwork} />
-                  )}
+                  renderItem={({ item }) => <ArtworkCard item={item} openArtwork={openArtwork} />}
                   onViewableItemsChanged={onViewableItemsChanged.current}
                   viewabilityConfig={viewConfigRef.current}
                   getItemLayout={(d, index) => ({
@@ -226,10 +226,7 @@ export default function Home({ navigation }) {
                   <TouchableOpacity
                     key={idx}
                     onPress={() => goToIndex(idx)}
-                    style={[
-                      styles.dot,
-                      currentIndex === idx && styles.activeDot,
-                    ]}
+                    style={[styles.dot, currentIndex === idx && styles.activeDot]}
                   />
                 ))}
               </View>
@@ -239,13 +236,9 @@ export default function Home({ navigation }) {
             <SectionTitle title="금주의 최신 전시모음" />
             <View style={styles.recentContents}>
               {filledRecent
-                .slice(
-                  recentPage * RECENT_PER_PAGE,
-                  recentPage * RECENT_PER_PAGE + RECENT_PER_PAGE,
-                )
-                .map((artwork, index) => {
-                  const variant =
-                    index % 4 === 0 || index % 4 === 3 ? "S" : "L";
+                .slice(recentPage * RECENT_PER_PAGE, recentPage * RECENT_PER_PAGE + RECENT_PER_PAGE)
+                .map((artwork: ArtworkNormalized, index: number) => {
+                  const variant = index % 4 === 0 || index % 4 === 3 ? "S" : "L";
 
                   return (
                     <RecentArtworkCard
@@ -261,24 +254,17 @@ export default function Home({ navigation }) {
               <TouchableOpacity
                 onPress={() => setRecentPage((p) => Math.max(0, p - 1))}
                 disabled={recentPage === 0}
-                style={[
-                  styles.iconButton,
-                  recentPage === 0 && styles.disabledIcon,
-                ]}
+                style={[styles.iconButton, recentPage === 0 && styles.disabledIcon]}
               >
                 <BackwardIcon width={24} height={24} fill={colors.black} />
               </TouchableOpacity>
 
-              <Text
-                style={{ alignSelf: "center", marginHorizontal: spacing.md }}
-              >
+              <Text style={{ alignSelf: "center", marginHorizontal: spacing.md }}>
                 {recentPage + 1} / {recentTotalPages}
               </Text>
 
               <TouchableOpacity
-                onPress={() =>
-                  setRecentPage((p) => Math.min(recentTotalPages - 1, p + 1))
-                }
+                onPress={() => setRecentPage((p) => Math.min(recentTotalPages - 1, p + 1))}
                 disabled={recentPage >= recentTotalPages - 1}
                 style={[
                   styles.iconButton,
@@ -292,7 +278,7 @@ export default function Home({ navigation }) {
           <SectionTitle title="추천 계정" />
           <View style={styles.userRecommendContainer}>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              {recommendedUsers.map((u, index) => (
+              {recommendedUsers.map((u: RecommendedUserPayload) => (
                 <UserCard
                   key={u.id}
                   u={u}
@@ -305,10 +291,8 @@ export default function Home({ navigation }) {
             </ScrollView>
           </View>
           <View style={styles.endedContainer}>
-            {/* <View style={styles.subTitle}> */}
-            {/* <Text style={styles.pageTitle}>종료예정 전시모음</Text> */}
             <SectionTitle title="종료예정 전시모음" />
-            {endedArtworks.slice(0, 3).map((endedartwork, index) => {
+            {endedArtworks.slice(0, 3).map((endedartwork: EndedArtworks, index: number) => {
               return (
                 <TouchableOpacity
                   key={index}
@@ -359,9 +343,7 @@ export default function Home({ navigation }) {
                 .slice(0, 5)
                 .map(([place, items]) => (
                   <View key={place} style={{ flexDirection: "column" }}>
-                    <View
-                      style={{ flexDirection: "row", alignItems: "center" }}
-                    >
+                    <View style={{ flexDirection: "row", alignItems: "center" }}>
                       <PlaceIcon width={24} height={24} fill={colors.primary} />
                       <Text
                         style={{
@@ -374,13 +356,8 @@ export default function Home({ navigation }) {
                         {place}
                       </Text>
                     </View>
-                    <View
-                      style={{ flexDirection: "row", alignItems: "center" }}
-                    >
-                      <ScrollView
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                      >
+                    <View style={{ flexDirection: "row", alignItems: "center" }}>
+                      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                         {items.slice(0, 10).map((item, index) => (
                           <TouchableOpacity
                             key={`${item.seq}-${index}`}

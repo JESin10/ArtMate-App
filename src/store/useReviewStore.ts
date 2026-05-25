@@ -1,12 +1,12 @@
 import { create } from "zustand";
-import { Review } from "../types/review";
+import { ReviewPayload } from "../types/review";
 
 interface ReviewStore {
-  reviews: Review[];
+  reviews: ReviewPayload[];
   likedMap: Record<string, boolean>;
   loading: boolean;
   sortType: "like" | "recent";
-  selectedReview: Review | null;
+  selectedReview: ReviewPayload | null;
   showModal: boolean;
   selectedArtworkId: string | null;
   showCmtModal: boolean;
@@ -14,7 +14,7 @@ interface ReviewStore {
   isEditing: boolean;
   followingMap: Record<string, boolean>;
 
-  setReviews: (reviews: Review[] | ((prev: Review[]) => Review[])) => void;
+  setReviews: (reviews: ReviewPayload[] | ((prev: ReviewPayload[]) => ReviewPayload[])) => void;
   setLikedMap: (
     likedMap:
       | Record<string, boolean>
@@ -28,7 +28,7 @@ interface ReviewStore {
   ) => void;
   setLoading: (loading: boolean) => void;
   setSortType: (sortType: "like" | "recent") => void;
-  setSelectedReview: (review: Review | null) => void;
+  setSelectedReview: (review: ReviewPayload | null) => void;
   setShowModal: (showModal: boolean) => void;
   setSelectedArtworkId: (id: string | null) => void;
 
