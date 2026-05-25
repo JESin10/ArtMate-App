@@ -213,7 +213,7 @@ export default function Home({ navigation }: Props) {
                   renderItem={({ item }) => <ArtworkCard item={item} openArtwork={openArtwork} />}
                   onViewableItemsChanged={onViewableItemsChanged.current}
                   viewabilityConfig={viewConfigRef.current}
-                  getItemLayout={(d, index) => ({
+                  getItemLayout={(index: number) => ({
                     length: ITEM_SIZE,
                     offset: ITEM_SIZE * index,
                     index,
@@ -222,11 +222,11 @@ export default function Home({ navigation }: Props) {
               </View>
 
               <View style={styles.dotsContainer}>
-                {recommendedArtworks?.map((_, idx) => (
+                {recommendedArtworks?.map((index: number) => (
                   <TouchableOpacity
-                    key={idx}
-                    onPress={() => goToIndex(idx)}
-                    style={[styles.dot, currentIndex === idx && styles.activeDot]}
+                    key={index}
+                    onPress={() => goToIndex(index)}
+                    style={[styles.dot, currentIndex === index && styles.activeDot]}
                   />
                 ))}
               </View>

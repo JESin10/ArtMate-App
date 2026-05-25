@@ -2,7 +2,7 @@ import { Timestamp } from "firebase/firestore";
 
 export interface ArtworkPayload {
   id: string;
-  seq?: string;
+  seq: string;
 
   title: string;
 
@@ -19,33 +19,12 @@ export interface ArtworkPayload {
   thumbnail?: string;
 
   serviceName?: string;
+
+  createdAt?: Timestamp;
 }
 
-export interface ArtworkNormalized {
-  seq: string;
-  title: string;
-  startDate?: string;
-  endDate?: string;
-  place?: string;
-  area?: string;
-  sigungu?: string;
-  thumbnail?: string;
-  gpsX?: string;
-  gpsY?: string;
-}
+export type ArtworkNormalized = ArtworkPayload;
 
-export interface SelectedArtwork {
-  id: string;
-  seq: string;
-  title: string;
-  createAt: Timestamp;
-  imageUrl: string;
-}
+export type SelectedArtwork = ArtworkPayload;
 
-export interface EndedArtworks {
-  id: string;
-  seq: string;
-  title: string;
-  endDate: string;
-  thumbnail: string;
-}
+export type EndedArtwork = Pick<ArtworkPayload, "id" | "seq" | "title" | "endDate" | "thumbnail">;
